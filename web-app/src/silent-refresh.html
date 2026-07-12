@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Silent Refresh</title>
+  </head>
+  <body>
+    <script>
+      window.addEventListener('message', function (e) {
+        if (e.data === 'oauth2-silent-refresh-message') {
+          window.location.href = window.location.href;
+        }
+      });
+    </script>
+  </body>
+</html>

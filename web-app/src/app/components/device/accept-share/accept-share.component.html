@@ -1,0 +1,108 @@
+<div class="flex min-h-[100dvh] w-full items-center justify-center bg-slate-50 px-4 py-8">
+  <div class="w-full max-w-sm rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+
+    <ng-container [ngSwitch]="state">
+
+      <!-- Verificando o link -->
+      <div *ngSwitchCase="'loading'" class="flex flex-col items-center gap-3 py-6 text-center">
+        <p-progressSpinner styleClass="!h-9 !w-9" strokeWidth="4"></p-progressSpinner>
+        <p class="text-sm text-slate-500">Verificando convite…</p>
+      </div>
+
+      <!-- Link inválido / incompleto -->
+      <div *ngSwitchCase="'invalid'" class="flex flex-col items-center gap-3 py-4 text-center">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-xl text-red-500">
+          <i class="pi pi-exclamation-triangle"></i>
+        </div>
+        <p class="text-base font-semibold text-slate-900">Link inválido</p>
+        <p class="text-sm text-slate-500">
+          Este link de compartilhamento está incompleto ou corrompido. Peça para quem compartilhou enviar um novo convite.
+        </p>
+      </div>
+
+      <!-- Convite expirado (detectado antes mesmo de chamar a API) -->
+      <div *ngSwitchCase="'expired'" class="flex flex-col items-center gap-3 py-4 text-center">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 text-xl text-amber-500">
+          <i class="pi pi-clock"></i>
+        </div>
+        <p class="text-base font-semibold text-slate-900">Convite expirado</p>
+        <p class="text-sm text-slate-500">
+          Este convite não é mais válido. Peça para gerar um novo link ou QR Code.
+        </p>
+      </div>
+
+      <!-- Pronto para confirmar (ou enviando) -->
+      <div
+        *ngSwitchDefault
+        class="flex flex-col items-center gap-3 py-4 text-center"
+      >
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-sky-50 text-xl text-sky-600">
+          <i class="pi pi-shield"></i>
+        </div>
+        <p class="text-base font-semibold text-slate-900">Convite para compartilhamento</p>
+        <p class="text-sm text-slate-500">
+          Você foi convidado a acessar
+          <span class="font-medium text-slate-700">{{ preview?.deviceName || 'um dispositivo' }}</span>.
+          <ng-container *ngIf="preview?.email"> Convite para <span class="font-medium">{{ preview?.email }}</span>.</ng-container>
+        </p>
+
+        <div class="mt-2 flex w-full flex-col gap-2">
+          <button
+            pButton
+            type="button"
+            label="Aceitar compartilhamento"
+            icon="pi pi-check"
+            class="w-full !rounded-xl !py-3"
+            [loading]="state === 'submitting'"
+            (click)="onAccept()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            label="Agora não"
+            class="p-button-text w-full !rounded-xl"
+            [disabled]="state === 'submitting'"
+            (click)="onDecline()"
+          ></button>
+        </div>
+      </div>
+
+      <!-- Sucesso -->
+      <div *ngSwitchCase="'success'" class="flex flex-col items-center gap-3 py-4 text-center">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-xl text-emerald-600">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <p class="text-base font-semibold text-slate-900">Compartilhamento aceito!</p>
+        <p class="text-sm text-slate-500">
+          Agora você já pode acessar {{ preview?.deviceName || 'o dispositivo' }}.
+        </p>
+        <button
+          pButton
+          type="button"
+          label="Ir para o app"
+          icon="pi pi-arrow-right"
+          class="mt-2 w-full !rounded-xl !py-3"
+          (click)="onGoToApp()"
+        ></button>
+      </div>
+
+      <!-- Erro ao aceitar -->
+      <div *ngSwitchCase="'error'" class="flex flex-col items-center gap-3 py-4 text-center">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-xl text-red-500">
+          <i class="pi pi-times-circle"></i>
+        </div>
+        <p class="text-base font-semibold text-slate-900">Não foi possível aceitar</p>
+        <p class="text-sm text-slate-500">{{ errorMessage }}</p>
+        <button
+          pButton
+          type="button"
+          label="Tentar novamente"
+          icon="pi pi-refresh"
+          class="mt-2 w-full !rounded-xl !py-3"
+          (click)="onRetry()"
+        ></button>
+      </div>
+
+    </ng-container>
+  </div>
+</div>

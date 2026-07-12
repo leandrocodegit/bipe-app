@@ -1,0 +1,10 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="30" cy="30" r="8" fill="white" />
+  <circle cx="50" cy="20" r="5" fill="white" opacity="0.6" />
+  <circle cx="50" cy="40" r="5" fill="white" opacity="0.6" />
+  <path d="M38 30 L45 22 M38 30 L45 38" stroke="white" stroke-width="2" />
+
+  <text x="70" y="42" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#ffffff">
+    SI<tspan fill="white">MOD</tspan>
+  </text>
+</svg>

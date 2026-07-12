@@ -1,0 +1,35 @@
+<div class="layout-wrapper" [ngClass]="containerClass">
+  <app-top-bar></app-top-bar>
+  <app-sidebar></app-sidebar>
+  <div class="layout-main-container">
+    <div class="flex gap-4">
+      <div class="layout-main">
+        @if(load){
+        <app-preload></app-preload>
+        }
+        <router-outlet></router-outlet> 
+        <p-confirmdialog />
+      </div>
+      <div class="mb-2">
+        <div *ngIf="viewRecentes()" class="gap-4">
+          <p-tabs [value]="0" [scrollable]="true" class="tab-links">
+            <p-tablist>
+              @for (item of recenteService.listaRecentes; track $index) {
+              <p-tab [value]="item" [routerLink]="item.route">
+                <div class="flex shadow grow py-1 px-3 rounded border border-gray-50">
+                  <i class="pi pi-clock mr-3"></i>
+                  <div class="flex flex-col grow">
+                    <span>{{item.name}}</span>
+                    <span class="text-xs {{item?.color ?? 'text-orange-300'}}">{{item.descricao}}</span>
+                  </div>
+                </div>
+              </p-tab>
+              }
+            </p-tablist>
+          </p-tabs>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="layout-mask animate-fadein"></div>
+</div>

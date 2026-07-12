@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:title="@string/title_activity_about">
+    <Preference
+        android:icon="@drawable/ic_baseline_refresh_24"
+        android:key="version"
+        android:title="Versão do Aplicativo"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:icon="@drawable/ic_baseline_domain_verification_24"
+        android:key="license"
+        android:title="Termos de Uso"
+        app:iconSpaceReserved="false" />
+
+    <androidx.preference.PreferenceCategory app:title="Suporte">
+        <Preference
+            android:key="issue"
+            android:summary="Entrar em contato com o suporte técnico"
+            android:title="Reportar um problema"
+            app:icon="@drawable/ic_baseline_bug_report_24"
+            app:iconSpaceReserved="false" />
+    </androidx.preference.PreferenceCategory>
+</PreferenceScreen>

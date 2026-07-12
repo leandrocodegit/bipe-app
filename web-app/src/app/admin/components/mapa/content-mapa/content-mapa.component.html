@@ -1,0 +1,12 @@
+<div class="relative w-full lg:rounded-xl overflow-hidden lg:border lg:border-slate-200 dark:border-[#1e2736]"
+  [style.height]="height">
+
+  <div id="map" class="w-full h-full"></div>
+</div>
+
+<app-waypoint-form-dialog
+  [(visible)]="mostrarDialogZona"
+  [latLng]="coordenadasAlvoClicado"
+  [devices]="devices"
+  (salvar)="onSalvarNovaZona($event)">
+</app-waypoint-form-dialog>

@@ -1,0 +1,87 @@
+<button pButton type="button"
+  class="p-button-rounded p-button-text p-button-danger !h-8 !w-8" pTooltip="Compartilhar" tooltipPosition="left"
+  (click)="view = true">
+  <span class="material-symbols-outlined">
+    share
+  </span>
+</button>
+
+<!-- O styleClass agora injeta classes que reagem a ambos os modos -->
+<p-dialog [(visible)]="view" #op
+  styleClass="lg:min-w-[50vw] min-w-[99vw] popover-clean p-0 !bg-white dark:!bg-neutral-900 !border-gray-200 dark:!border-neutral-700 !rounded-xl shadow-2xl"
+  [modal]="true" [dismissableMask]="true" [showHeader]="false">
+
+
+
+  <div class="flex w-full flex-col gap-5 px-4 pb-8 pt-5 sm:px-6">
+
+    <!-- Dispositivo sendo compartilhado -->
+    <div class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 text-lg text-slate-500">
+        <i [class]="deviceIcon"></i>
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-400">Compartilhando</p>
+        <p class="truncate text-sm font-semibold text-slate-900">{{ device?.nome }}</p>
+      </div>
+    </div>
+
+    <!-- Formulário -->
+    <div class="flex flex-col gap-1.5">
+      <label for="share-email" class="text-sm font-medium text-slate-700">
+        E-mail de quem vai receber
+      </label>
+      <input id="share-email" pInputText type="email" inputmode="email" autocomplete="email"
+        placeholder="nome@exemplo.com" class="w-full !rounded-xl !py-3" [formControl]="emailControl"
+        [class.ng-invalid]="emailControl.invalid && emailControl.touched" />
+      <p *ngIf="emailControl.touched && emailControl.hasError('required')" class="text-xs text-red-500">
+        Informe um e-mail para continuar.
+      </p>
+      <p *ngIf="emailControl.touched && emailControl.hasError('email')" class="text-xs text-red-500">
+        Digite um e-mail válido.
+      </p>
+      <p *ngIf="!emailControl.touched || emailControl.valid" class="text-xs text-slate-400">
+        A pessoa vai poder acessar o dispositivo pelo link ou QR Code gerado.
+      </p>
+    </div>
+
+    <!-- Ações -->
+    <div class="flex flex-col gap-2.5 sm:flex-row">
+      <button pButton type="button" label="Gerar link" icon="pi pi-link"
+        class="p-button-outlined w-full !rounded-xl !py-3 sm:flex-1" [loading]="loadingLink"
+        (click)="onGenerateLink()"></button>
+      <button pButton type="button" label="Gerar QR Code" icon="pi pi-qrcode" class="w-full !rounded-xl !py-3 sm:flex-1"
+        [loading]="loadingQrCode" (click)="onGenerateQrCode()"></button>
+    </div>
+
+    <!-- Resultado: link gerado -->
+    <div *ngIf="shareLink" class="flex flex-col gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4">
+      <div class="flex items-center gap-2 text-emerald-700">
+        <i class="pi pi-check-circle"></i>
+        <p class="text-sm font-medium">Link pronto para compartilhar</p>
+      </div>
+
+      <div class="flex items-center gap-2 rounded-xl border border-emerald-200 bg-white px-3 py-2.5">
+        <p class="min-w-0 flex-1 truncate text-xs text-slate-600">{{ shareLink }}</p>
+        <button pButton type="button" [icon]="copied ? 'pi pi-check' : 'pi pi-copy'"
+          class="p-button-text p-button-rounded shrink-0 !h-8 !w-8" [pTooltip]="copied ? 'Copiado!' : 'Copiar link'"
+          tooltipPosition="top" (click)="copyLink()" [attr.aria-label]="'Copiar link de compartilhamento'"></button>
+      </div>
+
+      <button *ngIf="canShare" pButton type="button" label="Compartilhar" icon="pi pi-share-alt"
+        class="p-button-text w-full !rounded-xl" (click)="shareNative()"></button>
+    </div>
+
+    <!-- Resultado: QR Code gerado -->
+    <div *ngIf="qrDataUrl"
+      class="flex flex-col items-center gap-3 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+      <img [src]="qrDataUrl" alt="QR Code para acessar o dispositivo {{ device?.nome }}" class="h-56 w-56" />
+      <p class="text-center text-xs text-slate-400">
+        Peça para {{ emailControl.value || 'a pessoa' }} escanear este código com a câmera do celular.
+      </p>
+      <button pButton type="button" label="Baixar QR Code" icon="pi pi-download"
+        class="p-button-outlined w-full !rounded-xl" (click)="downloadQrCode()"></button>
+    </div>
+
+  </div>
+</p-dialog>

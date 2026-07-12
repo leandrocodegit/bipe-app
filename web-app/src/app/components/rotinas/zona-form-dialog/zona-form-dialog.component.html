@@ -1,0 +1,124 @@
+<p-dialog header="Nova Região de Controle" [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false"
+  (onHide)="fechar()"
+  styleClass="region-dialog !m-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none !rounded-none sm:!m-4 sm:!h-auto sm:!max-h-[85vh] sm:!w-full sm:!max-w-lg sm:!rounded-2xl">
+  <div *ngIf="visible" class="flex flex-col gap-5 pb-2 pt-1">
+    <p class="text-xs text-slate-500">
+      Defina os parâmetros da cerca virtual para a coordenada:
+      <br />
+      <span class="font-mono text-indigo-500">{{ latLng?.lat | number:'1.5-5' }}, {{ latLng?.lng | number:'1.5-5'
+        }}</span>
+    </p>
+
+    <!-- Nome e Raio -->
+    <div class="flex gap-3">
+      <div class="flex flex-1 flex-col gap-1">
+        <label class="text-xs font-bold uppercase text-slate-600">Nome da Rotina</label>
+        <span class="text-[8px]">{{formulario?.id}}</span>
+        <input pInputText type="text" [(ngModel)]="formulario.nome" placeholder="Ex: Matriz"
+          class="w-full !rounded-xl !py-2.5" />
+      </div>
+    </div>
+
+    <!-- Horários -->
+    <div class="flex gap-3">
+      <div class="flex flex-1 flex-col gap-1">
+        <label class="text-xs font-bold uppercase text-slate-600">Hora Início</label>
+        <input pInputText type="time" [(ngModel)]="formulario.horaInicio" class="w-full !rounded-xl !py-2.5" />
+      </div>
+      <div class="flex flex-1 flex-col gap-1">
+        <label class="text-xs font-bold uppercase text-slate-600">Hora Término</label>
+        <input pInputText type="time" [(ngModel)]="formulario.horaTermino" class="w-full !rounded-xl !py-2.5" />
+      </div>
+    </div>
+
+    <!-- Dias da Semana (Seletor Customizado Estilo iOS) -->
+    <div class="flex flex-col gap-1.5">
+      <label class="text-xs font-bold uppercase text-slate-600">Dias de Operação</label>
+      <div class="flex justify-between">
+        <button *ngFor="let dia of diasDefinicao" type="button" (click)="toggleDia(dia.valor)"
+          [class.bg-emerald-500]="formulario.diasSemana.includes(dia.valor)"
+          [class.text-white]="formulario.diasSemana.includes(dia.valor)"
+          [class.border-transparent]="formulario.diasSemana.includes(dia.valor)"
+          [class.border-slate-300]="!formulario.diasSemana.includes(dia.valor)"
+          [class.text-slate-600]="!formulario.diasSemana.includes(dia.valor)"
+          class="h-10 w-10 shrink-0 rounded-full border text-xs font-bold shadow-sm transition-all active:scale-95">
+          {{ dia.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Tipo e Ativo -->
+    <div class="flex items-end gap-3">
+      <div class="flex flex-1 flex-col gap-1">
+        <label class="text-xs font-bold uppercase text-slate-600">Tipo de Evento</label>
+        <p-dropdown [options]="tiposEvento" [(ngModel)]="formulario.tipo" optionLabel="label" optionValue="value"
+          styleClass="w-full !rounded-xl" appendTo="body"></p-dropdown>
+      </div>
+      <div class="flex h-11 items-center px-1">
+        <p-checkbox [(ngModel)]="formulario.ativo" [binary]="true" label="Ativo"
+          labelStyleClass="font-bold text-slate-800"></p-checkbox>
+      </div>
+    </div>
+
+    <!-- Dispositivos (MultiSelect) -->
+    <div class="overflow-hidden rounded-xl border border-slate-200">
+      <p-table [value]="filteredDevicesTable" [scrollable]="true" scrollHeight="280px" styleClass="device-picker-table">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 44px">
+              <p-checkbox [binary]="true" [ngModel]="allFilteredSelected" (onChange)="toggleSelectAll()"></p-checkbox>
+            </th>
+            <th>Dispositivo</th>
+            <th style="width: 96px" class="text-right">Status</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-device>
+          <tr class="cursor-pointer transition-colors active:bg-slate-50"
+            [class.bg-indigo-50]="isDeviceSelected(device)" (click)="toggleDevice(device)">
+            <td>
+              <p-checkbox [binary]="true" [ngModel]="isDeviceSelected(device)" (click)="$event.stopPropagation()"
+                (onChange)="toggleDevice(device)"></p-checkbox>
+            </td>
+            <td>
+              <div class="flex items-center gap-2.5">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base" [ngClass]="device.conectado
+                      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-50/10'
+                      : 'bg-slate-100 text-slate-400 dark:bg-slate-50/10'">
+                  <i [class]="getDeviceIcon(device)"></i>
+                </div>
+                <div class="flex min-w-0 flex-col">
+                  <span class="truncate text-sm font-semibold text-slate-700">{{ device.nome }}</span>
+                  <span class="text-[10px] uppercase tracking-wider text-slate-400">{{ device.os || 'Desconhecido'
+                    }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="text-right">
+              <p-tag [value]="device.conectado ? 'Conectado' : 'Desconectado'"
+                [severity]="device.conectado ? 'success' : 'secondary'" [rounded]="true"
+                styleClass="!text-[10px]"></p-tag>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="3" class="py-8 text-center text-sm text-slate-400">Nenhum dispositivo encontrado</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex w-full gap-2 pt-2">
+      <button pButton label="Cancelar" icon="pi pi-times"
+        class="p-button-text p-button-secondary flex-1 !rounded-xl !py-3" (click)="fechar()"></button>
+      <button pButton label="Adicionar Região" icon="pi pi-check" class="p-button-success flex-1 !rounded-xl !py-3"
+        [disabled]="!formulario?.nome || formulario?.devices.length === 0" (click)="confirmar()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+

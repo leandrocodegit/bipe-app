@@ -1,0 +1,227 @@
+@use 'mixins' as *;
+
+// Variáveis de Tema Customizadas para efeitos de Neon
+:root {
+    --menu-active-bg-light: rgba(59, 130, 246, 0.08);
+    --menu-active-border-light: rgba(59, 130, 246, 0.3);
+    --menu-active-color-light: rgba(91, 154, 255, 0.959);
+    --menu-active-glow-light: 0 0 12px rgba(59, 130, 246, 0.2);
+    --sidebar-border-light: #e2e8f0;
+    --bg-dark: #0f1117
+}
+
+:host-context(.dark), :root.dark {
+    --menu-active-bg-dark: rgba(59, 130, 246, 0.15);
+    --menu-active-border-dark: rgba(59, 130, 246, 0.6);
+    --menu-active-glow-dark: 0 0 20px rgba(59, 130, 246, 0.5);
+    --sidebar-border-dark: #1e2736;
+}
+
+.layout-sidebar {
+    position: fixed;
+    width: 14rem;
+    height: calc(100vh - 6.5rem); // Ajustado para não estourar a tela inferior
+    z-index: 995;
+    overflow-y: auto;
+    user-select: none;
+    top: 5rem;
+    left: 1.4rem;
+    transition:
+        transform var(--layout-section-transition-duration),
+        left var(--layout-section-transition-duration),
+        background-color var(--layout-section-transition-duration),
+        border-color var(--layout-section-transition-duration);
+
+    // Design limpo e flutuante baseado no layout enviado
+    background-color: var(--surface-overlay);
+    border-radius: var(--content-border-radius);
+    padding: 1.5rem 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+    // Ajuste de scrollbar minimalista para Light/Dark
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    // Acoplamento perfeito com o container .dark do Tailwind
+    :host-context(.dark) & {
+        border-color: var(--sidebar-border-dark);
+        box-shadow: none;
+
+        &::-webkit-scrollbar-thumb {
+            background: #1e2736;
+        }
+    }
+}
+
+.app-dark .layout-sidebar{
+  background-color: var(--bg-dark);
+}
+
+.layout-menu {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    .layout-root-menuitem {
+        > .layout-menuitem-root-text {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary-color);
+            margin: 1.0rem 0 0.5rem 0.75rem;
+            opacity: 0.7;
+        }
+
+        > a {
+            display: none;
+        }
+    }
+
+    // Estilização global dos links do Menu
+    a {
+        user-select: none;
+        display: flex;
+        align-items: center;
+        position: relative;
+        outline: 0 none;
+        color: var(--text-color);
+        cursor: pointer;
+        padding: 0.75rem 1rem;
+        margin: 0;
+        border-radius: 0.5rem; // Cantos arredondados suaves igual à imagem
+        font-size: 0.925rem;
+        font-weight: 500;
+        border: 1px solid transparent;
+        transition:
+            background-color var(--element-transition-duration),
+            border-color var(--element-transition-duration),
+            box-shadow var(--element-transition-duration),
+            color var(--element-transition-duration);
+
+        .layout-menuitem-icon {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--text-secondary-color);
+            transition: color var(--element-transition-duration);
+        }
+
+        .layout-submenu-toggler {
+            font-size: 75%;
+            margin-left: auto;
+            transition: transform var(--element-transition-duration);
+        }
+
+        // Estado: Hover (Passar o mouse)
+        &:hover {
+            background-color: var(--surface-hover);
+            color: var(--text-color);
+
+            .layout-menuitem-icon {
+                color: var(--text-color);
+            }
+        }
+
+        // Estado: Focado (Acessibilidade)
+        &:focus {
+            @include focused-inset();
+        }
+
+        // =========================================================
+        // ESTADO ATIVO: EFEITO NEON GLOW (Conforme imagem)
+        // =========================================================
+        &.active-route {
+            font-weight: 600;
+            color: var(--primary-color);
+            background-color: var(--menu-active-bg-light);
+            border-color: var(--menu-active-border-light);
+            box-shadow: var(--menu-active-glow-light);
+
+            .layout-menuitem-icon {
+                color: var(--primary-color);
+            }
+
+            // Ativação do efeito Neon Intenso no Modo Escuro (.dark)
+            :host-context(.dark) & {
+                color: #60a5fa; // Azul claro brilhante para contraste
+                background-color: var(--menu-active-bg-dark);
+                border-color: var(--menu-active-border-dark);
+                box-shadow: var(--menu-active-glow-dark);
+
+                .layout-menuitem-icon {
+                    color: #60a5fa;
+                }
+            }
+        }
+
+        &.active-menuitem {
+            > .layout-submenu-toggler {
+                transform: rotate(-180deg);
+            }
+        }
+    }
+
+    li.active-menuitem {
+        > a {
+            .layout-submenu-toggler {
+                transform: rotate(-180deg);
+            }
+        }
+    }
+
+    // Submenus encadeados (Ajuste de margens internas)
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+
+        ul {
+            overflow: hidden;
+            border-radius: var(--content-border-radius);
+
+            li {
+                a { margin-left: 0.75rem; }
+                li {
+                    a { margin-left: 1.5rem; }
+                    li {
+                        a { margin-left: 2.25rem; }
+                        li {
+                            a { margin-left: 3rem; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Animações de transição nativas do PrimeNG Submenu
+.layout-submenu-enter-from,
+.layout-submenu-leave-to {
+    max-height: 0;
+}
+
+.layout-submenu-enter-to,
+.layout-submenu-leave-from {
+    max-height: 1000px;
+}
+
+.layout-submenu-leave-active {
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0, 1, 0, 1);
+}
+
+.layout-submenu-enter-active {
+    overflow: hidden;
+    transition: max-height 1s ease-in-out;
+}
+
+
+.layout-menu ul a.active-route, .layout-menu ul a.active-route i {
+    color: var(--menu-active-color-light)!important;
+}

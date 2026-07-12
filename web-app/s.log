@@ -1,0 +1,413 @@
+O Windows PowerShell
+Copyright (C) Microsoft Corporation. Todos os direitos reservados.
+
+Instale o PowerShell mais recente para obter novos recursos e aprimoramentos! https://aka.ms/PSWindows
+
+PS C:\Users\LEPOLIVE\Documents> .\_script_leandro-start.bat
+
+C:\Users\LEPOLIVE\Documents>SET PJE_DEPLOY_DIR_git_pje=C:\Users\LEPOLIVE\Desktop\Repositorios\2g\pje-trf3
+
+C:\Users\LEPOLIVE\Documents>SET PJE_DEPLOY_DIR_git_target_pje=C:\Users\LEPOLIVE\Desktop\Repositorios\2g\pje-trf3\pje-web\target
+
+C:\Users\LEPOLIVE\Documents>SET PATH_WILDFLY=C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro
+
+C:\Users\LEPOLIVE\Documents>SET PJE_DEPLOY_DIR_standalone=C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste
+
+C:\Users\LEPOLIVE\Documents>SET JAVA_HOME=C:\Program Files\Java\jdk1.8.0_202
+
+C:\Users\LEPOLIVE\Documents>SET CHAVE_SIMETRICA_TOKEN_REQUISITORIO="A|95mpX379R#v_z6u)UH}R!&Nzwy,=g!?p1P"
+
+C:\Users\LEPOLIVE\Documents>SET ENV_EUREKA_CLIENT_HOSTNAME=localhost
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_AUDITORIA_TIPO_PERSISTENCIA=DB
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLIENTE_URL=http://localhost:4200
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_RABBIT_PASSWORD=guest
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_RABBIT_PUBLISH_MESSAGES=false
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_RABBIT_JOBS_PUBLISHER=false
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_RABBIT_JOBS_CONSUMER=false
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_RABBIT_USERNAME=guest
+
+C:\Users\LEPOLIVE\Documents>set ENV_PJE2_CLOUD_RABBIT_PORT=5672
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_RABBIT_HOST=localhost
+
+C:\Users\LEPOLIVE\Documents>SET ENV_REQUISITORIO_ENDPOINT=http://localhost:8083
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_APP_NAME=pje-trf3-1g
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_REGISTRAR=true
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE_UPDATE_AUTORIDADES_CERTIFICADORAS_ONSTARTUP=false
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_RABBIT_AUTORIDADES_CERTIFICADORAS_CONSUMER=false
+
+C:\Users\LEPOLIVE\Documents>SET EXECUTA_ANULA_ACTORS_ID_TASK_INSTANCE=false
+
+C:\Users\LEPOLIVE\Documents>SET EXECUTA_ANULA_ACTORS_ID_TB_PROCESSO=false
+
+C:\Users\LEPOLIVE\Documents>SET ENV_SSO_AUTHENTICATION_ENABLED=false
+
+C:\Users\LEPOLIVE\Documents>SET ENV_SSO_AUTHORIZATION_ENABLED=false
+
+C:\Users\LEPOLIVE\Documents>SET ENV_EUREKA_SERVER_URL=https://discovery.stg.cnj.cloud/eureka
+
+C:\Users\LEPOLIVE\Documents>SET EUREKA_SERVER_DEFAULT_ZONE=https://discovery.stg.cnj.cloud/eureka
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE2_CLOUD_URL_GATEWAY=https://gateway.stg.cnj.cloud
+
+C:\Users\LEPOLIVE\Documents>SET ENV_URL_CONVERSOR_PDF=https://conversor-doc.dev.trf3.jus.br/jod
+
+C:\Users\LEPOLIVE\Documents>SET ENV_URL_WOPIP=https://wopip.stg.cloud.pje.jus.br
+
+C:\Users\LEPOLIVE\Documents>SET ENV_WOPI_ACCESS_HEADER_KEY=YTJjODk4YzYyMWYwMGY2ODFlYWYzNmEyMzM4Nzk1MWEyYTE0ODFhMzNkYTI4OTQ0MDUzZGZiYjhiNDg3ZDgzNmFkOTI4MWZjYmFkMjlhNjllMTYxNWYzMWI2MDQ2NDhhODk4NWEzOWE1MTgxYjExZDhiMzA5NDMxNjI1ZmRkMjY=
+
+C:\Users\LEPOLIVE\Documents>SET ENV_WOPI_URL_EXTERNO=https://wopi.stg.pdpj.jus.br/s3/files/
+
+C:\Users\LEPOLIVE\Documents>SET ENV_WOPI_URL_INTERNO=https://wopi.stg.pdpj.jus.br/s3/files/
+
+C:\Users\LEPOLIVE\Documents>SET ENV_LO_ONLINE_URL=https://cool.stg.cloud.pje.jus.br
+
+C:\Users\LEPOLIVE\Documents>SET ENV_LOOL_IS_COLLABORA=true
+
+C:\Users\LEPOLIVE\Documents>SET editorLibreOfficeHabilitado=false
+
+C:\Users\LEPOLIVE\Documents>SET pje_sistema_editor=L
+
+C:\Users\LEPOLIVE\Documents>SET PJE_DEPLOY_DEBUG_PORT=8687
+
+C:\Users\LEPOLIVE\Documents>SET WILDFLY_PORT_OFFSET=0
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE_DOWNLOAD_NO_PJEDOCS=true
+
+C:\Users\LEPOLIVE\Documents>SET ENV_PJE_DOCS_ENDPOINT=http://pje-docs.dev.trf3.jus.br
+
+C:\Users\LEPOLIVE\Documents>SET BUILD=0
+
+C:\Users\LEPOLIVE\Documents>if 0 EQU 1 (call mvn -f "C:\Users\LEPOLIVE\Desktop\Repositorios\2g\pje-trf3\pom.xml" -U -P jcr-storage clean package -Dpje.finalName=pje -Dproject.version="local" -DskipTests -Dmaven.test.skip=true -Dpje.quartz=false )
+
+C:\Users\LEPOLIVE\Documents>if 0 EQU 1 (
+del "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\*.*"
+
+ rmdir /s /q "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\data"
+ rmdir /s /q "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\log"
+ rmdir /s /q "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\tmp"
+ rmdir /s /q "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\indices"
+)
+
+C:\Users\LEPOLIVE\Documents>if 0 EQU 1 (touch "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.dodeploy" )  else (
+rm "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.failed"
+ rm "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.isdeploying"
+ rm "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.deployed"
+ touch "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.dodeploy"
+)
+rm: cannot remove 'C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.failed': No such file or directory
+rm: cannot remove 'C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.deployed': No such file or directory
+----- CRIANDO ARQUIVO .WAR EM DEPLOYMENTS
+
+C:\Users\LEPOLIVE\Documents>if 0 EQU 1 (unzip -q C:\Users\LEPOLIVE\Desktop\Repositorios\2g\pje-trf3\pje-web\target\pje.war -d "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war" )
+
+C:\Users\LEPOLIVE\Documents>if 0 EQU 1 (
+cp seam.quartz.properties C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war\WEB-INF\classes\seam.quartz.properties
+ cp C:\ambiente\pje-conector-diario-nacional.jar C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war\WEB-INF\lib\pje-conector-diario-nacional.jar
+)
+
+C:\Users\LEPOLIVE\Documents>if 0 EQU 1 (touch "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.dodeploy" )  else (
+rm "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.failed"
+ rm "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.isdeploying"
+)
+rm: cannot remove 'C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.failed': No such file or directory
+rm: cannot remove 'C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments\pje.war.isdeploying': No such file or directory
+
+C:\Users\LEPOLIVE\Documents>set "JAVA_OPTS=-Xms2048m -Xmx3584m -XX:MaxPermSize=512m -Djava.net.preferIPv4Stack=true -Djboss.bind.address.management=0.0.0.0 -noverify -Djboss.as.management.blocking.timeout=600 -Dfile.encoding="UTF-8" -Dorg.apache.cxf.stax.maxAttributeSize=99999999 -Djboss.modules.system.pkgs=$JBOSS_MODULES_SYSTEM_PKGS -Dorg.apache.coyote.http11.DEFAULT_CONNECTION_TIMEOUT=600000 -Djava.awt.headless=true -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8687,suspend=n"
+----- SUBINDO SERVIDOR
+
+C:\Users\LEPOLIVE\Documents>call "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\bin\standalone.bat"  --server-config=standalone_2gr.xml -Djboss.server.base.dir="C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste" -Djboss.socket.binding.port-offset=0
+Calling "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\bin\standalone.conf.bat"
+"JAVA_OPTS already set in environment; overriding default settings with values: -Xms2048m -Xmx3584m -XX:MaxPermSize=512m -Djava.net.preferIPv4Stack=true -Djboss.bind.address.management=0.0.0.0 -noverify -Djboss.as.management.blocking.timeout=600 -Dfile.encoding="UTF-8" -Dorg.apache.cxf.stax.maxAttributeSize=99999999 -Djboss.modules.system.pkgs=$JBOSS_MODULES_SYSTEM_PKGS -Dorg.apache.coyote.http11.DEFAULT_CONNECTION_TIMEOUT=600000 -Djava.awt.headless=true -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8687,suspend=n"
+Setting JAVA property to "C:\Program Files\Java\jdk1.8.0_202\bin\java"
+===============================================================================
+
+  JBoss Bootstrap Environment
+
+  JBOSS_HOME: "C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro"
+
+  JAVA: "C:\Program Files\Java\jdk1.8.0_202\bin\java"
+
+  JAVA_OPTS: "-Dprogram.name=standalone.bat -Xms2048m -Xmx3584m -XX:MaxPermSize=512m -Djava.net.preferIPv4Stack=true -Djboss.bind.address.management=0.0.0.0 -noverify -Djboss.as.management.blocking.timeout=600 -Dfile.encoding="UTF-8" -Dorg.apache.cxf.stax.maxAttributeSize=99999999 -Djboss.modules.system.pkgs=$JBOSS_MODULES_SYSTEM_PKGS -Dorg.apache.coyote.http11.DEFAULT_CONNECTION_TIMEOUT=600000 -Djava.awt.headless=true -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8687,suspend=n "
+
+===============================================================================
+
+Java HotSpot(TM) 64-Bit Server VM warning: ignoring option MaxPermSize=512m; support was removed in 8.0
+Listening for transport dt_socket at address: 8687
+12:52:39,413 INFO  [org.jboss.modules] (main) JBoss Modules version 1.9.1.Final
+12:52:39,895 INFO  [org.jboss.msc] (main) JBoss MSC version 1.4.11.Final
+12:52:39,902 INFO  [org.jboss.threads] (main) JBoss Threads version 2.3.3.Final
+12:52:39,968 INFO  [org.jboss.as] (MSC service thread 1-2) WFLYSRV0049: WildFly Full 18.0.1.Final (WildFly Core 10.0.3.Final) starting
+12:52:40,332 WARN  [org.jboss.as.controller] (Controller Boot Thread) WFLYCTL0456: System property jboss.as.management.blocking.timeout=600 already set. It's being overridden by new value 1800
+12:52:40,570 INFO  [org.wildfly.security] (ServerService Thread Pool -- 28) ELY00001: WildFly Elytron version 1.10.4.Final
+12:52:41,076 INFO  [org.jboss.as.controller.management-deprecated] (Controller Boot Thread) WFLYCTL0028: Attribute 'security-realm' in the resource at address '/core-service=management/management-interface=http-interface' is deprecated, and may be removed in a future version. See the attribute description in the output of the read-resource-description operation to learn more about the deprecation.
+12:52:41,092 INFO  [org.jboss.as.controller.management-deprecated] (ServerService Thread Pool -- 36) WFLYCTL0028: Attribute 'security-realm' in the resource at address '/subsystem=undertow/server=default-server/https-listener=https' is deprecated, and may be removed in a future version. See the attribute description in the output of the read-resource-description operation to learn more about the deprecation.
+12:52:43,118 INFO  [org.jboss.as.server.deployment.scanner] (DeploymentScanner-threads - 1) WFLYDS0004: Found pje.war in deployment directory. To trigger deployment create a file called pje.war.dodeploy
+12:52:43,144 INFO  [org.jboss.as.server] (Controller Boot Thread) WFLYSRV0039: Creating http management service using socket-binding (management-http)
+12:52:43,155 INFO  [org.xnio] (MSC service thread 1-5) XNIO version 3.7.3.Final
+12:52:43,162 INFO  [org.xnio.nio] (MSC service thread 1-5) XNIO NIO Implementation Version 3.7.3.Final
+12:52:43,213 INFO  [org.jboss.as.clustering.infinispan] (ServerService Thread Pool -- 55) WFLYCLINF0001: Activating Infinispan subsystem.
+12:52:43,223 INFO  [org.wildfly.iiop.openjdk] (ServerService Thread Pool -- 54) WFLYIIOP0001: Activating IIOP Subsystem
+12:52:43,241 WARN  [org.jboss.as.txn] (ServerService Thread Pool -- 78) WFLYTX0013: The node-identifier attribute on the /subsystem=transactions is set to the default value. This is a danger for environments running multiple servers. Please make sure the attribute value is unique.
+12:52:43,244 INFO  [org.wildfly.extension.microprofile.config.smallrye._private] (ServerService Thread Pool -- 66) WFLYCONF0001: Activating WildFly MicroProfile Config Subsystem
+12:52:43,249 INFO  [org.wildfly.extension.microprofile.opentracing] (ServerService Thread Pool -- 69) WFLYTRACEXT0001: Activating MicroProfile OpenTracing Subsystem
+12:52:43,250 INFO  [org.jboss.as.naming] (ServerService Thread Pool -- 70) WFLYNAM0001: Activating Naming Subsystem
+12:52:43,256 INFO  [org.jboss.as.security] (ServerService Thread Pool -- 76) WFLYSEC0002: Activating Security Subsystem
+12:52:43,258 INFO  [org.jboss.as.webservices] (ServerService Thread Pool -- 80) WFLYWS0002: Activating WebServices Extension
+12:52:43,261 INFO  [org.jboss.as.jsf] (ServerService Thread Pool -- 62) WFLYJSF0007: Activated the following JSF Implementations: [mojarra-1.2_15, main]
+12:52:43,261 INFO  [org.wildfly.extension.microprofile.health.smallrye] (ServerService Thread Pool -- 67) WFLYHEALTH0001: Activating Eclipse MicroProfile Health Subsystem
+12:52:43,265 INFO  [org.jboss.as.security] (MSC service thread 1-7) WFLYSEC0001: Current PicketBox version=5.0.3.Final
+12:52:43,272 INFO  [org.wildfly.extension.microprofile.metrics.smallrye] (ServerService Thread Pool -- 68) WFLYMETRICS0001: Activating Eclipse MicroProfile Metrics Subsystem
+12:52:43,275 INFO  [org.jboss.as.connector] (MSC service thread 1-3) WFLYJCA0009: Starting JCA Subsystem (WildFly/IronJacamar 1.4.17.Final)
+12:52:43,284 INFO  [org.jboss.as.jaxrs] (ServerService Thread Pool -- 57) WFLYRS0016: RESTEasy version 3.9.1.Final
+12:52:43,289 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-8) WFLYUT0003: Undertow 2.0.27.Final starting
+12:52:43,317 INFO  [org.jboss.as.connector.subsystems.datasources] (ServerService Thread Pool -- 46) WFLYJCA0004: Deploying JDBC-compliant driver class org.h2.Driver (version 1.4)
+12:52:43,322 INFO  [org.jboss.as.naming] (MSC service thread 1-4) WFLYNAM0003: Starting Naming Service
+12:52:43,330 INFO  [org.jboss.as.mail.extension] (MSC service thread 1-4) WFLYMAIL0001: Bound mail session [java:jboss/mail/Default]
+12:52:43,332 INFO  [org.jboss.as.connector.deployers.jdbc] (MSC service thread 1-4) WFLYJCA0018: Started Driver service with driver-name = h2
+12:52:43,347 INFO  [org.jboss.as.connector.subsystems.datasources] (ServerService Thread Pool -- 46) WFLYJCA0005: Deploying non-JDBC-compliant driver class org.postgresql.Driver (version 42.2)
+12:52:43,356 INFO  [org.jboss.as.connector.subsystems.datasources] (ServerService Thread Pool -- 46) WFLYJCA0005: Deploying non-JDBC-compliant driver class org.postgresql.Driver (version 42.2)
+12:52:43,371 INFO  [org.jboss.as.connector.deployers.jdbc] (MSC service thread 1-4) WFLYJCA0018: Started Driver service with driver-name = postgres
+12:52:43,376 INFO  [org.jboss.as.connector.deployers.jdbc] (MSC service thread 1-4) WFLYJCA0018: Started Driver service with driver-name = postgres_xa
+12:52:43,393 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 79) WFLYUT0014: Creating file handler for path 'C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro/welcome-content' with options [directory-listing: 'false', follow-symlink: 'false', case-sensitive: 'true', safe-symlink-paths: '[]']
+12:52:43,584 INFO  [org.wildfly.extension.io] (ServerService Thread Pool -- 56) WFLYIO001: Worker 'default' has auto-configured to 32 core threads with 256 task threads based on your 16 available processors
+12:52:43,586 INFO  [org.jboss.as.ejb3] (MSC service thread 1-4) WFLYEJB0482: Strict pool mdb-strict-max-pool is using a max instance size of 64 (per class), which is derived from the number of CPUs on this host.
+12:52:43,587 INFO  [org.jboss.as.ejb3] (MSC service thread 1-2) WFLYEJB0481: Strict pool slsb-strict-max-pool is using a max instance size of 256 (per class), which is derived from thread worker pool sizing.
+12:52:43,612 INFO  [org.jboss.remoting] (MSC service thread 1-1) JBoss Remoting version 5.0.15.Final
+12:52:43,806 INFO  [org.jboss.as.ejb3] (MSC service thread 1-1) WFLYEJB0493: EJB subsystem suspension complete
+12:52:43,839 INFO  [org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$AS7DataSourceDeployer] (MSC service thread 1-7) IJ020018: Enabling <validate-on-match> for java:/pjeLogDS
+12:52:43,849 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0012: Started server default-server.
+12:52:43,852 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-2) WFLYUT0018: Host default-host starting
+12:52:43,890 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-1) WFLYUT0006: Undertow HTTP listener default listening on 0.0.0.0:8080
+12:52:43,895 INFO  [org.jboss.as.connector.subsystems.datasources] (MSC service thread 1-4) WFLYJCA0001: Bound data source [java:jboss/datasources/ExampleDS]
+12:52:43,901 INFO  [org.jboss.as.connector.subsystems.datasources] (MSC service thread 1-7) WFLYJCA0001: Bound data source [java:/pjeLogDS]
+12:52:43,901 INFO  [org.jboss.as.connector.subsystems.datasources] (MSC service thread 1-3) WFLYJCA0001: Bound data source [java:/pjeDSConsulta]
+12:52:43,901 INFO  [org.jboss.as.connector.subsystems.datasources] (MSC service thread 1-1) WFLYJCA0001: Bound data source [java:/pjeDS]
+12:52:43,962 INFO  [org.jboss.as.patching] (MSC service thread 1-5) WFLYPAT0050: WildFly Full cumulative patch ID is: base, one-off patches include: none
+12:52:43,964 INFO  [org.wildfly.iiop.openjdk] (MSC service thread 1-8) WFLYIIOP0009: CORBA ORB Service started
+12:52:43,975 INFO  [org.wildfly.extension.messaging-activemq] (MSC service thread 1-4) WFLYMSGAMQ0001: AIO wasn't located on this platform, it will fall back to using pure Java NIO.
+12:52:43,975 WARN  [org.jboss.as.domain.management.security] (MSC service thread 1-2) WFLYDM0111: Keystore C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\configuration\application.keystore not found, it will be auto generated on first use with a self signed certificate for host localhost
+12:52:43,980 INFO  [org.jboss.as.server.deployment.scanner] (MSC service thread 1-8) WFLYDS0013: Started FileSystemDeploymentService for directory C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\deployments
+12:52:43,986 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-2) WFLYSRV0027: Starting deployment of "pje.war" (runtime-name: "pje.war")
+12:52:44,043 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221000: live Message Broker is starting with configuration Broker Configuration (clustered=false,journalDirectory=C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\data\activemq\journal,bindingsDirectory=C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\data\activemq\bindings,largeMessagesDirectory=C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\data\activemq\largemessages,pagingDirectory=C:\Users\LEPOLIVE\Documents\wildfly-18.0.1.Final_leandro\standalone_teste\data\activemq\paging)
+12:52:44,066 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221013: Using NIO Journal
+12:52:44,130 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221043: Protocol module found: [artemis-server]. Adding protocol support for: CORE
+12:52:44,140 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221043: Protocol module found: [artemis-amqp-protocol]. Adding protocol support for: AMQP
+12:52:44,141 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221043: Protocol module found: [artemis-hornetq-protocol]. Adding protocol support for: HORNETQ
+12:52:44,141 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221043: Protocol module found: [artemis-stomp-protocol]. Adding protocol support for: STOMP
+12:52:44,199 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221034: Waiting indefinitely to obtain live lock
+12:52:44,200 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221035: Live Server Obtained live lock
+12:52:44,367 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-5) WFLYUT0006: Undertow HTTPS listener https listening on 0.0.0.0:8443
+12:52:44,527 INFO  [org.jboss.ws.common.management] (MSC service thread 1-6) JBWS022052: Starting JBossWS 5.3.0.Final (Apache CXF 3.3.3)
+12:52:44,556 WARN  [org.jboss.jca.core.connectionmanager.pool.strategy.OnePool] (JCA PoolFiller) IJ000610: Unable to fill pool: java:/pjeLogDS: javax.resource.ResourceException: IJ031084: Unable to create connection
+        at org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory.getXAManagedConnection(XAManagedConnectionFactory.java:531)
+        at org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory.createManagedConnection(XAManagedConnectionFactory.java:438)
+        at org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.createConnectionEventListener(SemaphoreConcurrentLinkedDequeManagedConnectionPool.java:1328)
+        at org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.fillTo(SemaphoreConcurrentLinkedDequeManagedConnectionPool.java:1141)
+        at org.jboss.jca.core.connectionmanager.pool.mcp.PoolFiller.run(PoolFiller.java:97)
+        at java.lang.Thread.run(Thread.java:748)
+Caused by: org.postgresql.util.PSQLException: FATAL: SASL authentication failed
+        at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:520)
+        at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:141)
+        at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:192)
+        at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:49)
+        at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:211)
+        at org.postgresql.Driver.makeConnection(Driver.java:458)
+        at org.postgresql.Driver.connect(Driver.java:260)
+        at java.sql.DriverManager.getConnection(DriverManager.java:664)
+        at java.sql.DriverManager.getConnection(DriverManager.java:247)
+        at org.postgresql.ds.common.BaseDataSource.getConnection(BaseDataSource.java:98)
+        at org.postgresql.xa.PGXADataSource.getXAConnection(PGXADataSource.java:46)
+        at org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory.getXAManagedConnection(XAManagedConnectionFactory.java:515)
+        ... 5 more
+
+12:52:44,805 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221019: Deleting unreferenced message id=2.147.483.689 from the journal
+12:52:44,872 INFO  [org.wildfly.extension.messaging-activemq] (MSC service thread 1-7) WFLYMSGAMQ0016: Registered HTTP upgrade for activemq-remoting protocol handled by http-acceptor acceptor
+12:52:44,872 INFO  [org.wildfly.extension.messaging-activemq] (MSC service thread 1-5) WFLYMSGAMQ0016: Registered HTTP upgrade for activemq-remoting protocol handled by http-acceptor acceptor
+12:52:44,872 INFO  [org.wildfly.extension.messaging-activemq] (MSC service thread 1-1) WFLYMSGAMQ0016: Registered HTTP upgrade for activemq-remoting protocol handled by http-acceptor-throughput acceptor
+12:52:44,872 INFO  [org.wildfly.extension.messaging-activemq] (MSC service thread 1-4) WFLYMSGAMQ0016: Registered HTTP upgrade for activemq-remoting protocol handled by http-acceptor-throughput acceptor
+12:52:45,217 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221007: Server is now live
+12:52:45,218 INFO  [org.apache.activemq.artemis.core.server] (ServerService Thread Pool -- 82) AMQ221001: Apache ActiveMQ Artemis Message Broker version 2.10.1 [default, nodeID=09153608-7ddb-11f0-9fd1-00155d28765a]
+12:52:45,230 WARN  [org.apache.activemq.artemis.jms.server] (ServerService Thread Pool -- 85) AMQ122005: Invalid "host" value "0.0.0.0" detected for "http-connector" connector. Switching to "SEDE-213201". If this new address is incorrect please manually configure the connector to use the proper one.
+12:52:45,238 INFO  [org.wildfly.extension.messaging-activemq] (ServerService Thread Pool -- 85) WFLYMSGAMQ0002: Bound messaging object to jndi name java:jboss/exported/jms/RemoteConnectionFactory
+12:52:45,238 INFO  [org.wildfly.extension.messaging-activemq] (ServerService Thread Pool -- 84) WFLYMSGAMQ0002: Bound messaging object to jndi name java:/ConnectionFactory
+12:52:45,283 INFO  [org.jboss.as.connector.deployment] (MSC service thread 1-4) WFLYJCA0007: Registered connection factory java:/JmsXA
+12:52:45,336 INFO  [org.apache.activemq.artemis.ra] (MSC service thread 1-4) AMQ151007: Resource adaptor started
+12:52:45,336 INFO  [org.jboss.as.connector.services.resourceadapters.ResourceAdapterActivatorService$ResourceAdapterActivator] (MSC service thread 1-4) IJ020002: Deployed: file://RaActivatoractivemq-ra
+12:52:45,338 INFO  [org.jboss.as.connector.deployment] (MSC service thread 1-5) WFLYJCA0002: Bound JCA ConnectionFactory [java:/JmsXA]
+12:52:45,338 INFO  [org.jboss.as.connector.deployment] (MSC service thread 1-4) WFLYJCA0118: Binding connection factory named java:/JmsXA to alias java:jboss/DefaultJMSConnectionFactory
+12:53:19,242 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry xbean.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/batik-js-1.7.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,347 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_cs.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,347 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_de_DE.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,348 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_es.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,348 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_fr.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,348 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_hu.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,348 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_it.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,349 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_ja_JP.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,349 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_ko_KR.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,349 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_pl.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,349 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_pt_BR.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,350 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_ru.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,350 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_zh_CN.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,350 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry derbyLocale_zh_TW.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/derby-10.5.3.0_1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,352 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry avalon-framework-4.2.0.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,353 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry batik-all-1.7.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,353 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry commons-io-1.3.1.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,353 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry commons-logging-1.0.4.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,354 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry fop-hyph.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,354 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry serializer-2.7.0.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,354 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry servlet-2.2.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,354 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry xalan-2.7.0.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,355 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry xercesImpl-2.7.1.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/fop-1.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,389 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry jaxb-api.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/jaxb-impl-2.2.5-b10.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,390 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry activation.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/jaxb-impl-2.2.5-b10.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,390 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry jsr173_1.0_api.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/jaxb-impl-2.2.5-b10.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,390 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry jaxb1-impl.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/jaxb-impl-2.2.5-b10.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,397 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry jaxb-api.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/jaxb-osgi-2.3.0.1.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,419 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry slf4j-api-1.6.1.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/netcdf-4.2.20.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,419 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry commons-logging-1.0.4.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/netcdf-4.2.20.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,419 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry commons-codec-1.2.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/netcdf-4.2.20.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,486 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry slf4j-api-1.6.1.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/unidataCommon-4.2.20.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,488 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry xercesImpl.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/xalan-2.6.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:19,488 WARN  [org.jboss.as.server.deployment] (MSC service thread 1-8) WFLYSRV0059: Class Path entry xml-apis.jar in /C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/deployments/pje.war/WEB-INF/lib/xalan-2.6.0.jar  does not point to a valid jar for a Class-Path reference.
+12:53:20,082 INFO  [org.jboss.as.jpa] (MSC service thread 1-3) WFLYJPA0002: Read persistence.xml for PJEDescansoPersistenceUnit
+12:53:20,083 INFO  [org.jboss.as.jpa] (MSC service thread 1-3) WFLYJPA0002: Read persistence.xml for PJEDescansoPersistenceUnitConsulta
+12:53:20,083 INFO  [org.jboss.as.jpa] (MSC service thread 1-3) WFLYJPA0002: Read persistence.xml for PJEDescansoLogPersistenceUnit
+12:53:23,761 WARN  [org.jboss.as.dependency.private] (MSC service thread 1-7) WFLYSRV0018: Deployment "deployment.pje.war" is using a private module ("org.apache.commons.collections") which may be changed or removed in future versions without notice.
+12:53:23,773 WARN  [org.jboss.as.dependency.private] (MSC service thread 1-7) WFLYSRV0018: Deployment "deployment.pje.war" is using a private module ("org.apache.cxf.impl") which may be changed or removed in future versions without notice.
+12:53:23,784 WARN  [org.jboss.as.dependency.private] (MSC service thread 1-7) WFLYSRV0018: Deployment "deployment.pje.war" is using a private module ("org.jboss.ws.spi") which may be changed or removed in future versions without notice.
+12:53:23,785 WARN  [org.jboss.as.dependency.private] (MSC service thread 1-7) WFLYSRV0018: Deployment "deployment.pje.war" is using a private module ("org.antlr") which may be changed or removed in future versions without notice.
+12:53:24,198 INFO  [org.jboss.as.ejb3.deployment] (MSC service thread 1-4) WFLYEJB0473: JNDI bindings for session bean named 'EjbSynchronizations' in deployment unit 'deployment "pje.war"' are as follows:
+
+        java:global/pje/EjbSynchronizations!org.jboss.seam.transaction.LocalEjbSynchronizations
+        java:app/pje/EjbSynchronizations!org.jboss.seam.transaction.LocalEjbSynchronizations
+        java:module/EjbSynchronizations!org.jboss.seam.transaction.LocalEjbSynchronizations
+        ejb:/pje/EjbSynchronizations!org.jboss.seam.transaction.LocalEjbSynchronizations?stateful
+        java:global/pje/EjbSynchronizations
+        java:app/pje/EjbSynchronizations
+        java:module/EjbSynchronizations
+
+12:53:24,199 INFO  [org.jboss.as.ejb3.deployment] (MSC service thread 1-4) WFLYEJB0473: JNDI bindings for session bean named 'TimerServiceDispatcher' in deployment unit 'deployment "pje.war"' are as follows:
+
+        java:global/pje/TimerServiceDispatcher!org.jboss.seam.async.LocalTimerServiceDispatcher
+        java:app/pje/TimerServiceDispatcher!org.jboss.seam.async.LocalTimerServiceDispatcher
+        java:module/TimerServiceDispatcher!org.jboss.seam.async.LocalTimerServiceDispatcher
+        ejb:/pje/TimerServiceDispatcher!org.jboss.seam.async.LocalTimerServiceDispatcher
+        java:global/pje/TimerServiceDispatcher
+        java:app/pje/TimerServiceDispatcher
+        java:module/TimerServiceDispatcher
+
+12:53:24,428 INFO  [org.infinispan.factories.GlobalComponentRegistry] (MSC service thread 1-6) ISPN000128: Infinispan version: Infinispan 'Infinity Minus ONE +2' 9.4.16.Final
+12:53:24,759 WARN  [org.jboss.as.ee] (MSC service thread 1-6) WFLYEE0007: Not installing optional component org.jboss.resteasy.plugins.server.servlet.Servlet3AsyncHttpRequest$Servlet3ExecutionContext$Servle3AsychronousResponse due to an exception (enable DEBUG log level to see the cause)
+12:53:24,771 INFO  [org.jboss.as.clustering.infinispan] (ServerService Thread Pool -- 91) WFLYCLINF0002: Started client-mappings cache from ejb container
+12:53:24,792 WARN  [org.jboss.as.ejb3] (MSC service thread 1-6) WFLYEJB0131: EJB org.jboss.seam.async.TimerServiceDispatcher should not have a final or static method (instance)
+12:53:25,320 WARN  [org.jboss.as.jaxrs] (MSC service thread 1-6) WFLYRS0018: Explicit usage of Jackson annotation in a JAX-RS deployment; the system will disable JSON-B processing for the current deployment. Consider setting the 'resteasy.preferJacksonOverJsonB' property to 'false' to restore JSON-B.
+12:53:25,362 INFO  [org.jboss.as.connector.deployers.jdbc] (MSC service thread 1-6) WFLYJCA0004: Deploying JDBC-compliant driver class org.apache.derby.jdbc.AutoloadedDriver (version 10.5)
+12:53:25,387 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=ProcessoPrevento
+ address=http://localhost:8080/pje/ProcessoPrevento
+ implementor=br.com.infox.pje.webservices.ProcessoPrevento
+ serviceName={http://webservices.pje.infox.com.br/}ProcessoPreventoService
+ portName={http://webservices.pje.infox.com.br/}ProcessoPreventoPort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=false
+12:53:25,388 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=ConsultaProcessoOutraSessao
+ address=http://localhost:8080/pje/ConsultaProcessoOutraSessao
+ implementor=br.com.infox.pje.webservices.ConsultaProcessoOutraSessao
+ serviceName={http://www.cnj.jus.br/consulta-processo-outra-sessao-service/}ConsultaProcessoOutraSessaoService
+ portName={http://www.cnj.jus.br/consulta-processo-outra-sessao-service/}ConsultaProcessoOutraSessaoPort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=false
+12:53:25,388 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=ColetorEventoProcessoVara
+ address=http://localhost:8080/pje/ColetorEventoProcessoVara
+ implementor=br.com.infox.pje.webservices.estatisticaEventoProcessoTrf.ColetorEventoProcessoVara
+ serviceName={http://estatisticaEventoProcessoTrf.webservices.pje.infox.com.br/}ColetorEventoProcessoVaraService
+ portName={http://estatisticaEventoProcessoTrf.webservices.pje.infox.com.br/}ColetorEventoProcessoVaraPort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=false
+12:53:25,388 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=ValidarAcesso
+ address=http://localhost:8080/pje/ValidarAcesso
+ implementor=br.com.infox.pje.webservices.ValidarAcesso
+ serviceName={http://webservices.pje.infox.com.br/}ValidarAcessoService
+ portName={http://webservices.pje.infox.com.br/}ValidarAcessoPort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=false
+12:53:25,391 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=IntercomunicacaoJEF
+ address=http://localhost:8080/pje/intercomunicacao-jef
+ implementor=br.jus.trf3.pje.intercomunicacao.servico.IntercomunicacaoImplJEF
+ serviceName={http://www.cnj.jus.br/servico-intercomunicacao-jef-2.2.2/}IntercomunicacaoServiceMigracaoJEF
+ portName={http://www.cnj.jus.br/servico-intercomunicacao-jef-2.2.2/}IntercomunicacaoImplJEFPort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=true
+12:53:25,392 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=Intercomunicacao
+ address=http://localhost:8080/pje/intercomunicacao
+ implementor=br.jus.cnj.pje.intercomunicacao.v222.servico.IntercomunicacaoSoapImpl
+ serviceName={http://www.cnj.jus.br/servico-intercomunicacao-2.2.2/}IntercomunicacaoService
+ portName={http://www.cnj.jus.br/servico-intercomunicacao-2.2.2/}IntercomunicacaoSoapImplPort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=true
+12:53:25,394 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=Intercomunicacao223
+ address=http://localhost:8080/pje/intercomunicacao/v223
+ implementor=br.jus.cnj.pje.intercomunicacao.v223.servico.IntercomunicacaoSoapImpl
+ serviceName={http://www.cnj.jus.br/servico-intercomunicacao-2.2.3/}IntercomunicacaoService
+ portName={http://www.cnj.jus.br/servico-intercomunicacao-2.2.3/}IntercomunicacaoSoapImplPort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=true
+12:53:25,395 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=ConsultaPJe
+ address=http://localhost:8080/pje/ConsultaPJe
+ implementor=br.jus.cnj.pje.ws.ConsultaPJeImpl
+ serviceName={http://ws.pje.cnj.jus.br/}ConsultaPJeService
+ portName={http://ws.pje.cnj.jus.br/}ConsultaPJePort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=false
+12:53:25,395 INFO  [org.jboss.ws.cxf.metadata] (MSC service thread 1-6) JBWS024061: Adding service endpoint metadata: id=br.jus.cnj.pje.intercomunicacao.v223.servico.IntercomunicacaoImpl
+ address=http://localhost:8080/pje/IntercomunicacaoService
+ implementor=br.jus.cnj.pje.intercomunicacao.v223.servico.IntercomunicacaoImpl
+ serviceName={http://www.cnj.jus.br/servico-intercomunicacao-2.2.3/}IntercomunicacaoService
+ portName={http://www.cnj.jus.br/servico-intercomunicacao-2.2.3/}IntercomunicacaoImplPort
+ annotationWsdlLocation=null
+ wsdlLocationOverride=null
+ mtomEnabled=true
+12:53:25,687 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://webservices.pje.infox.com.br/}ProcessoPreventoService from class br.com.infox.pje.webservices.ProcessoPrevento
+12:53:25,905 INFO  [org.apache.cxf.endpoint.ServerImpl] (MSC service thread 1-6) Setting the server's publish address to be http://localhost:8080/pje/ProcessoPrevento
+12:53:25,964 INFO  [org.jboss.ws.cxf.deployment] (MSC service thread 1-6) JBWS024074: WSDL published to: file:/C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/data/wsdl/pje.war/ProcessoPreventoService.wsdl
+12:53:25,966 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://www.cnj.jus.br/consulta-processo-outra-sessao-service/}ConsultaProcessoOutraSessaoService from class br.com.infox.pje.webservices.ConsultaProcessoOutraSessao
+12:53:26,030 INFO  [org.apache.cxf.endpoint.ServerImpl] (MSC service thread 1-6) Setting the server's publish address to be http://localhost:8080/pje/ConsultaProcessoOutraSessao
+12:53:26,059 INFO  [org.jboss.ws.cxf.deployment] (MSC service thread 1-6) JBWS024074: WSDL published to: file:/C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/data/wsdl/pje.war/ConsultaProcessoOutraSessaoService.wsdl
+12:53:26,061 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://estatisticaEventoProcessoTrf.webservices.pje.infox.com.br/}ColetorEventoProcessoVaraService from class br.com.infox.pje.webservices.estatisticaEventoProcessoTrf.ColetorEventoProcessoVara
+12:53:26,076 INFO  [org.apache.cxf.endpoint.ServerImpl] (MSC service thread 1-6) Setting the server's publish address to be http://localhost:8080/pje/ColetorEventoProcessoVara
+12:53:26,097 INFO  [org.jboss.ws.cxf.deployment] (MSC service thread 1-6) JBWS024074: WSDL published to: file:/C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/data/wsdl/pje.war/ColetorEventoProcessoVaraService.wsdl
+12:53:26,098 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://webservices.pje.infox.com.br/}ValidarAcessoService from class br.com.infox.pje.webservices.ValidarAcesso
+12:53:26,108 INFO  [org.apache.cxf.endpoint.ServerImpl] (MSC service thread 1-6) Setting the server's publish address to be http://localhost:8080/pje/ValidarAcesso
+12:53:26,128 INFO  [org.jboss.ws.cxf.deployment] (MSC service thread 1-6) JBWS024074: WSDL published to: file:/C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/data/wsdl/pje.war/ValidarAcessoService.wsdl
+12:53:26,130 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://www.cnj.jus.br/servico-intercomunicacao-jef-2.2.2/}IntercomunicacaoServiceMigracaoJEF from class br.jus.trf3.pje.intercomunicacao.servico.IntercomunicacaoExtended
+12:53:26,283 INFO  [org.apache.cxf.endpoint.ServerImpl] (MSC service thread 1-6) Setting the server's publish address to be http://localhost:8080/pje/intercomunicacao-jef
+12:53:26,346 INFO  [org.jboss.ws.cxf.deployment] (MSC service thread 1-6) JBWS024074: WSDL published to: file:/C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/data/wsdl/pje.war/IntercomunicacaoServiceMigracaoJEF.wsdl
+12:53:26,347 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://www.cnj.jus.br/servico-intercomunicacao-2.2.2/}IntercomunicacaoService from class br.jus.cnj.intercomunicacao.v222.servico.Intercomunicacao
+12:53:26,401 INFO  [org.apache.cxf.endpoint.ServerImpl] (MSC service thread 1-6) Setting the server's publish address to be http://localhost:8080/pje/intercomunicacao
+12:53:26,434 INFO  [org.jboss.ws.cxf.deployment] (MSC service thread 1-6) JBWS024074: WSDL published to: file:/C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/data/wsdl/pje.war/IntercomunicacaoService.wsdl
+12:53:26,436 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://www.cnj.jus.br/servico-intercomunicacao-2.2.3/}IntercomunicacaoService from class br.jus.cnj.intercomunicacao.v223.servico.Intercomunicacao
+12:53:26,536 INFO  [org.apache.cxf.endpoint.ServerImpl] (MSC service thread 1-6) Setting the server's publish address to be http://localhost:8080/pje/intercomunicacao/v223
+12:53:26,579 INFO  [org.jboss.ws.cxf.deployment] (MSC service thread 1-6) JBWS024074: WSDL published to: file:/C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/data/wsdl/pje.war/IntercomunicacaoService.wsdl
+12:53:26,580 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://ws.pje.cnj.jus.br/}ConsultaPJeService from class br.jus.cnj.pje.ws.ConsultaPJe
+12:53:26,633 INFO  [org.apache.cxf.endpoint.ServerImpl] (MSC service thread 1-6) Setting the server's publish address to be http://localhost:8080/pje/ConsultaPJe
+12:53:26,668 INFO  [org.jboss.ws.cxf.deployment] (MSC service thread 1-6) JBWS024074: WSDL published to: file:/C:/Users/LEPOLIVE/Documents/wildfly-18.0.1.Final_leandro/standalone_teste/data/wsdl/pje.war/ConsultaPJeService.wsdl
+12:53:26,669 INFO  [org.apache.cxf.wsdl.service.factory.ReflectionServiceFactoryBean] (MSC service thread 1-6) Creating Service {http://www.cnj.jus.br/servico-intercomunicacao-2.2.3/}IntercomunicacaoService from class br.jus.cnj.intercomunicacao.v223.servico.Intercomunicacao

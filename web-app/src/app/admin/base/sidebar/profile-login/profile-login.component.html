@@ -1,0 +1,19 @@
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col items-start p-2 gap-4">
+    <button type="button">
+      <i class="pi pi-user mr-4"></i>
+      <span>Minha conta</span>
+    </button> 
+    @if (!isLogin) {
+    <button (click)="login()" type="button" class="layout-topbar-action">
+      <i class="pi pi-sign-in"></i>
+      <span>Login</span>
+    </button>
+    }@else{
+    <button (click)="logout()" type="button" class="layout-topbar-action">
+      <i class="pi pi-sign-out"></i>
+      <span>Sair</span>
+    </button>
+    }
+  </div>
+</div>

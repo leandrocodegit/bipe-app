@@ -1,0 +1,70 @@
+<div class="card w-full h-full">
+    <div class="flex items-center">
+      <i class="pi pi-shield mr-3 !text-3xl text-primary-500"></i>
+      <span>Métodos de Autenticação</span>
+    </div>
+
+    <!-- Seção 1: Métodos Configurados -->
+    <div>
+      <h3 class="font-semibold text-lg mb-3 text-surface-800 dark:text-surface-100">Métodos Configurados</h3>
+      <div class="flex flex-col gap-3">
+
+        @for(credentials of configuredMethods; track $index){
+        @for(auth of credentials.userCredentialMetadatas; track $index){
+        <div
+          class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700">
+
+          <div class="flex items-center mb-3 sm:mb-0">
+            <i [class]="getIconForType(credentials.type)" class="text-2xl text-primary-500 mr-4"></i>
+            <div>
+              <span class="font-semibold block">{{ getName(credentials.displayName) }}</span>
+              <small class="text-surface-500 dark:text-surface-400">{{ getNameCredential(auth) }}</small>
+            </div>
+          </div>
+
+          <div class="flex gap-2 shrink-0">
+            <button *ngIf="credentials.updateAction" pButton type="button" label="Atualizar" icon="pi pi-pencil"
+              class="p-button-outlined" (click)="updateMethod(credentials.updateAction)">
+            </button>
+            <button *ngIf="credentials.removeable" pButton type="button" label="Remover" icon="pi pi-trash"
+              class="p-button-text p-button-danger" (click)="removeMethod(auth.credential.id)">
+            </button>
+          </div>
+        </div>
+        }
+        }
+        <div *ngIf="configuredMethods.length === 0" class="text-center p-4">
+          <p class="text-surface-500">Nenhum método de autenticação principal configurado.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção 2: Métodos Disponíveis -->
+    <div class="mt-6">
+      <h3 class="font-semibold text-lg mb-3 text-surface-800 dark:text-surface-100">Adicionar Novo Método</h3>
+      <div class="flex flex-col gap-3">
+
+        <div *ngFor="let auth of availableMethods"
+          class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700">
+
+          <div class="flex items-center mb-3 sm:mb-0">
+            <i [class]="getIconForType(auth.type)" class="text-2xl text-surface-500 mr-4"></i>
+            <div>
+              <span class="font-semibold block">{{ getName(auth.displayName) }}</span>
+              <small class="text-surface-500 dark:text-surface-400">{{ getName(auth.helptext) }}</small>
+            </div>
+          </div>
+
+          <div class="flex gap-2 shrink-0">
+            <button *ngIf="auth.createAction" pButton type="button" label="Adicionar" icon="pi pi-plus"
+              class="p-button-success" (click)="addMethod(auth.createAction)">
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="availableMethods.length === 0" class="text-center p-4">
+          <p class="text-surface-500">Todos os métodos de autenticação disponíveis já foram configurados.</p>
+        </div>
+      </div>
+    </div>
+</div>

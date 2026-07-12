@@ -1,0 +1,210 @@
+<div class="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 pb-8 pt-5 sm:px-6">
+
+  <!-- Cabeçalho -->
+  <header class="flex items-start justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-200">Regiões</h1>
+      <p class="mt-0.5 text-sm text-slate-500">
+        {{ waypoints.length }} região{{ waypoints.length === 1 ? '' : 'ões' }} cadastrada{{ waypoints.length === 1 ? '' : 's' }}
+      </p>
+    </div>
+
+    <button
+      pButton
+      routerLink="/rotinas"
+      type="button"
+      icon="pi pi-plus"
+      class="p-button-rounded shrink-0"
+      pTooltip="Nova região"
+      tooltipPosition="left"
+      (click)="onCreate()"
+      aria-label="Criar nova região"
+    ></button>
+  </header>
+
+  <!-- Busca -->
+  <p-iconfield iconPosition="left" class="w-full" *ngIf="waypoints.length">
+    <p-inputicon class="pi pi-search" />
+    <input
+      pInputText
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="Buscar região"
+      class="w-full !rounded-xl"
+      aria-label="Buscar região"
+    />
+  </p-iconfield>
+
+  <!-- Lista -->
+  <ul *ngIf="filteredWaypoints.length; else empty" class="flex flex-col gap-3">
+    <li
+      *ngFor="let waypoint of filteredWaypoints; trackBy: trackByWaypoint"
+      class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white dark:bg-neutral-950 p-3.5 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md"
+    >
+      <button
+        type="button"
+        class="flex min-w-0 flex-1 items-center gap-3 text-left"
+        (click)="openDetails(waypoint)"
+        [attr.aria-label]="'Ver detalhes da região ' + waypoint.desc"
+      >
+        <div
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg"
+          [style.background]="colorFor(waypoint) + '1a'"
+          [style.color]="colorFor(waypoint)"
+        >
+          <i class="pi pi-map-marker"></i>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-semibold text-slate-900 dark:text-slate-200 mb-1">{{ waypoint.desc }}</p>
+          <div class="mt-1 flex flex-wrap items-center gap-1.5">
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-neutral-950 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:text-slate-400">
+              <i class="pi pi-arrows-alt text-[10px]"></i>{{ radiusLabel(waypoint) }}
+            </span>
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-neutral-950 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:text-slate-400">
+              <i class="pi pi-mobile text-[10px]"></i>{{ waypoint.deviceIds.length }}
+            </span>
+          </div>
+        </div>
+      </button>
+
+      <i class="pi pi-chevron-right shrink-0 text-xs text-slate-300 dark:text-slate-500"></i>
+    </li>
+  </ul>
+
+  <!-- Estado vazio -->
+  <ng-template #empty>
+    <div class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 dark:bg-neutral-950 py-14 text-center">
+      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-xl text-indigo-500">
+        <i class="pi pi-map-marker"></i>
+      </div>
+      <p class="text-sm font-medium text-slate-700">
+        {{ searchTerm ? 'Nenhuma região encontrada' : 'Nenhuma região cadastrada' }}
+      </p>
+      <p class="max-w-[16rem] text-xs text-slate-400">
+        {{ searchTerm ? 'Tente buscar por outro nome.' : 'Crie uma cerca virtual para monitorar quando os dispositivos entram ou saem de um local.' }}
+      </p>
+      <button
+        *ngIf="!searchTerm"
+        pButton
+        type="button"
+        label="Criar região"
+        icon="pi pi-plus"
+        class="!rounded-xl"
+        (click)="onCreate()"
+      ></button>
+    </div>
+  </ng-template>
+
+  <!-- Detalhe da região (bottom sheet) -->
+  <p-dialog
+    [visible]="!!selected"
+    (visibleChange)="!$event && closeDetails()"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    position="bottom"
+    [showHeader]="false"
+    styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm sm:!rounded-3xl"
+    [breakpoints]="{ '640px': '100vw' }"
+  >
+    <div *ngIf="selected as waypoint" class="flex flex-col gap-4 px-2 pb-2 pt-3 mb-12">
+      <div class="h-1 w-10 self-center rounded-full bg-slate-200 sm:hidden"></div>
+
+      <!-- Identificação -->
+      <div class="flex items-center gap-3">
+        <div
+          class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl"
+          [style.background]="colorFor(waypoint) + '1a'"
+          [style.color]="colorFor(waypoint)"
+        >
+          <i class="pi pi-map-marker"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-lg font-semibold text-slate-900 dark:text-slate-200">{{ waypoint.desc }}</p>
+          <p class="text-xs text-slate-400">Raio de {{ radiusLabel(waypoint) }}</p>
+        </div>
+      </div>
+
+      <!-- Coordenadas -->
+      <div class="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 dark:bg-neutral-950 px-3 py-2.5">
+        <p class="min-w-0 flex-1 truncate font-mono text-sm text-slate-600 dark:text-slate-300">
+          {{ waypoint.lat.toFixed(5) }}, {{ waypoint.lon.toFixed(5) }}
+        </p>
+        <button
+          pButton
+          type="button"
+          [icon]="copied ? 'pi pi-check' : 'pi pi-copy'"
+          class="p-button-text p-button-rounded shrink-0 !h-8 !w-8"
+          [pTooltip]="copied ? 'Copiado!' : 'Copiar coordenadas'"
+          tooltipPosition="top"
+          (click)="copyCoords(waypoint)"
+          aria-label="Copiar coordenadas"
+        ></button>
+      </div>
+
+      <a
+        [href]="mapsUrl(waypoint)"
+        target="_blank"
+        rel="noopener noreferrer"
+        pButton
+        icon="pi pi-external-link"
+        label="Abrir no Google Maps"
+        class="p-button-outlined w-full !rounded-xl"
+      ></a>
+
+      <!-- Dispositivos vinculados -->
+      <div>
+        <p class="mb-1.5 text-xs font-medium text-slate-500 dark:text-slate-300">
+          Dispositivos vinculados ({{ waypoint.deviceIds.length }})
+        </p>
+        <div *ngIf="waypoint.deviceIds.length; else semDispositivos" class="flex flex-col gap-1.5">
+          <div
+            *ngFor="let device of devicesOf(waypoint)"
+            class="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-white dark:bg-neutral-950 px-3 py-2"
+          >
+            <span
+              class="h-2 w-2 shrink-0 rounded-full"
+              [ngClass]="device.conectado ? 'bg-emerald-500' : 'bg-slate-300'"
+            ></span>
+            <span class="truncate text-sm text-slate-700 dark:text-slate-300">{{ device.nome }}</span>
+          </div>
+        </div>
+        <ng-template #semDispositivos>
+          <p class="text-xs text-slate-400">Nenhum dispositivo vinculado a esta região.</p>
+        </ng-template>
+      </div>
+
+      <!-- Ações -->
+      <div class="flex gap-2 pt-3">
+         <button
+        pButton
+        type="button"
+        label="Fechar"
+        icon="pi pi-times"
+        class="p-button-outlined flex-1 !rounded-xl"
+        (click)="closeDetails()"
+      ></button>
+        <button
+          pButton
+          type="button"
+          label="Editar"
+          icon="pi pi-pencil"
+          class="p-button-outlined flex-1 !rounded-xl"
+          (click)="onEdit(waypoint)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="Excluir"
+          icon="pi pi-trash"
+          class="p-button-outlined p-button-danger flex-1 !rounded-xl"
+          (click)="onDelete(waypoint)"
+        ></button>
+      </div>
+
+
+    </div>
+  </p-dialog>
+
+</div>

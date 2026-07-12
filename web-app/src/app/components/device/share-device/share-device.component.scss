@@ -1,0 +1,12 @@
+:host {
+  display: block;
+}
+
+::ng-deep .ng-invalid.ng-touched {
+  border-color: #ef4444 !important;
+}
+
+::ng-deep .p-button.p-button-icon-only {
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}

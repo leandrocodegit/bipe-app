@@ -1,0 +1,229 @@
+<div class="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 pb-8 pt-5 sm:px-6">
+
+  <!-- Cabeçalho -->
+  <header class="flex items-start justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight text-slate-900">Rotinas</h1>
+      <p class="mt-0.5 text-sm text-slate-500">
+        {{ routines.length }} rotina{{ routines.length === 1 ? '' : 's' }} cadastrada{{ routines.length === 1 ? '' : 's' }}
+      </p>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      class="p-button-rounded shrink-0"
+      pTooltip="Nova rotina"
+      tooltipPosition="left"
+      (click)="onCreate()"
+      aria-label="Criar nova rotina"
+    ></button>
+  </header>
+
+  <!-- Busca -->
+  <p-iconfield iconPosition="left" class="w-full" *ngIf="routines.length">
+    <p-inputicon class="pi pi-search" />
+    <input
+      pInputText
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="Buscar por nome ou região"
+      class="w-full !rounded-xl"
+      aria-label="Buscar rotina"
+    />
+  </p-iconfield>
+
+  <!-- Lista -->
+  <ul *ngIf="filteredRoutines.length; else empty" class="flex flex-col gap-3">
+    <li
+      *ngFor="let routine of filteredRoutines; trackBy: trackByRoutine"
+      class="rounded-2xl border border-slate-100 bg-white p-3.5 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md"
+      [class.opacity-60]="!routine.ativo"
+    >
+      <button
+        type="button"
+        class="flex w-full items-start gap-3 text-left"
+        (click)="openDetails(routine)"
+        [attr.aria-label]="'Ver detalhes da rotina ' + routine.nome"
+      >
+
+        <div class="min-w-0 flex-1">
+          <div class="flex items-start justify-between gap-2">
+            <p class="truncate text-sm font-semibold text-slate-900 mb-1">{{ routine.nome || 'Sem nome' }}</p>
+            <p-inputSwitch
+              [(ngModel)]="routine.ativo"
+              (click)="$event.stopPropagation()"
+              (onChange)="onToggleActive(routine)"
+              class="shrink-0"
+            ></p-inputSwitch>
+          </div>
+
+          <p class="mt-0.5 flex items-center gap-1 truncate text-xs text-slate-400">
+            <i class="pi pi-map-marker text-[10px]"></i>{{ routine.waypoint?.desc || 'Sem região' }}
+          </p>
+
+          <div class="mt-2 flex flex-wrap items-center gap-1.5">
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+              <i class="pi pi-clock text-[10px]"></i>{{ scheduleLabel(routine) }}
+            </span>
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+              <i class="pi pi-calendar text-[10px]"></i>{{ daysCompactLabel(routine) }}
+            </span>
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+              <i class="pi pi-mobile text-[10px]"></i>{{ deviceCount(routine) }}
+            </span>
+          </div>
+        </div>
+      </button>
+    </li>
+  </ul>
+
+  <!-- Estado vazio -->
+  <ng-template #empty>
+    <div class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 py-14 text-center">
+      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 text-xl text-indigo-500">
+        <i class="pi pi-bolt"></i>
+      </div>
+      <p class="text-sm font-medium text-slate-700">
+        {{ searchTerm ? 'Nenhuma rotina encontrada' : 'Nenhuma rotina cadastrada' }}
+      </p>
+      <p class="max-w-[16rem] text-xs text-slate-400">
+        {{ searchTerm ? 'Tente buscar por outro nome ou região.' : 'Crie uma rotina para notificar quando um dispositivo entrar ou sair de uma região.' }}
+      </p>
+      <button
+        *ngIf="!searchTerm"
+        pButton
+        type="button"
+        label="Criar rotina"
+        icon="pi pi-plus"
+        class="!rounded-xl"
+        (click)="onCreate()"
+      ></button>
+    </div>
+  </ng-template>
+
+  <!-- Detalhe da rotina (bottom sheet) -->
+  <p-dialog
+    [visible]="!!selected"
+    (visibleChange)="!$event && closeDetails()"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="true"
+    [responsive]="true"
+    position="bottom"
+    [showHeader]="false"
+    styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm sm:!rounded-3xl"
+    [breakpoints]="{ '640px': '100vw' }"
+  >
+    <div *ngIf="selected as routine" class="flex flex-col gap-4 px-2 pb-2 pt-3 mb-12">
+      <div class="h-1 w-10 self-center rounded-full bg-slate-200 sm:hidden"></div>
+
+      <!-- Identificação -->
+      <div class="flex items-start gap-3">
+
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-lg font-semibold text-slate-900 mb-1">{{ routine.nome || 'Sem nome' }}</p>
+          <p class="text-xs font-medium" [ngClass]="typeInfo(routine).colorClass">
+            {{ typeInfo(routine).label }} na região
+          </p>
+        </div>
+        <p-inputSwitch [(ngModel)]="routine.ativo" (onChange)="onToggleActive(routine)"></p-inputSwitch>
+      </div>
+
+      <!-- Região vinculada -->
+      <button
+        type="button"
+        class="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-left transition-colors active:bg-slate-100"
+        (click)="onViewOnMap(routine)"
+      >
+        <i class="pi pi-map-marker text-slate-400"></i>
+        <div class="min-w-0 flex-1" (click)="viewWaipoints = true">
+          <p class="truncate text-sm font-medium text-slate-700 mb-0">{{ routine.waypoint?.desc || 'Sem região' }}</p>
+          <p class="text-[11px] text-slate-400" *ngIf="routine.waypoint">Raio de {{ routine.waypoint.rad }} m</p>
+        </div>
+        <i class="pi pi-chevron-right text-xs text-slate-300"></i>
+      </button>
+
+      <!-- Horário e dias -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col items-center gap-1 rounded-xl border border-slate-100 bg-white px-3 py-2.5 shadow-sm">
+          <i class="pi pi-clock text-slate-400"></i>
+          <p class="text-sm font-semibold text-slate-700">{{ scheduleLabel(routine) }}</p>
+          <p class="text-[10px] text-slate-400">Horário</p>
+        </div>
+        <div class="flex flex-col items-center gap-1 rounded-xl border border-slate-100 bg-white px-3 py-2.5 shadow-sm">
+          <i class="pi pi-calendar text-slate-400"></i>
+          <p class="text-center text-xs font-semibold text-slate-700">{{ daysCompactLabel(routine) }}</p>
+          <p class="text-[10px] text-slate-400">Dias</p>
+        </div>
+      </div>
+
+      <!-- Dispositivos -->
+      <div>
+        <p class="mb-1.5 text-xs font-medium text-slate-500">
+          Dispositivos ({{ deviceCount(routine) }})
+        </p>
+        <div *ngIf="deviceCount(routine); else semDispositivos" class="flex flex-col gap-1.5">
+
+        </div>
+        <ng-template #semDispositivos>
+          <p class="text-xs text-slate-400">Nenhum dispositivo vinculado a esta rotina.</p>
+        </ng-template>
+      </div>
+
+      <!-- Ações -->
+      <div class="flex gap-2 pt-3">
+        <button
+        pButton
+        type="button"
+        label="Fechar"
+        icon="pi pi-times"
+        class="p-button-outlined flex-1 !rounded-xl"
+        (click)="closeDetails()"
+      ></button>
+        <button
+          pButton
+          type="button"
+          label="Editar"
+          icon="pi pi-pencil"
+          class="p-button-outlined flex-1 !rounded-xl"
+          (click)="onEdit(routine)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          label="Excluir"
+          icon="pi pi-trash"
+          class="p-button-outlined p-button-danger flex-1 !rounded-xl"
+          (click)="onDelete(routine)"
+        ></button>
+      </div>
+
+
+    </div>
+  </p-dialog>
+
+</div>
+
+<app-zona-form-dialog
+  [(visible)]="mostrarDialogZona"  [formulario]="formulario!" >
+</app-zona-form-dialog>
+
+
+  <p-dialog
+    [visible]="viewWaipoints"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="true"
+    position="bottom"
+    [showHeader]="false"
+    styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm sm:!rounded-3xl p-0"
+    [breakpoints]="{ '640px': '100vw' }"
+  >
+
+  <app-waypoints [select]="true" (onSelect)="onSelectWaypoint($event)"/>
+
+  </p-dialog>

@@ -1,0 +1,21 @@
+.box-login {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.box-auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+p {
+  text-align: center;
+  color: #107bce;
+  font-size: 14px;
+  letter-spacing: 1px;
+}

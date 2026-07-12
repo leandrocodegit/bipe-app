@@ -1,0 +1,10 @@
+<div class="card w-full h-full">
+  <div class="flex items-center">
+    <i class="pi pi-user-edit mx-3 !text-3xl text-primary-500"></i>
+    <span>Meus Dados</span>
+  </div>
+
+  <div *ngIf="!profileForm" class="flex justify-center items-center h-40">
+    <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+  </div>
+</div>

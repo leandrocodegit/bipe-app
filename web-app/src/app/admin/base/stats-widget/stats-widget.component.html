@@ -1,0 +1,81 @@
+
+
+
+  <div class="grid grid-cols-12 gap-4" style="width: 100%;">
+  <div class="col-span-6 lg:col-span-3">
+  <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+    <div class="card-small mb-0">
+      <div class="flex justify-between mb-4">
+        <div>
+          <span class="block text-muted-color font-medium mb-4">Minhas tarefas</span>
+          <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{quantidadeTarefas}}</div>
+        </div>
+        <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
+          style="width: 3.7rem; height: 3.7rem">
+          <i class="pi pi-list-check text-blue-500 !text-xl"></i>
+        </div>
+      </div>
+      <span class="text-orange-500 font-medium">{{quantidadeTarefasVenceHoje}} </span>
+      <span class="text-muted-color">{{quantidadeTarefasVenceHoje > 1 ? 'vencem' : 'vence'}}  hoje</span>
+    </div>
+  </div>
+  </div>
+  <div class="col-span-6 lg:col-span-3">
+<div class="col-span-12 lg:col-span-6 xl:col-span-3">
+    <div class="card-small mb-0">
+      <div class="flex justify-between mb-4">
+        <div>
+          <span class="block text-muted-color font-medium mb-4">Pendentes</span>
+          <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{quantidadeAssinaturas.totalPendentes}}</div>
+        </div>
+        <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-border"
+          style="width: 3.7rem; height: 3.7rem">
+          <i class="pi pi-clock text-orange-500 !text-xl"></i>
+        </div>
+      </div>
+      <span class="text-green-500 font-medium">{{quantidadeAssinaturas.totalHoje}} </span>
+      <span class="text-muted-color">hoje</span>
+    </div>
+  </div>
+  </div>
+  <div class="col-span-6 lg:col-span-3">
+<div class="col-span-12 lg:col-span-6 xl:col-span-3">
+    <div class="card-small mb-0">
+      <div class="flex justify-between mb-4">
+        <div>
+          <span class="block text-muted-color font-medium mb-4">Assinatura</span>
+          <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{quantidadeAssinaturas.concluidas + quantidadeAssinaturas.pendentes}}</div>
+        </div>
+        <div class="flex items-center justify-center bg-cyan-100 dark:bg-cyan-400/10 rounded-border"
+          style="width: 3.7rem; height: 3.7rem">
+          <i class="pi pi-file-check text-cyan-500 !text-xl"></i>
+        </div>
+      </div>
+      <span class="text-orange-500 font-medium">{{quantidadeAssinaturas.pendentes}}</span>
+      <span class="text-muted-color"> Pendentes</span>
+    </div>
+  </div>
+  </div>
+  <div class="col-span-6 lg:col-span-3">
+ <div class="col-span-12 lg:col-span-6 xl:col-span-3">
+    <div class="card-small mb-0">
+      <div class="flex justify-between mb-4">
+        <div>
+          <span class="block text-muted-color font-medium mb-4">Incidentes</span>
+          <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ quantidadeIncidentes.total}}</div>
+        </div>
+        <div class="flex items-center justify-center bg-red-100 dark:bg-red-400/10 rounded-border"
+          style="width: 3.7rem; height: 3.7rem">
+          <i class="pi pi-exclamation-triangle text-red-500 !text-xl"></i>
+        </div>
+      </div>
+      <span class="text-red-400 font-medium">{{quantidadeIncidentes.hoje}} </span>
+      <span class="text-muted-color">hoje</span>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+
+

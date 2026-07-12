@@ -1,0 +1,5 @@
+ 
+@if(load) {
+<app-preload [text]="'Carregando mapa'"/>
+}
+<app-content-mapa *ngIf="tabSelect == 0"></app-content-mapa> 

@@ -1,0 +1,110 @@
+@use './variables/_common';
+@use './variables/_light';
+@use './variables/_dark';
+@use './_mixins';
+@use './_preloading';
+@use './_core';
+@use './_main';
+@use './_topbar';
+@use './_menu';
+@use './_footer';
+@use './_responsive';
+@use './_utils';
+@use './_typography';
+@use './bpmn.scss';
+@use './form.scss';
+@use './leaflet.scss';
+
+.mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: var(--p-inputtext-background) !important;
+  color: var(--p-inputtext-color) !important;
+}
+
+.mat-mdc-form-field:not(.mat-form-field-disabled) .mat-mdc-floating-label.mdc-floating-label, .mat-mdc-icon-button img, .mat-mdc-icon-button svg {
+  color: var(--p-inputtext-color) !important;
+}
+
+.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input{
+  color: var(--p-inputtext-color) !important;
+}
+
+.input-hora{
+  font-family: inherit;
+    font-feature-settings: inherit;
+    font-size: 1rem;
+    color: var(--p-inputtext-color);
+    background: var(--p-inputtext-background);
+    padding-block: var(--p-inputtext-padding-y);
+    padding-inline: var(--p-inputtext-padding-x);
+    border: 1px solid var(--p-inputtext-border-color);
+    appearance: none;
+    border-radius: var(--p-inputtext-border-radius);
+    outline-color: transparent;
+    box-shadow: var(--p-inputtext-shadow);
+}
+
+.mat-mdc-notch-piece{
+  border: none !important;
+}
+
+.mat-mdc-form-field-flex{
+  border: 1px solid var(--p-inputtext-border-color) !important;
+  border-radius: 6px !important;
+}
+
+.mat-calendar-body-label, .mat-calendar-table-header th, .mat-calendar-body-cell-content{
+  color: var(--p-inputtext-color) !important;
+
+}
+
+.mat-mdc-select-trigger {
+  padding: 0 5px !important;
+}
+
+.mat-calendar-body-selected{
+  background-color: var(--primary-color) !important;
+  color: var(--p-datepicker-date-selected-color) !important;
+}
+
+.mat-mdc-button-touch-target{
+  cursor: pointer;
+}
+
+.mat-mdc-button:not(:disabled){
+  color: var(--p-inputtext-color) !important;
+}
+
+
+.mat-calendar{
+  width: auto;
+  padding: var(--p-datepicker-panel-padding) !important;
+  background: var(--surface-card) !important;
+  color: var(--p-inputtext-color) !important;
+  border: 1px solid var(--p-datepicker-panel-border-color) !important;
+  border-radius: var(--p-datepicker-panel-border-radius) !important;
+  box-shadow: 0px 2px 1px 0px var(--primary-color) !important;
+}
+
+.p-inputtext-fluid{
+  font-size: 1.15rem !important;
+}
+
+.w-full-b button{
+  width: 100%;
+}
+
+.mat-mdc-header-row{
+  height: 40px !important;
+}
+
+.mat-mdc-header-row th{
+  font-weight: 700 !important;
+}
+
+.mdc-data-table__cell, .mat-mdc-header-cell{
+  color: var(--text-color);
+}
+
+.app-dark .border{
+  border-color: var(--surface-border);
+}

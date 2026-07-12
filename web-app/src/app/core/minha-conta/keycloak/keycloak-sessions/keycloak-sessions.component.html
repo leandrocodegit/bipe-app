@@ -1,0 +1,63 @@
+
+  <div class="card w-full h-full">
+       <div class="flex items-center">
+        <i class="pi pi-users mr-3 !text-3xl text-primary-500"></i>
+        <span>Dispositivos e Sessões</span>
+      </div>
+    <p>
+      Veja onde sua conta está conectada e encerre sessões que você não reconhece.
+    </p>
+
+       <!-- Estado de Carregamento -->
+      <div *ngIf="isLoading" class="flex justify-center items-center h-40">
+        <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+      </div>
+
+      <div *ngIf="!isLoading && devices.length > 0" class="flex flex-col gap-4 w-full h-full">
+        <div *ngFor="let device of devices">
+
+          <div *ngFor="let session of device.sessions"
+            class="flex flex-col mb-2 md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-lg border"
+            [ngClass]="session.current ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10' : 'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700'">
+
+            <div class="flex items-center gap-4">
+              <i [class]="getDeviceIcon(device)" class="text-3xl"
+                [ngClass]="session.current ? 'text-primary-500' : 'text-surface-500'"></i>
+              <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold">{{ device.os }} {{ device.osVersion }}</span>
+                  <p-tag *ngIf="session.current" value="Sessão Atual" severity="info"></p-tag>
+                </div>
+                <small class="block text-surface-600 dark:text-surface-300">
+                  <i class="pi pi-globe text-xs mr-1 text-teal-400"></i> {{ session.browser }}
+                </small>
+                <small class="block text-surface-500 dark:text-surface-400">
+                  <i class="pi pi-map-marker text-xs mr-1"></i> IP: {{ session.ipAddress }}
+                </small>
+                <small class="block text-surface-500 dark:text-surface-400">
+                  <i class="pi pi-history text-xs mr-1"></i> Último Acesso: {{ session.lastAccess * 1000 | date:'dd/MM/yyyy HH:mm' }}
+                </small>
+              </div>
+            </div>
+
+            <!-- Clientes (Aplicações) e Ação -->
+            <div class="flex flex-col items-start md:items-end gap-3">
+              <div class="flex flex-wrap gap-2" *ngIf="session.clients.length > 0">
+                <p-chip *ngFor="let client of session.clients" [label]="client.clientId"
+                  styleClass="text-xs p-1"></p-chip>
+              </div>
+
+              <button *ngIf="!session.current" pButton type="button" label="Encerrar" icon="pi pi-sign-out"
+                class="p-button-outlined p-button-danger p-button-sm" (click)="signOut(session.id)">
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && devices.length === 0" class="text-center p-4">
+        <p-message severity="info" text="Nenhuma sessão ativa encontrada."></p-message>
+      </div>
+
+  </div>

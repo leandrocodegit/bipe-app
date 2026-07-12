@@ -1,0 +1,14 @@
+<div style="width: 100%;height: 100%;display: flex;align-items: center;justify-content: center; background: white;">
+  <div class="box-auth" style="display: flex;flex-direction: column;align-items: center;">
+    <app-load />
+    <h5 style="font-weight: 400;letter-spacing: 1px;color: var(--primary-color, #10b981);margin: 5px;">Checando sua
+      sessão</h5>
+    <div class="cf-turnstile" #turnstile data-size="flexible"></div>
+    @if (count > 3) {
+    <p style="color: #868686;margin: auto;" routerLink="/painel" class="mt-4">Caso não seja redirecionado <strong
+        style="color: #f6821f;">clique aqui.</strong></p>
+    }
+
+
+  </div>
+</div>

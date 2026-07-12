@@ -1,0 +1,24 @@
+<p-tabs [scrollable]="true" (valueChange)="selectTab($event)" [value]="tab">
+  <p-tablist >
+    <p-tab value="device">
+      <span class="material-symbols-outlined">
+        mobile
+      </span>
+      Meus Dipositivos
+    </p-tab>
+    <p-tab value="shared">
+      <span class="material-symbols-outlined">
+        share_location
+      </span>
+      Compartilhando
+    </p-tab>
+  </p-tablist>
+  <p-tabpanels>
+    <p-tabpanel value="device">
+      <app-lista-devices [devices]="devices" (refresh)="listar()"/>
+    </p-tabpanel>
+    <p-tabpanel value="shared">
+      <app-lista-devices [devices]="devices" (refresh)="listar()" [shareMode]="true"/>
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>
