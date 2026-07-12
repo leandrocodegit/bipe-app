@@ -11,10 +11,10 @@ export const environment = {
   timeout: 30000,
   sitekey: '0x4AAAAAABer05zX5CdsZSWY',
   authConfig: {
-    issuer: `https://auth.simodapp.com:8443/realms/${window.location.hostname}`,
+    issuer: `https://auth.simodapp.com:8443/realms/sincroled`,
     redirectUri: window.location.origin + '/auth',
     postLogoutRedirectUri: window.location.origin,
-    clientId: window.location.hostname,
+    clientId: 'sincroled',
     responseType: 'code',
     scope: `openid profile email`,
     showDebugInformation: true,
