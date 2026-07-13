@@ -23,8 +23,7 @@ import { Waypoint } from '@/shared/models/waypoint.model';
   imports: [
     CommonModule,
     RouterModule,
-    MqttAppModule,
-    WaypointFormDialogComponent
+    WaypointFormDialogComponent,
   ],
   templateUrl: './content-mapa.component.html',
   styleUrls: ['./content-mapa.component.scss']
@@ -69,7 +68,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly activedRoute: ActivatedRoute,
     private readonly deviceService: DeviceService,
     private readonly waypointService: WaypointService
-  ) { }
+  ) {
+
+  }
 
 
   ngOnInit(): void {
@@ -96,6 +97,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mqttService.state.subscribe(
       (state: MqttConnectionState) => {
 
+        console.log('State', state);
+
         if (state === MqttConnectionState.CONNECTED) {
           this.buscarTransicoes()
           if (this.edicao) {
@@ -109,10 +112,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     );
 
-    // Inicia a conexão injetando a senha dinamicamente
-    /*  this.mqttService.connect({
-       password: token
-     }); */
+    if (this.authService.isLoggedIn())
+      this.mqttService.connect({
+        password: token
+      });
 
   }
 

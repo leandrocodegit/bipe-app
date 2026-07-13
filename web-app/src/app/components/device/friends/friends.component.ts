@@ -19,10 +19,12 @@ import {
 } from '@/shared/GeoUtil';
 
 import { OAuthService } from 'angular-oauth2-oidc';
-import { MqttService, IMqttMessage } from 'ngx-mqtt';
+import { MqttService, IMqttMessage, MqttConnectionState } from 'ngx-mqtt';
 import { LayoutService } from '@/shared/services/layout.service';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { FriendCard, FriendPresence, OwnTracksLocation, Region } from '@/shared/models/friends.model';
+import { AuthService } from '@/core/auth/services/auth.service';
+
 
 @Component({
   selector: 'app-friends',
@@ -63,7 +65,9 @@ export class FriendsComponent implements OnInit, OnDestroy {
   copied = false;
   justArrivedIds = new Set<string>();
 
+
   private mqttSubscription?: Subscription;
+  private stateSubscription!: Subscription;
 
   /** Fonte de verdade: card e location são cruzados pelo `tid`, não pelo tópico. */
   private presenceByTid = new Map<string, FriendPresence>();
@@ -83,14 +87,43 @@ export class FriendsComponent implements OnInit, OnDestroy {
   private currentUserId: string | null = null;
 
   constructor(
+    private readonly authService: AuthService,
     private readonly layoutService: LayoutService,
     private readonly mqttService: MqttService,
     private readonly oauthService: OAuthService
-  ) { }
+  ) {
+
+
+  }
 
   ngOnInit(): void {
     this.currentUserId = this.oauthService.getIdentityClaims()?.['sub'] ?? null;
-    this.iniciarRastreamentoMqtt();
+
+    this.mqttService.state.subscribe(
+      (state: MqttConnectionState) => {
+
+        console.log('State', state);
+
+
+        if (state === MqttConnectionState.CONNECTED) {
+          this.iniciarRastreamentoMqtt();
+        }
+
+      }
+    );
+
+    if (this.authService.isLoggedIn()) {
+      this.mqttService.state.pipe(take(1)).subscribe((currentState) => {
+
+        if (currentState === MqttConnectionState.CLOSED) {
+          this.mqttService.connect({
+            password: this.oauthService.getAccessToken()
+          });
+        }
+
+      });
+    }
+
   }
 
   ngOnDestroy(): void {
@@ -98,10 +131,14 @@ export class FriendsComponent implements OnInit, OnDestroy {
     clearTimeout(this.initialBurstTimer);
     this.arrivalTimers.forEach((timer) => clearTimeout(timer));
     clearTimeout(this.copiedTimeout);
+    this.mqttService.disconnect();
   }
 
   private iniciarRastreamentoMqtt(): void {
     this.loading = true;
+
+    console.log('Iniciando card');
+
 
     this.mqttSubscription = this.mqttService.observe('owntracks/#').subscribe((message: IMqttMessage) => {
       try {
@@ -124,6 +161,9 @@ export class FriendsComponent implements OnInit, OnDestroy {
         console.error('Erro ao processar payload MQTT do OwnTracks:', error);
       }
     });
+
+
+
 
     // Mensagens retidas chegam quase imediatamente após a assinatura;
     // depois dessa janela, tratamos qualquer novidade como presença ao vivo.

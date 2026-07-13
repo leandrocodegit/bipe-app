@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
   template: `
    <button *ngIf="card?.face" class="layout-topbar-action">
            <img src="assets/drawable/{{card?.face}}.png" class="max-w-[80%]">
-        </button>    
+        </button>
   `,
   imports: [
     CommonModule,
@@ -32,19 +32,29 @@ export class BrokerStatusComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    this.stateSubscription = this.mqttService.observe('owntracks/user_5490c9b2/4713edf5-52f1-4cc7-a539-33c8cea4a82a/#').subscribe((message: IMqttMessage) => {
-      try {
 
-        const jsonString = new TextDecoder().decode(message.payload);
-        const payload = JSON.parse(jsonString);
+    this.mqttService.state.subscribe(
+      (state: MqttConnectionState) => {
 
-        if (payload._type === 'card')
-          this.card = payload;
+        if (state === MqttConnectionState.CONNECTED) {
+          this.stateSubscription = this.mqttService.observe('owntracks/user_5490c9b2/4713edf5-52f1-4cc7-a539-33c8cea4a82a/#').subscribe((message: IMqttMessage) => {
+            try {
 
-      } catch (error) {
-        console.error('Erro ao processar payload MQTT do OwnTracks:', error);
+              const jsonString = new TextDecoder().decode(message.payload);
+              const payload = JSON.parse(jsonString);
+
+              if (payload._type === 'card')
+                this.card = payload;
+
+            } catch (error) {
+              console.error('Erro ao processar payload MQTT do OwnTracks:', error);
+            }
+          });
+        }
+
       }
-    });
+    );
+
   }
 
   ngOnDestroy(): void {

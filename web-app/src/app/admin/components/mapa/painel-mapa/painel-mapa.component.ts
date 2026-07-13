@@ -5,6 +5,7 @@ import { NgIf } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PreloadComponent } from '@/shared/components/preload/preload.component';
+import { MqttAppModule } from '@/mqtt-app.module';
 
 
 @Component({
@@ -16,7 +17,8 @@ import { PreloadComponent } from '@/shared/components/preload/preload.component'
     MatProgressSpinnerModule,
     NgIf,
     ProgressSpinnerModule,
-    PreloadComponent
+    PreloadComponent,
+    MqttAppModule
   ],
   templateUrl: './painel-mapa.component.html',
   styleUrl: './painel-mapa.component.scss'
@@ -28,7 +30,7 @@ export class PainelMapaComponent implements OnInit {
 
 
 
-  ngOnInit(): void { 
+  ngOnInit(): void {
 
     if(this.tabSelect == -1)
     var intervalo = setInterval(() => {
@@ -49,7 +51,7 @@ export class PainelMapaComponent implements OnInit {
         this.load = false;
         clearInterval(intervaloLoad);
       }, 500);
- 
+
 
   }
 

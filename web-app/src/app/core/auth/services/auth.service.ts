@@ -228,7 +228,7 @@ export class AuthService {
 
     return true;
   }
- 
+
   logout() {
     const idToken = sessionStorage.getItem('id_token');
     if (idToken == null) {
