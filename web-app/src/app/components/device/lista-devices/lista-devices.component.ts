@@ -65,6 +65,7 @@ export class ListaDevicesComponent {
 
   /** Escolhe um ícone coerente com o tipo de cliente, a partir do clientId/username. */
   getDeviceIcon(device: Device): string {
+    
     const key = device.os;
     if (key.includes('iphone') || key.includes('ios')) {
       return 'pi pi-apple';

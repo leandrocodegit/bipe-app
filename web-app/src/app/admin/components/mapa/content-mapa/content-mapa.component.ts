@@ -111,7 +111,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
 
     this.activedRoute.queryParams.subscribe(param => {
-      this.edicao = this.route.url == '/rotinas'
+      this.edicao = this.route.url == '/mapa/waypoint'
       this.inicializarMapa();
       this.subscribeMonitoredCard();
     })
@@ -442,7 +442,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         padding: '6px 10px',
         fontSize: '16px',
         cursor: 'pointer',
-        border: '1px solid #767676',
+        border: '1px solid #76767696',
         borderRadius: '12px',
         fontWeight: 'bold',
         marginTop: '10px'
@@ -691,7 +691,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     btn.onAdd = () => {
       const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
       el.innerHTML = '⊕';
-      Object.assign(el.style, { background: '#000000b3', color: '#676c8a', padding: '6px 12px', fontSize: '16px', cursor: 'pointer', border: '1px solid #767676', borderRadius: '12px', fontWeight: 'bold' });
+      Object.assign(el.style, { background: '#000000b3', color: '#676c8a', padding: '6px 12px', fontSize: '16px', cursor: 'pointer', border: '1px solid #76767696', borderRadius: '12px', fontWeight: 'bold' });
 
       el.onclick = () => {
         if (this.markers.size > 0 && !this.markers.has('edicao')) {
@@ -769,16 +769,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected onSalvarNovaZona(payload: any): void {
-    console.log('Payload completo recebido do componente:', payload);
-
-    // Cria o círculo visual no mapa
-    const latLng = Leaflet.latLng(payload.lat, payload.lon);
-    this.desenharCirculoInterativo(latLng, payload.rad, payload.desc);
-
-    // Opcional: Como agora pode ser mais de um device, você faria um loop:
-    // payload.devices.forEach((deviceId: string) => {
-    //    this.enviarWaypointParaDispositivo(..., deviceId, ...);
-    // });
+    
+    this.route.navigate(['/waypoint'])
   }
 
 
@@ -790,9 +782,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  /**
-   * Plota o círculo definitivo no mapa após a confirmação do popup.
-   */
   private desenharCirculoInterativo(latLng: Leaflet.LatLng, raio: number, nome: string): void {
     const circle = Leaflet.circle(latLng, {
       weight: 2,

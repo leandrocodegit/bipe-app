@@ -22,6 +22,7 @@ const painelRoutes: Routes = [
     path: '', component: AppLayout, canActivate: [AuthGuard], children: [
       { path: 'friends', component: FriendsComponent },
       { path: 'mapa', component: PainelMapaComponent },
+      { path: 'mapa/waypoint', component: PainelMapaComponent },
       { path: 'rotinas', component: RoutinesComponent },
       { path: 'waypoint', component: WaypointListComponent },
       { path: 'devices', component: PainelDevicesComponent },

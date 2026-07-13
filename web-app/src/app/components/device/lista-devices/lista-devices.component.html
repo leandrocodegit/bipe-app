@@ -45,20 +45,21 @@
       <li *ngFor="let device of filteredDevices; trackBy: trackByDevice"
         class="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white dark:bg-neutral-950 p-4 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md">
         <!-- Ícone do dispositivo -->
-        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg" [ngClass]="device.conectado
-            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-50/10'
-            : 'bg-slate-100 text-slate-400 dark:bg-slate-50/10'">
-          @if(shareMode){
-          <i class="pi pi-share-alt"></i>
-          }@else {
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg" [ngClass]="{
+          'bg-emerald-50 text-emerald-600 dark:bg-emerald-50/10': device.conectado,
+          'bg-slate-100 text-slate-400 dark:bg-slate-50/10': !device.conectado,
+          }" [style.background]="device.color + '22'" [style.border]="'2px solid ' + device.color">
+          @if(!device?.icon) {
           <i [class]="getDeviceIcon(device)"></i>
+          }@else{
+          <img src="assets/drawable/{{device.icon}}.png" alt="">
           }
-
         </div>
 
         <!-- Nome e detalhes -->
         <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-300 m-1" [pTooltip]="device.nome" tooltipPosition="top">
+          <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-300 m-1" [pTooltip]="device.nome"
+            tooltipPosition="top">
             {{ device.nome }}
           </p>
           <p class="truncate text-xs text-slate-500 dark:text-slate-400">

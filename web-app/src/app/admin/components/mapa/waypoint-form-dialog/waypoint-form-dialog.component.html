@@ -32,7 +32,6 @@
               <p-checkbox [binary]="true" [ngModel]="allFilteredSelected" (onChange)="toggleSelectAll()"></p-checkbox>
             </th>
             <th>Dispositivo</th>
-            <th style="width: 96px" class="text-right">Status</th>
           </tr>
         </ng-template>
 
@@ -45,10 +44,15 @@
             </td>
             <td>
               <div class="flex items-center gap-2.5">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base" [ngClass]="device.conectado
-                      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-50/10'
-                      : 'bg-slate-100 text-slate-400 dark:bg-slate-50/10'">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg" [ngClass]="{
+          'bg-emerald-50 text-emerald-600 dark:bg-emerald-50/10': device.conectado,
+          'bg-slate-100 text-slate-400 dark:bg-slate-50/10': !device.conectado,
+          }" [style.background]="device.color + '22'" [style.border]="'2px solid ' + device.color">
+                  @if(!device?.icon) {
                   <i [class]="getDeviceIcon(device)"></i>
+                  }@else{
+                  <img src="assets/drawable/{{device.icon}}.png" alt="">
+                  }
                 </div>
                 <div class="flex min-w-0 flex-col">
                   <span class="truncate text-sm font-semibold text-slate-700">{{ device.nome }}</span>
@@ -56,11 +60,6 @@
                     }}</span>
                 </div>
               </div>
-            </td>
-            <td class="text-right">
-              <p-tag [value]="device.conectado ? 'Conectado' : 'Desconectado'"
-                [severity]="device.conectado ? 'success' : 'secondary'" [rounded]="true"
-                styleClass="!text-[10px]"></p-tag>
             </td>
           </tr>
         </ng-template>

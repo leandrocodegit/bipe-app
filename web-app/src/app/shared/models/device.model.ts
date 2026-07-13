@@ -5,7 +5,9 @@ export interface Device {
   nome: string;
   conectado: boolean;
   sharedUsername: string
-  os: string
+  os: string;
+  icon: string;
+  color: string;
 }
 
 export interface ShareRequest {
