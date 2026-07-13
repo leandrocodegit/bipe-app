@@ -27,7 +27,7 @@ const painelRoutes: Routes = [
     ]
   },
   {
-        path: 'conta', component: PainelRouteBaseComponent, children: [
+        path: 'painel/conta', component: PainelRouteBaseComponent, children: [
           { path: '', component: PainelUsuarioLogadoComponent },
           { path: 'sessions', component: KeycloakSessionsComponent },
           { path: 'perfil', component: KeycloakUserProfileComponent },
