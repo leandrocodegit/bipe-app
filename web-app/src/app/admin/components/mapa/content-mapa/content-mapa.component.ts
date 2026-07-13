@@ -17,6 +17,7 @@ import { WaypointFormDialogComponent } from '../waypoint-form-dialog/waypoint-fo
 import { WaypointService } from '@/shared/services/waypoint.service';
 import { Waypoint } from '@/shared/models/waypoint.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
+import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 
 @Component({
   selector: 'app-content-mapa',
@@ -52,6 +53,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private googleLayer!: Leaflet.TileLayer;
   private esriLayer!: Leaflet.TileLayer;
   private isGoogleActive = false;
+  private markerTidIndex: Map<string, string> = new Map();
+  private monitoredCardTid: string | null = null;
+  private monitoredCardSubscription?: Subscription;
+  private centerRequestSubscription?: Subscription;
   protected devices: Device[] = [];
   protected mostrarDialogZona = false;
   protected coordenadasAlvoClicado: any;
@@ -82,7 +87,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly activedRoute: ActivatedRoute,
     private readonly deviceService: DeviceService,
     private readonly waypointService: WaypointService,
-    private readonly mqttConnectionService: MqttConnectionService
+    private readonly mqttConnectionService: MqttConnectionService,
+    private readonly monitoredCardService: MonitoredCardService
   ) {
 
   }
@@ -100,6 +106,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activedRoute.queryParams.subscribe(param => {
       this.edicao = this.route.url == '/rotinas'
       this.inicializarMapa();
+      this.subscribeMonitoredCard();
     })
 
   }
@@ -501,10 +508,11 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const user = partesTopico[1] || 'Desconhecido';
     const deviceName = partesTopico[2] || 'Dispositivo';
     const uniqueId = `${user}-${deviceName}`;
+    const tid = payload.tid || deviceName.substring(0, 2).toUpperCase();
+    this.markerTidIndex.set(tid, uniqueId);
 
     const latLng = { lat: payload.lat, lng: payload.lon };
     const precisao = payload.acc || 10;
-    const tid = payload.tid || deviceName.substring(0, 2).toUpperCase();
     const iconName = payload.icon;
 
     if (this.markers.has(uniqueId)) {
@@ -518,6 +526,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Atualiza o ícone do mapa dinamicamente caso o usuário tenha trocado de figura
       marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload.color));
+
+      if (this.monitoredCardTid === tid) {
+        this.centerMonitoredCard(latLng.lat, latLng.lng);
+      }
     } else {
       this.criarMarcadorRastreamento(uniqueId, latLng, precisao, tid, iconName, user, deviceName, payload);
 
@@ -545,6 +557,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.circles.set(id, circle);
     this.markers.set(id, marker);
+    this.markerTidIndex.set(tid, id);
 
     this.posicoesClusterGroup.addLayer(marker);
   }
@@ -643,6 +656,41 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       return el;
     };
     btn.addTo(this.mapa);
+  }
+
+  private subscribeMonitoredCard(): void {
+    if (this.monitoredCardSubscription || this.centerRequestSubscription) {
+      return;
+    }
+
+    this.monitoredCardSubscription = this.monitoredCardService.monitoredCard$.subscribe((card) => {
+      this.monitoredCardTid = card?.card.tid ?? null;
+      if (!this.mapa) {
+        return;
+      }
+      if (card?.location) {
+        this.centerMonitoredCard(card.location.lat, card.location.lon, true);
+      }
+    });
+
+    this.centerRequestSubscription = this.monitoredCardService.centerRequested$.subscribe((card) => {
+      if (!card?.location || !this.mapa) {
+        return;
+      }
+      this.centerMonitoredCard(card.location.lat, card.location.lon, true);
+    });
+  }
+
+  private centerMonitoredCard(lat: number, lon: number, fly = false): void {
+    if (!this.mapa) {
+      return;
+    }
+    const latLng = Leaflet.latLng(lat, lon);
+    if (fly) {
+      this.mapa.flyTo(latLng, 16, { animate: true });
+    } else {
+      this.mapa.panTo(latLng);
+    }
   }
 
   limpar(): void {

@@ -1,0 +1,8 @@
+/* Estilo do painel de monitoramento no layout global */
+:host {
+  display: block;
+}
+
+:host div {
+  box-sizing: border-box;
+}

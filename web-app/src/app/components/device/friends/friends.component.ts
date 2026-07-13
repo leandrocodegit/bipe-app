@@ -26,6 +26,7 @@ import { FriendCard, FriendPresence, OwnTracksLocation, Region } from '@/shared/
 import { Device } from '@/shared/models/device.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { AuthService } from '@/core/auth/services/auth.service';
+import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 
 
 @Component({
@@ -92,7 +93,8 @@ export class FriendsComponent implements OnInit, OnDestroy {
     private readonly layoutService: LayoutService,
     private readonly mqttService: MqttService,
     private readonly oauthService: OAuthService,
-    private readonly mqttConnectionService: MqttConnectionService
+    private readonly mqttConnectionService: MqttConnectionService,
+    private readonly monitoredCardService: MonitoredCardService
   ) {
 
 
@@ -273,7 +275,14 @@ export class FriendsComponent implements OnInit, OnDestroy {
 
   openDetails(friend: FriendPresence): void {
     this.selectedFriend = friend;
+    this.monitoredCardService.monitorCard(friend);
     this.friendSelected.emit(friend);
+  }
+
+  monitorFriend(friend: FriendPresence): void {
+    this.monitoredCardService.monitorCard(friend);
+    this.monitoredCardService.requestCenter();
+    this.closeDetails();
   }
 
   closeDetails(): void {

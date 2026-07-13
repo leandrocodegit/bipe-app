@@ -205,8 +205,10 @@
         </div>
       </ng-template>
 
-      <button pButton type="button" label="Fechar" class="p-button-text w-full !rounded-xl"
-        (click)="closeDetails()"></button>
+      <div class="mt-4 flex gap-2">
+        <button pButton type="button" label="Monitorar" class="p-button-sm flex-1" (click)="monitorFriend(friend)"></button>
+        <button pButton type="button" label="Fechar" class="p-button-sm p-button-text flex-1" (click)="closeDetails()"></button>
+      </div>
     </div>
   </p-dialog>
 

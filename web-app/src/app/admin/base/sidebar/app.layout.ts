@@ -13,6 +13,7 @@ import { MqttService } from 'ngx-mqtt';
 import { LayoutService } from '@/shared/services/layout.service';
 import { LoadService } from '@/shared/components/preload/load.service';
 import { PreloadComponent } from '@/shared/components/preload/preload.component';
+import { MonitoredCardComponent } from '@/shared/components/monitored-card/monitored-card.component';
 
 @Component({
   selector: 'app-layout',
@@ -26,7 +27,8 @@ import { PreloadComponent } from '@/shared/components/preload/preload.component'
     ToastModule,
     ConfirmDialogModule,
     TabsModule,
-    ButtonModule
+    ButtonModule,
+    MonitoredCardComponent
   ],
   template: `
 <div class="layout-wrapper" [ngClass]="containerClass">
@@ -39,6 +41,7 @@ import { PreloadComponent } from '@/shared/components/preload/preload.component'
           <app-preload></app-preload>
           }
           <router-outlet></router-outlet>
+          <app-monitored-card></app-monitored-card>
           <p-toast [breakpoints]="{ '920px': { width: '96%', right: '0', left: '5px' } }"/>
           <p-confirmdialog />
         </div>
