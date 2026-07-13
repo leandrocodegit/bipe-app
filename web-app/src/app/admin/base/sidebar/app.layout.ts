@@ -36,12 +36,14 @@ import { MonitoredCardComponent } from '@/shared/components/monitored-card/monit
     <app-sidebar></app-sidebar>
   <div class="layout-main-container">
     <div class="block lg:flex flex-col gap-4 h-[97%] bg-white dark:bg-neutral-950">
-        <div class="layout-main">
+        <div class="layout-main flex flex-col lg:flex-row w-full h-full overflow-hidden relative">
           @if(load){
           <app-preload></app-preload>
           }
-          <router-outlet></router-outlet>
-          <app-monitored-card></app-monitored-card>
+          <div class="flex-1 w-full h-full relative overflow-hidden">
+            <router-outlet></router-outlet>
+          </div>
+          <app-monitored-card class="shrink-0 z-40"></app-monitored-card>
           <p-toast [breakpoints]="{ '920px': { width: '96%', right: '0', left: '5px' } }"/>
           <p-confirmdialog />
         </div>
