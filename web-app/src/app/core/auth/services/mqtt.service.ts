@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MqttConnectionService {
-  
+
   public connected$ = new BehaviorSubject<boolean>(false);
 
   constructor(
@@ -62,7 +62,7 @@ export class MqttConnectionService {
       port: environment.portaWebSocket,
       protocol: environment.protocoloWebSocket,
       path: '/ws',
-      username: crypto.randomUUID(),
+      username: this.authService.extrairEmailUsuario(),
       password: token
     };
 
