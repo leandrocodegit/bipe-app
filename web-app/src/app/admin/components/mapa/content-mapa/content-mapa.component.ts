@@ -2,6 +2,7 @@ import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, PLAT
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import * as Leaflet from 'leaflet';
+import 'leaflet.markercluster';
 import { LayoutService } from '@/shared/services/layout.service';
 import { MqttAppModule } from '@/mqtt-app.module';
 import { MqttConnectionState, MqttService } from 'ngx-mqtt';
