@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 import { FriendPresence } from '@/shared/models/friends.model';
 import { batteryInfo, BatteryInfo, topMotionActivity } from '@/shared/GeoUtil';
@@ -12,19 +15,46 @@ import { batteryInfo, BatteryInfo, topMotionActivity } from '@/shared/GeoUtil';
   templateUrl: './monitored-card.component.html',
   styleUrls: ['./monitored-card.component.scss']
 })
-export class MonitoredCardComponent implements OnInit {
+export class MonitoredCardComponent implements OnInit, OnDestroy {
   protected monitoredCard: FriendPresence | null = null;
   protected battery: BatteryInfo | null = null;
   protected motionLabel = '';
   protected motionEmoji = '';
+  protected isVisibleOnRoute = true;
+  
+  private routerSub!: Subscription;
+  private cardSub!: Subscription;
 
-  constructor(private monitoredCardService: MonitoredCardService) {}
+  constructor(
+    private monitoredCardService: MonitoredCardService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.monitoredCardService.monitoredCard$.subscribe((card) => {
+    // Verifica a rota inicial
+    this.checkRouteVisibility(this.router.url);
+
+    // Atualiza a visibilidade quando a rota muda
+    this.routerSub = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.checkRouteVisibility(event.urlAfterRedirects);
+    });
+
+    this.cardSub = this.monitoredCardService.monitoredCard$.subscribe((card) => {
       this.monitoredCard = card;
       this.updateComputedFields();
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSub) this.routerSub.unsubscribe();
+    if (this.cardSub) this.cardSub.unsubscribe();
+  }
+
+  private checkRouteVisibility(url: string): void {
+    // Mostra apenas nas rotas de amigos ou mapa
+    this.isVisibleOnRoute = url.includes('/friends') || url.includes('/mapa');
   }
 
   clearMonitor(): void {
