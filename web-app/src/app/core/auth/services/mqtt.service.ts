@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject, Subscription, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { IMqttMessage, MqttConnectionState, MqttService } from 'ngx-mqtt';
+import { IMqttMessage, IOnErrorEvent, MqttConnectionState, MqttService } from 'ngx-mqtt';
 import { OAuthEvent, OAuthService } from 'angular-oauth2-oidc';
 import { AuthService } from './auth.service';
 import { environment } from 'src/environments/environment';
@@ -12,7 +12,7 @@ export class MqttConnectionService {
   public connected$ = new BehaviorSubject<boolean>(false);
   private topicSubjects = new Map<string, Subject<IMqttMessage>>();
   private topicSubscriptions = new Map<string, Subscription>();
-  
+
   // Cache para simular mensagens "retained" do MQTT localmente
   private messageCache = new Map<string, IMqttMessage>();
 
@@ -32,7 +32,7 @@ export class MqttConnectionService {
     if (!this.topicSubjects.has(topic)) {
       const subject = new Subject<IMqttMessage>();
       this.topicSubjects.set(topic, subject);
-      
+
       const sub = this.mqttService.observe(topic).subscribe(
         msg => {
           // Atualiza o cache com a última mensagem deste subtópico exato
@@ -50,7 +50,7 @@ export class MqttConnectionService {
       );
       this.topicSubscriptions.set(topic, sub);
     }
-    
+
     // Converte o tópico MQTT (com + e #) para Regex para podermos buscar no cache
     const regexStr = '^' + topic.replace(/\+/g, '[^/]+').replace(/#/g, '.*') + '$';
     const topicRegex = new RegExp(regexStr);
@@ -65,7 +65,7 @@ export class MqttConnectionService {
 
       // 2. Inscreve-se para receber as novas mensagens do Subject
       const sub = this.topicSubjects.get(topic)!.subscribe(observer);
-      
+
       return () => sub.unsubscribe();
     });
   }
@@ -99,20 +99,29 @@ export class MqttConnectionService {
   }
 
   private connectWithCurrentToken(): void {
-    const token = this.oauthService.getAccessToken();
-    console.log('[MqttConnectionService] connectWithCurrentToken called. Token length:', token ? token.length : 'none');
 
-    const options = {
+    this.mqttService.connect({
       hostname: environment.urlWebSocket,
       port: environment.portaWebSocket,
       protocol: environment.protocoloWebSocket,
       path: '/ws',
       username: this.authService.extrairEmailUsuario(),
-      password: token
-    };
+      password: this.oauthService.getAccessToken()
+    });
 
-    console.log('[MqttConnectionService] Connecting with options:', { ...options, password: '***' });
+    this.mqttService.onError.subscribe((error: IOnErrorEvent) => {
+      if (error.message.includes('Not authorized'))
+        this.authService.refreshToken().subscribe(token => {
+          this.mqttService.connect({
+            hostname: environment.urlWebSocket,
+            port: environment.portaWebSocket,
+            protocol: environment.protocoloWebSocket,
+            path: '/ws',
+            username: this.authService.extrairEmailUsuario(),
+            password: this.oauthService.getAccessToken()
+          });
 
-    this.mqttService.connect(options);
+        });
+    })
   }
 }
