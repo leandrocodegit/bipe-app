@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PaginatorState } from 'primeng/paginator';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { Usuario } from '@/admin/modulos/usuarios/models/usuario.model';
 
 
 @Injectable({
