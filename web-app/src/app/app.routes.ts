@@ -26,6 +26,13 @@ const painelRoutes: Routes = [
       { path: 'share/accept', component: AcceptShareComponent }
     ]
   },
+  {
+        path: 'conta', component: PainelRouteBaseComponent, children: [
+          { path: '', component: PainelUsuarioLogadoComponent },
+          { path: 'sessions', component: KeycloakSessionsComponent },
+          { path: 'perfil', component: KeycloakUserProfileComponent },
+        ]
+      },
   { path: 'login', component: LoginSocialComponent },
   { path: 'logout', component: LogoutComponent },
   { path: 'auth', component: AutenticacaoComponent },
