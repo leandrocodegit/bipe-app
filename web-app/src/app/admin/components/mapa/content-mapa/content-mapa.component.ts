@@ -57,6 +57,19 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   protected waypoints: Waypoint[] = [];
   private regioesLayer = Leaflet.layerGroup();
 
+  private obterLeaflet(): any {
+    return (window as any).L || Leaflet;
+  }
+
+  private criarClusterGroup(options: any): any {
+    const L_any = this.obterLeaflet();
+    if (typeof L_any.markerClusterGroup === 'function') {
+      return L_any.markerClusterGroup(options);
+    }
+    console.warn('[ContentMapaComponent] MarkerCluster plugin não encontrado. Usando layerGroup normal.');
+    return Leaflet.layerGroup();
+  }
+
   constructor(
     private readonly route: Router,
     private readonly layoutService: LayoutService,
@@ -194,6 +207,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private buscarTransicoes(): void {
     if (this.edicao) return;
+    if (this.transicoesClusterGroup?.clearLayers) {
+      this.transicoesClusterGroup.clearLayers();
+    }
     this.recorderService.listaTransicoes().subscribe({
       next: (geoJsonData: any) => {
         if (geoJsonData && geoJsonData.features) {
@@ -348,13 +364,13 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const L_any = (window as any).L || Leaflet;
 
-    this.transicoesClusterGroup = L_any.markerClusterGroup({
+    this.transicoesClusterGroup = this.criarClusterGroup({
       maxClusterRadius: 10,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true
     }).addTo(this.mapa);
-    this.posicoesClusterGroup = L_any.markerClusterGroup({
+    this.posicoesClusterGroup = this.criarClusterGroup({
       maxClusterRadius: 10,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
