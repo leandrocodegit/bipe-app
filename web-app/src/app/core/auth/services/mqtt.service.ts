@@ -110,7 +110,7 @@ export class MqttConnectionService {
     });
 
     this.mqttService.onError.subscribe((error: IOnErrorEvent) => {
-      if (error.message.includes('Not authorized'))
+      if (error.message.includes('Not authorized')){
         this.authService.refreshToken().subscribe(token => {
           this.mqttService.connect({
             hostname: environment.urlWebSocket,
@@ -122,6 +122,22 @@ export class MqttConnectionService {
           });
 
         });
+      }else       if (error.message.includes('Refused')){
+
+        this.mqttService.disconnect();
+
+        this.authService.refreshToken().subscribe(token => {
+          this.mqttService.connect({
+            hostname: environment.urlWebSocket,
+            port: environment.portaWebSocket,
+            protocol: environment.protocoloWebSocket,
+            path: '/ws',
+            username: this.authService.extrairEmailUsuario(),
+            password: this.oauthService.getAccessToken()
+          });
+
+        });
+      }
     })
   }
 }

@@ -1,11 +1,10 @@
-import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output, PLATFORM_ID, AfterViewInit } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, PLATFORM_ID, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import * as Leaflet from 'leaflet';
 import 'leaflet.markercluster';
 import { LayoutService } from '@/shared/services/layout.service';
-import { MqttAppModule } from '@/mqtt-app.module';
-import { MqttConnectionState, MqttService } from 'ngx-mqtt';
+import { MqttService } from 'ngx-mqtt';
 import { Subscription } from 'rxjs';
 import { MapUltilService } from '@/shared/services/mapa-util.service';
 import { RecorderService } from '@/shared/services/recorder.service';
@@ -104,7 +103,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.layoutService.isMobile()) {
-      this.height = '93.5vh';
+     // this.height = '93.5vh';
     }
 
   }
