@@ -67,7 +67,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
 
 
   private mqttSubscription?: Subscription;
-  private stateSubscription!: Subscription;
 
   /** Fonte de verdade: card e location são cruzados pelo `tid`, não pelo tópico. */
   private presenceByTid = new Map<string, FriendPresence>();
@@ -112,16 +111,8 @@ export class FriendsComponent implements OnInit, OnDestroy {
       }
     );
 
-    if (this.authService.isLoggedIn()) {
-      this.mqttService.state.pipe(take(1)).subscribe((currentState) => {
-
-        if (currentState === MqttConnectionState.CLOSED) {
-          this.mqttService.connect({
-            password: this.oauthService.getAccessToken()
-          });
-        }
-
-      });
+    if (this.mqttSubscription) {
+      // Just waiting for the state subscription above to trigger
     }
 
   }
@@ -131,7 +122,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
     clearTimeout(this.initialBurstTimer);
     this.arrivalTimers.forEach((timer) => clearTimeout(timer));
     clearTimeout(this.copiedTimeout);
-    this.mqttService.disconnect();
   }
 
   private iniciarRastreamentoMqtt(): void {

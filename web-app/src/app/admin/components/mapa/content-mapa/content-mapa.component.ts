@@ -91,9 +91,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private conectarMqttComToken(): void {
-    const token = this.oauthService.getAccessToken();
-
-
     this.mqttService.state.subscribe(
       (state: MqttConnectionState) => {
 
@@ -111,13 +108,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
       }
     );
-
-    if (this.authService.isLoggedIn())
-      this.mqttService.connect({
-        password: token
-      });
-
   }
+
 
   listarWaypoints() {
     this.waypointService.listaWaypoints().subscribe(response => {

@@ -19,7 +19,8 @@ import { AuthService } from './core/auth/services/auth.service';
 import { LayoutService } from './shared/services/layout.service';
 import { getPtBrPaginatorIntl } from './shared/CustomPaginator';
 import { PT_BR } from './shared/DateUtil';
-
+import { importProvidersFrom } from '@angular/core';
+import { MqttAppModule } from './mqtt-app.module';
 const maskConfig: Partial<NgxMaskConfig> = {
   validation: false,
 };
@@ -57,6 +58,7 @@ export const appConfig: ApplicationConfig = {
     ConfirmationService,
     DialogService,
     AuthService,
-    LayoutService
+    LayoutService,
+    importProvidersFrom(MqttAppModule)
   ]
 };
