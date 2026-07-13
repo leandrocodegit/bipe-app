@@ -275,6 +275,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
 
   openDetails(friend: FriendPresence): void {
     this.selectedFriend = friend;
+    sessionStorage.setItem('rastreador_selected_friend_id', friend.id);
     this.monitoredCardService.monitorCard(friend);
     this.friendSelected.emit(friend);
   }
@@ -287,6 +288,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
 
   closeDetails(): void {
     this.selectedFriend = null;
+    sessionStorage.removeItem('rastreador_selected_friend_id');
   }
 
   async copyId(id: string): Promise<void> {
@@ -400,6 +402,20 @@ export class FriendsComponent implements OnInit, OnDestroy {
 
   private rebuildFriends(): void {
     this.friends = Array.from(this.presenceByTid.values());
+    
+    // Restaura o card selecionado se a página foi recarregada
+    if (!this.selectedFriend) {
+      const savedFriendId = sessionStorage.getItem('rastreador_selected_friend_id');
+      if (savedFriendId) {
+        const found = this.friends.find(f => f.id === savedFriendId);
+        if (found) {
+          // Não chamamos openDetails direto para evitar emitir múltiplos eventos ou loop
+          this.selectedFriend = found;
+          this.monitoredCardService.monitorCard(found);
+          this.friendSelected.emit(found);
+        }
+      }
+    }
   }
 
   private markAsJustArrived(id: string): void {
