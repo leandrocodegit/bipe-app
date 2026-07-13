@@ -51,7 +51,9 @@
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "node_modules/quill/dist/quill.snow.css",
               "./node_modules/leaflet/dist/leaflet.css",
-              "node_modules/leaflet-draw/dist/leaflet.draw.css"
+              "node_modules/leaflet-draw/dist/leaflet.draw.css",
+              "node_modules/leaflet.markercluster/dist/MarkerCluster.css",
+              "node_modules/leaflet.markercluster/dist/MarkerCluster.Default.css"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -61,6 +63,7 @@
             "scripts": [
               "node_modules/leaflet/dist/leaflet.js",
               "node_modules/leaflet-draw/dist/leaflet.draw.js",
+              "node_modules/leaflet.markercluster/dist/leaflet.markercluster.js",
               "src/assets/leaflet-draw/dist/leaflet.draw.js",
               "src/assets/js/draw.js"
             ],

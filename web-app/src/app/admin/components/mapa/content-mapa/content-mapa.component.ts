@@ -8,7 +8,6 @@ import { MqttConnectionState, MqttService } from 'ngx-mqtt';
 import { Subscription } from 'rxjs';
 import { MapUltilService } from '@/shared/services/mapa-util.service';
 import { RecorderService } from '@/shared/services/recorder.service';
-import 'leaflet.markercluster';
 import { AuthService } from '@/core/auth/services/auth.service';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { DeviceService } from '@/shared/services/device.service';
@@ -347,19 +346,21 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.addCenterButton();
     this.addLayerToggleButton();
 
-    this.transicoesClusterGroup = Leaflet.markerClusterGroup({
+    const L_any = (window as any).L || Leaflet;
+
+    this.transicoesClusterGroup = L_any.markerClusterGroup({
       maxClusterRadius: 10,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true
     }).addTo(this.mapa);
-    this.posicoesClusterGroup = Leaflet.markerClusterGroup({
+    this.posicoesClusterGroup = L_any.markerClusterGroup({
       maxClusterRadius: 10,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
       animate: true,
-      iconCreateFunction: (cluster) => {
+      iconCreateFunction: (cluster: any) => {
         const childCount = cluster.getChildCount(); // Quantidade de marcadores dentro
 
         const html = `
