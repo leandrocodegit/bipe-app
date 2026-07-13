@@ -745,13 +745,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mapUltilService?.limpar();
   }
 
-  salvarArea() {
-
-  }
-
   iniciarDesenhoPoligono(): void {
     this.iniciarCriacaoZonas();
-
   }
 
   private iniciarCriacaoZonas(): void {
@@ -782,28 +777,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  private desenharCirculoInterativo(latLng: Leaflet.LatLng, raio: number, nome: string): void {
-    const circle = Leaflet.circle(latLng, {
-      weight: 2,
-      color: '#10b981',
-      opacity: 0.8,
-      fillColor: '#10b981',
-      fillOpacity: 0.2,
-      radius: raio
-    }).addTo(this.mapa);
-
-    circle.bindTooltip(`Zona: ${raio}m`, { permanent: false, direction: 'top' });
-
-    this.enviarWaypointParaDispositivo('AD', 'emu64xa16k', latLng.lat, latLng.lng, raio, nome)
-
-  }
-
-
   enviarWaypointParaDispositivo(user: string, device: string, lat: number, lon: number, raio: number, nomeZona: string): void {
-    // O tópico oficial do OwnTracks para receber comandos remotos
     const topic = `owntracks/device/emu64xa16k/cmd`;
 
-    // Estrutura exata exigida pela documentação do OwnTracks para waypoints
     const payload = {
       _type: 'cmd',
       action: 'setWaypoints',

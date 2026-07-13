@@ -1,6 +1,7 @@
 export interface Device {
   id: string;
   clientId: string;
+  apelido?: string;
   username: string;
   nome: string;
   conectado: boolean;

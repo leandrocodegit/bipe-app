@@ -10,8 +10,9 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Device } from '@/shared/models/device.model';
-import { DeviceService } from '@/shared/services/device.service';
 import { ShareDeviceComponent } from '../share-device/share-device.component';
+import { DialogModule } from 'primeng/dialog';
+import { DeviceService } from '@/shared/services/device.service';
 
 @Component({
   selector: 'app-lista-devices',
@@ -25,6 +26,7 @@ import { ShareDeviceComponent } from '../share-device/share-device.component';
     InputIconModule,
     TooltipModule,
     SkeletonModule,
+    DialogModule,
     ShareDeviceComponent
   ],
   templateUrl: './lista-devices.component.html',
@@ -32,15 +34,38 @@ import { ShareDeviceComponent } from '../share-device/share-device.component';
 })
 export class ListaDevicesComponent {
 
-  @Input({required: true}) devices: Device[] = [];
+  @Input({ required: true }) devices: Device[] = [];
   @Input() loading = false;
   @Input() shareMode = false;
   @Output() disconnect = new EventEmitter<Device>();
   @Output() refresh = new EventEmitter<void>();
 
-  searchTerm = '';
-  skeletonRows = [1, 2, 3];
- 
+  protected searchTerm = '';
+  protected skeletonRows = [1, 2, 3];
+  protected view = false;
+  protected selected?: Device;
+  protected apelido = '';
+
+  constructor(private readonly deviceService: DeviceService) { }
+
+
+  salvarApelido() {
+    this.deviceService.salvarApelido({
+      id: this.selected!.id,
+      apelido: this.apelido
+    }).subscribe({
+      next: () => {
+        this.view = false;
+        delete this.selected;
+        this.apelido = '';
+      }
+    });
+  }
+
+  editApelido(device: Device) {
+    this.view = true;
+    this.selected = device;
+  }
 
   get filteredDevices(): Device[] {
     const term = this.searchTerm.trim().toLowerCase();
@@ -65,7 +90,7 @@ export class ListaDevicesComponent {
 
   /** Escolhe um ícone coerente com o tipo de cliente, a partir do clientId/username. */
   getDeviceIcon(device: Device): string {
-    
+
     const key = device.os;
     if (key.includes('iphone') || key.includes('ios')) {
       return 'pi pi-apple';
@@ -88,6 +113,6 @@ export class ListaDevicesComponent {
   }
 
   onRefresh(): void {
-     this.refresh.emit();
+    this.refresh.emit();
   }
 }

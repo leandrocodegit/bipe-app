@@ -58,9 +58,9 @@
 
         <!-- Nome e detalhes -->
         <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-300 m-1" [pTooltip]="device.nome"
+          <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-300 m-1" [pTooltip]=" device?.apelido ?? device.nome"
             tooltipPosition="top">
-            {{ device.nome }}
+            {{ device?.apelido ?? device.nome }}
           </p>
           <p class="truncate text-xs text-slate-500 dark:text-slate-400">
             <i class="pi pi-user mr-1 text-[10px]"></i>{{ device.username }}
@@ -68,9 +68,13 @@
         </div>
 
         <!-- Status + ações -->
-        <div *ngIf="!shareMode" class="flex shrink-0 flex-col items-end gap-1.5">
-          <p-tag *ngIf="device.conectado" value="Transmitindo" [severity]="device.conectado ? 'success' : 'secondary'"
-            [rounded]="true" styleClass="!text-xs !font-medium"></p-tag>
+        <div *ngIf="!shareMode" class="flex shrink-0 flex-col items-end">
+          <button pButton type="button" class="p-button-rounded p-button-text !h-8 !w-8" pTooltip="Compartilhar"
+            tooltipPosition="left" (click)="editApelido(device)">
+            <span class="material-symbols-outlined">
+              edit_square
+            </span>
+          </button>
 
           <app-share-device [device]="device" />
         </div>
@@ -89,3 +93,28 @@
   </ng-template>
 
 </div>
+
+
+<p-dialog [visible]="!!selected" [modal]="true" [draggable]="false" [resizable]="false" position="bottom"
+  [showHeader]="false" styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm sm:!rounded-3xl"
+  [breakpoints]="{ '640px': '100vw' }">
+  <div *ngIf="selected as device" class="flex flex-col gap-4 px-2 py-6 mb-12">
+
+    <div class="flex gap-3">
+      <div class="flex flex-1 flex-col gap-1">
+        <label class="text-xs font-bold uppercase text-slate-600">Apelido do dispositivo</label>
+        <input pInputText type="text" [(ngModel)]="apelido" placeholder="Ex: Maria"
+          class="w-full !rounded-xl !py-2.5" />
+      </div>
+    </div>
+    <!-- Ações -->
+    <div class="flex gap-2 pt-3">
+      <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-outlined flex-1 !rounded-xl"
+        (click)="view = false"></button>
+      <button pButton type="button" label="Salvar" icon="pi pi-trash"
+        class="p-button-outlined p-button-success flex-1 !rounded-xl"
+        (click)="salvarApelido()"
+        ></button>
+    </div>
+  </div>
+</p-dialog>

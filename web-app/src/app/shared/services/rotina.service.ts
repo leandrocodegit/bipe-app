@@ -20,12 +20,11 @@ export class RotinaService {
     return this.http.post<any>(`${environment.urlApi}/bipe/rotinas`, request);
   }
 
-
   public ativarRotina(id: string): Observable<any> {
     return this.http.patch<any>(`${environment.urlApi}/bipe/rotinas/${id}/toggle`, {});
   }
 
-    public removeRotina(id: string): Observable<any> {
+  public removeRotina(id: string): Observable<any> {
     return this.http.delete<any>(`${environment.urlApi}/bipe/rotinas/${id}`);
   }
 
