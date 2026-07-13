@@ -16,6 +16,7 @@ import { Device } from '@/shared/models/device.model';
 import { WaypointFormDialogComponent } from '../waypoint-form-dialog/waypoint-form-dialog.component';
 import { WaypointService } from '@/shared/services/waypoint.service';
 import { Waypoint } from '@/shared/models/waypoint.model';
+import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 
 @Component({
   selector: 'app-content-mapa',
@@ -67,7 +68,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly oauthService: OAuthService,
     private readonly activedRoute: ActivatedRoute,
     private readonly deviceService: DeviceService,
-    private readonly waypointService: WaypointService
+    private readonly waypointService: WaypointService,
+    private readonly mqttConnectionService: MqttConnectionService
   ) {
 
   }
@@ -91,12 +93,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private conectarMqttComToken(): void {
-    this.mqttService.state.subscribe(
-      (state: MqttConnectionState) => {
+    this.mqttConnectionService.connected$.subscribe(
+      (isConnected: boolean) => {
 
-        console.log('State', state);
+        console.log('MQTT Connected:', isConnected);
 
-        if (state === MqttConnectionState.CONNECTED) {
+        if (isConnected) {
           this.buscarTransicoes()
           if (this.edicao) {
             this.adicionarMarcadorEdicao();
@@ -436,7 +438,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private iniciarRastreamentoMqtt(): void {
-    this.mqttSubscription = this.mqttService.observe(`owntracks/#`).subscribe((message: any) => {
+    this.mqttSubscription = this.mqttConnectionService.observe(`owntracks/#`).subscribe((message: any) => {
       try {
         const jsonString = String.fromCharCode(...message.payload);
         const payload = JSON.parse(jsonString);
@@ -457,7 +459,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private iniciarRastreamentoShared(): void {
-    this.mqttSubscription = this.mqttService.observe(`shared/${this.authService.extrairIdUsuario()}`).subscribe((message: any) => {
+    this.mqttSubscription = this.mqttConnectionService.observe(`shared/${this.authService.extrairIdUsuario()}`).subscribe((message: any) => {
       try {
         const jsonString = String.fromCharCode(...message.payload);
         const payload = JSON.parse(jsonString);
@@ -717,7 +719,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     try {
       // Publica com QoS 1 para garantir a entrega. Retain false para não prender a mensagem no broker.
-      this.mqttService.unsafePublish(topic, JSON.stringify(payload), { qos: 1, retain: false });
+      this.mqttConnectionService.unsafePublish(topic, JSON.stringify(payload), { qos: 1, retain: false });
       console.log(`📡 Waypoint '${nomeZona}' enviado com sucesso para ${user}/${device}`);
     } catch (error) {
       console.error('Erro ao enviar waypoint via MQTT:', error);

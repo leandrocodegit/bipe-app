@@ -3,6 +3,7 @@ import { FriendCard } from '@/shared/models/friends.model';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IMqttMessage, MqttConnectionState, MqttService } from 'ngx-mqtt';
+import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { Subscription } from 'rxjs';
 
@@ -15,11 +16,8 @@ import { Subscription } from 'rxjs';
   `,
   imports: [
     CommonModule,
-    MqttAppModule,
-    TooltipModule
-  ],
-  providers: [
-    MqttService,
+    TooltipModule,
+    CardModule
   ]
 })
 export class BrokerStatusComponent implements OnInit, OnDestroy {

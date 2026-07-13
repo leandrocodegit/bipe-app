@@ -17,8 +17,7 @@ import { MqttAppModule } from '@/mqtt-app.module';
     MatProgressSpinnerModule,
     NgIf,
     ProgressSpinnerModule,
-    PreloadComponent,
-    MqttAppModule
+    PreloadComponent
   ],
   templateUrl: './painel-mapa.component.html',
   styleUrl: './painel-mapa.component.scss'

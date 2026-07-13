@@ -46,10 +46,7 @@ import { PreloadComponent } from '@/shared/components/preload/preload.component'
   </div>
   <div class="layout-mask animate-fadein"></div>
 </div>
-  `,
-  providers: [
-    MqttService
-  ]
+  `
 })
 export class AppLayout {
   overlayMenuOpenSubscription: Subscription;

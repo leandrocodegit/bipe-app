@@ -23,6 +23,8 @@ import { MqttService, IMqttMessage, MqttConnectionState } from 'ngx-mqtt';
 import { LayoutService } from '@/shared/services/layout.service';
 import { Subscription, take } from 'rxjs';
 import { FriendCard, FriendPresence, OwnTracksLocation, Region } from '@/shared/models/friends.model';
+import { Device } from '@/shared/models/device.model';
+import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { AuthService } from '@/core/auth/services/auth.service';
 
 
@@ -89,7 +91,8 @@ export class FriendsComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService,
     private readonly layoutService: LayoutService,
     private readonly mqttService: MqttService,
-    private readonly oauthService: OAuthService
+    private readonly oauthService: OAuthService,
+    private readonly mqttConnectionService: MqttConnectionService
   ) {
 
 
@@ -98,13 +101,13 @@ export class FriendsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentUserId = this.oauthService.getIdentityClaims()?.['sub'] ?? null;
 
-    this.mqttService.state.subscribe(
-      (state: MqttConnectionState) => {
+    this.mqttConnectionService.connected$.subscribe(
+      (isConnected: boolean) => {
 
-        console.log('State', state);
+        console.log('MQTT Connected:', isConnected);
 
 
-        if (state === MqttConnectionState.CONNECTED) {
+        if (isConnected) {
           this.iniciarRastreamentoMqtt();
         }
 
@@ -130,7 +133,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
     console.log('Iniciando card');
 
 
-    this.mqttSubscription = this.mqttService.observe('owntracks/#').subscribe((message: IMqttMessage) => {
+    this.mqttSubscription = this.mqttConnectionService.observe('owntracks/#').subscribe((message: IMqttMessage) => {
       try {
         // TextDecoder lida corretamente com payloads maiores e com acentos/emoji,
         // ao contrário de String.fromCharCode(...payload), que quebra em ambos os casos.

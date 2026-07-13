@@ -1,17 +1,33 @@
 import { Injectable } from '@angular/core';
-import { MqttService } from 'ngx-mqtt';
+import { MqttConnectionState, MqttService } from 'ngx-mqtt';
 import { OAuthEvent, OAuthService } from 'angular-oauth2-oidc';
+import { BehaviorSubject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MqttConnectionService {
+  
+  public connected$ = new BehaviorSubject<boolean>(false);
+
   constructor(
     private readonly mqttService: MqttService,
     private readonly oauthService: OAuthService,
     private readonly authService: AuthService
-  ) {}
+  ) {
+    this.mqttService.state.subscribe((state) => {
+      this.connected$.next(state === MqttConnectionState.CONNECTED);
+    });
+  }
+
+  public observe(topic: string) {
+    return this.mqttService.observe(topic);
+  }
+
+  public unsafePublish(topic: string, message: string, options?: any): void {
+    this.mqttService.unsafePublish(topic, message, options);
+  }
 
   /** Chame uma vez, por exemplo no AppComponent (ngOnInit) ou num APP_INITIALIZER. */
   init(): void {
@@ -46,7 +62,7 @@ export class MqttConnectionService {
       port: environment.portaWebSocket,
       protocol: environment.protocoloWebSocket,
       path: '/ws',
-      username: 'web-app',
+      username: crypto.randomUUID(),
       password: token
     };
 
