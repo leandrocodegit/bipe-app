@@ -4,7 +4,6 @@ import { __await } from 'tslib';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PaginatorState } from 'primeng/paginator';
-import { OAuthService } from 'angular-oauth2-oidc';
 
 
 @Injectable({
@@ -12,24 +11,10 @@ import { OAuthService } from 'angular-oauth2-oidc';
 },
 )
 export class UsuarioService {
-
-  private menoriaUsuarios: Usuario[] = [];
-
+ 
   constructor(
-    private readonly http: HttpClient,
-    private readonly oauthService: OAuthService) { }
-
-  get getMemoriaUsuarios(){
-    return this.menoriaUsuarios;
-  }
-
-  set getMemoriaUsuarios(usuarios: Usuario []){
-    this.menoriaUsuarios = usuarios;
-  }
-
-  public criarUsuario(usuario: Usuario): Observable<any> {
-    return this.http.post<any>(`${environment.urlApi}/usuario`, usuario);
-  }
+    private readonly http: HttpClient) { }
+ 
 
   public atualizarUsuario(request: any): Observable<any> {
     return this.http.put<any>(`${environment.urlApi}/usuario`, request);
