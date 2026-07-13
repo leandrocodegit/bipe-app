@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { IMqttMessage, MqttConnectionState, MqttService } from 'ngx-mqtt';
 import { OAuthEvent, OAuthService } from 'angular-oauth2-oidc';
@@ -12,6 +12,9 @@ export class MqttConnectionService {
   public connected$ = new BehaviorSubject<boolean>(false);
   private topicSubjects = new Map<string, Subject<IMqttMessage>>();
   private topicSubscriptions = new Map<string, Subscription>();
+  
+  // Cache para simular mensagens "retained" do MQTT localmente
+  private messageCache = new Map<string, IMqttMessage>();
 
   constructor(
     private readonly mqttService: MqttService,
@@ -25,23 +28,46 @@ export class MqttConnectionService {
   }
 
   public observe(topic: string) {
-    // If we haven't subscribed to this specific topic on the broker yet, do it once.
+    // Se ainda não temos uma ponte para esse tópico com o broker, criamos agora.
     if (!this.topicSubjects.has(topic)) {
       const subject = new Subject<IMqttMessage>();
       this.topicSubjects.set(topic, subject);
       
-      // We keep this subscription alive in the service forever, 
-      // preventing the broker from receiving UNSUBSCRIBE packets.
       const sub = this.mqttService.observe(topic).subscribe(
-        msg => subject.next(msg),
-        err => subject.error(err)
+        msg => {
+          // Atualiza o cache com a última mensagem deste subtópico exato
+          this.messageCache.set(msg.topic, msg);
+          subject.next(msg);
+        },
+        err => {
+          this.topicSubjects.delete(topic);
+          subject.error(err);
+        },
+        () => {
+          this.topicSubjects.delete(topic);
+          subject.complete();
+        }
       );
       this.topicSubscriptions.set(topic, sub);
     }
     
-    // Components subscribe to our internal Subject, so they can unsubscribe safely
-    // without affecting the actual MQTT connection.
-    return this.topicSubjects.get(topic)!.asObservable();
+    // Converte o tópico MQTT (com + e #) para Regex para podermos buscar no cache
+    const regexStr = '^' + topic.replace(/\+/g, '[^/]+').replace(/#/g, '.*') + '$';
+    const topicRegex = new RegExp(regexStr);
+
+    return new Observable<IMqttMessage>(observer => {
+      // 1. Envia imediatamente todas as mensagens do cache que batem com o tópico
+      for (const [msgTopic, msg] of this.messageCache.entries()) {
+        if (topicRegex.test(msgTopic)) {
+          observer.next(msg);
+        }
+      }
+
+      // 2. Inscreve-se para receber as novas mensagens do Subject
+      const sub = this.topicSubjects.get(topic)!.subscribe(observer);
+      
+      return () => sub.unsubscribe();
+    });
   }
 
   public unsafePublish(topic: string, message: string, options?: any): void {
