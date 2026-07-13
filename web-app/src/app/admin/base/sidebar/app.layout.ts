@@ -43,7 +43,7 @@ import { MonitoredCardComponent } from '@/shared/components/monitored-card/monit
           <div class="flex-1 w-full h-full relative overflow-hidden">
             <router-outlet></router-outlet>
           </div>
-          <app-monitored-card class="shrink-0 z-40"></app-monitored-card>
+          <app-monitored-card class="contents"></app-monitored-card>
           <p-toast [breakpoints]="{ '920px': { width: '96%', right: '0', left: '5px' } }"/>
           <p-confirmdialog />
         </div>

@@ -34,7 +34,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() cordenadas = { lat: -23.548789385634088, lng: -46.63357944308231 };
   @Input() edicao = false;
-  @Input() height = 'calc(100dvh - 5rem)';
+  @Input() height = '100%';
   @Input() tag = false;
   @Output() load = new EventEmitter();
 
@@ -53,7 +53,15 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private googleLayer!: Leaflet.TileLayer;
   private esriLayer!: Leaflet.TileLayer;
   private isGoogleActive = false;
-  private markerTidIndex: Map<string, string> = new Map();
+  private markerTidIndex = new Map<string, string>(); // tid -> uniqueId
+
+  // Guarda os dados brutos para recriar o FriendPresence ao clicar em "Monitorar" no popup
+  private markerData = new Map<string, { user: string; deviceName: string; payload: any; tid: string }>();
+
+  public bounds = new Leaflet.LatLngBounds(
+    new Leaflet.LatLng(-22.457199, -44.020126),
+    new Leaflet.LatLng(-22.569472, -43.834045)
+  );
   private monitoredCardTid: string | null = null;
   private monitoredCardSubscription?: Subscription;
   private centerRequestSubscription?: Subscription;
@@ -510,6 +518,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const uniqueId = `${user}-${deviceName}`;
     const tid = payload.tid || deviceName.substring(0, 2).toUpperCase();
     this.markerTidIndex.set(tid, uniqueId);
+    this.markerData.set(uniqueId, { user, deviceName, payload, tid });
 
     const latLng = { lat: payload.lat, lng: payload.lon };
     const precisao = payload.acc || 10;
@@ -555,11 +564,47 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const marker = Leaflet.marker(latLng, { icon })
       .bindPopup(popupHtml, { className: 'owntracks-popup', maxWidth: 250 });
 
+    marker.on('popupopen', (e: any) => {
+      const popupNode = e.popup._contentNode;
+      if (popupNode) {
+        const btn = popupNode.querySelector('.monitorar-btn-popup');
+        if (btn) {
+          // Remove listeners antigos para evitar duplicidade
+          const novoBtn = btn.cloneNode(true);
+          btn.parentNode.replaceChild(novoBtn, btn);
+          
+          novoBtn.addEventListener('click', () => {
+            this.monitorFromPopup(id);
+          });
+        }
+      }
+    });
+
     this.circles.set(id, circle);
     this.markers.set(id, marker);
     this.markerTidIndex.set(tid, id);
 
     this.posicoesClusterGroup.addLayer(marker);
+  }
+
+  private monitorFromPopup(id: string): void {
+    const data = this.markerData.get(id);
+    if (!data) return;
+    const { user, deviceName, payload, tid } = data;
+    
+    // Constrói um objeto compatível com FriendPresence
+    const friend: any = {
+      id: `owntracks/${user}/${deviceName}`,
+      card: {
+        tid: tid,
+        name: deviceName,
+        face: payload.icon || 'default',
+        color: payload.color || '#3b82f6'
+      },
+      location: payload
+    };
+    
+    this.monitoredCardService.monitorCard(friend);
   }
 
   private obterIconeLeaflet(iconName: string | undefined, tid: string, color?: string): Leaflet.DivIcon {
@@ -625,6 +670,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         <div style="margin-top: 10px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 4px;">
           Atualizado: ${dataHora}
         </div>
+        
+        <button class="monitorar-btn-popup" data-user="${user}" data-device="${device}" style="margin-top: 8px; width: 100%; padding: 6px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">
+          Monitorar
+        </button>
       </div>`;
   }
 

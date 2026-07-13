@@ -12,6 +12,16 @@ export class MonitoredCardService {
   monitoredCard$ = this.monitoredCardSubject.asObservable();
   centerRequested$ = this.centerRequestedSubject.asObservable();
 
+  constructor() {
+    const saved = sessionStorage.getItem('rastreador_monitored_card');
+    if (saved) {
+      try {
+        const card = JSON.parse(saved);
+        this.monitoredCardSubject.next(card);
+      } catch (e) {}
+    }
+  }
+
   get monitoredCardValue(): FriendPresence | null {
     return this.monitoredCardSubject.value;
   }
@@ -19,12 +29,16 @@ export class MonitoredCardService {
   monitorCard(card: FriendPresence | null): void {
     this.monitoredCardSubject.next(card);
     if (card) {
+      sessionStorage.setItem('rastreador_monitored_card', JSON.stringify(card));
       this.requestCenter();
+    } else {
+      sessionStorage.removeItem('rastreador_monitored_card');
     }
   }
 
   clearMonitoredCard(): void {
     this.monitoredCardSubject.next(null);
+    sessionStorage.removeItem('rastreador_monitored_card');
   }
 
   requestCenter(): void {

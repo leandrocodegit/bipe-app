@@ -17,7 +17,7 @@ import {
   relativeTime,
   topMotionActivity,
 } from '@/shared/GeoUtil';
-
+import { Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { MqttService, IMqttMessage, MqttConnectionState } from 'ngx-mqtt';
 import { LayoutService } from '@/shared/services/layout.service';
@@ -94,7 +94,8 @@ export class FriendsComponent implements OnInit, OnDestroy {
     private readonly mqttService: MqttService,
     private readonly oauthService: OAuthService,
     private readonly mqttConnectionService: MqttConnectionService,
-    private readonly monitoredCardService: MonitoredCardService
+    private readonly monitoredCardService: MonitoredCardService,
+    private readonly router: Router
   ) {
 
 
@@ -284,6 +285,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
     this.monitoredCardService.monitorCard(friend);
     this.monitoredCardService.requestCenter();
     this.closeDetails();
+    this.router.navigate(['/mapa']);
   }
 
   closeDetails(): void {

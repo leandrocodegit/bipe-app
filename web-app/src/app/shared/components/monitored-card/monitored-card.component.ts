@@ -53,8 +53,8 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
   }
 
   private checkRouteVisibility(url: string): void {
-    // Mostra apenas nas rotas de amigos ou mapa
-    this.isVisibleOnRoute = url.includes('/friends') || url.includes('/mapa');
+    // Mostra apenas na rota do mapa, pois a tela de amigos já tem o detalhe embutido
+    this.isVisibleOnRoute = url.includes('/mapa');
   }
 
   clearMonitor(): void {
