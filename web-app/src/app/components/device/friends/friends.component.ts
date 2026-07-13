@@ -98,14 +98,15 @@ export class FriendsComponent implements OnInit, OnDestroy {
 
   }
 
+  private connectedSubscription?: Subscription;
+
   ngOnInit(): void {
     this.currentUserId = this.oauthService.getIdentityClaims()?.['sub'] ?? null;
 
-    this.mqttConnectionService.connected$.subscribe(
+    this.connectedSubscription = this.mqttConnectionService.connected$.subscribe(
       (isConnected: boolean) => {
 
         console.log('MQTT Connected:', isConnected);
-
 
         if (isConnected) {
           this.iniciarRastreamentoMqtt();
@@ -121,7 +122,12 @@ export class FriendsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.mqttSubscription?.unsubscribe();
+    if (this.mqttSubscription) {
+      this.mqttSubscription.unsubscribe();
+    }
+    if (this.connectedSubscription) {
+      this.connectedSubscription.unsubscribe();
+    }
     clearTimeout(this.initialBurstTimer);
     this.arrivalTimers.forEach((timer) => clearTimeout(timer));
     clearTimeout(this.copiedTimeout);

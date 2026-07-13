@@ -92,8 +92,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
+  private connectedSubscription?: Subscription;
+
   private conectarMqttComToken(): void {
-    this.mqttConnectionService.connected$.subscribe(
+    this.connectedSubscription = this.mqttConnectionService.connected$.subscribe(
       (isConnected: boolean) => {
 
         console.log('MQTT Connected:', isConnected);
@@ -729,6 +731,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.mqttSubscription) {
       this.mqttSubscription.unsubscribe();
+    }
+    if (this.connectedSubscription) {
+      this.connectedSubscription.unsubscribe();
     }
     if (this.mapa) {
       this.mapa.remove();

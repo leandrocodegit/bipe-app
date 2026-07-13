@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { MqttConnectionState, MqttService } from 'ngx-mqtt';
-import { OAuthEvent, OAuthService } from 'angular-oauth2-oidc';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { IMqttMessage, MqttConnectionState, MqttService } from 'ngx-mqtt';
+import { OAuthEvent, OAuthService } from 'angular-oauth2-oidc';
 import { AuthService } from './auth.service';
 import { environment } from 'src/environments/environment';
 
@@ -10,6 +10,8 @@ import { environment } from 'src/environments/environment';
 export class MqttConnectionService {
 
   public connected$ = new BehaviorSubject<boolean>(false);
+  private topicSubjects = new Map<string, Subject<IMqttMessage>>();
+  private topicSubscriptions = new Map<string, Subscription>();
 
   constructor(
     private readonly mqttService: MqttService,
@@ -17,12 +19,29 @@ export class MqttConnectionService {
     private readonly authService: AuthService
   ) {
     this.mqttService.state.subscribe((state) => {
-      this.connected$.next(state === MqttConnectionState.CONNECTED);
+      const isConnected = state === MqttConnectionState.CONNECTED;
+      this.connected$.next(isConnected);
     });
   }
 
   public observe(topic: string) {
-    return this.mqttService.observe(topic);
+    // If we haven't subscribed to this specific topic on the broker yet, do it once.
+    if (!this.topicSubjects.has(topic)) {
+      const subject = new Subject<IMqttMessage>();
+      this.topicSubjects.set(topic, subject);
+      
+      // We keep this subscription alive in the service forever, 
+      // preventing the broker from receiving UNSUBSCRIBE packets.
+      const sub = this.mqttService.observe(topic).subscribe(
+        msg => subject.next(msg),
+        err => subject.error(err)
+      );
+      this.topicSubscriptions.set(topic, sub);
+    }
+    
+    // Components subscribe to our internal Subject, so they can unsubscribe safely
+    // without affecting the actual MQTT connection.
+    return this.topicSubjects.get(topic)!.asObservable();
   }
 
   public unsafePublish(topic: string, message: string, options?: any): void {
