@@ -84,7 +84,7 @@
 
   <!-- Detalhe do amigo (bottom sheet) -->
   <p-dialog [visible]="!!selectedFriend" (visibleChange)="!$event && closeDetails()" [modal]="true" [draggable]="false"
-    [resizable]="false" position="bottom" [showHeader]="false"
+    [resizable]="false" position="bottom" [dismissableMask]="true" [showHeader]="false"
     styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm sm:!rounded-3xl"
     [breakpoints]="{ '640px': '100vw' }">
     <div *ngIf="selectedFriend as friend" class="flex flex-col gap-4 px-2 pb-2 pt-3 mb-12">

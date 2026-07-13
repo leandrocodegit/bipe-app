@@ -33,7 +33,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() cordenadas = { lat: -23.548789385634088, lng: -46.63357944308231 };
   @Input() edicao = false;
-  @Input() height = '90vh';
+  @Input() height = 'calc(100dvh - 5rem)';
   @Input() tag = false;
   @Output() load = new EventEmitter();
 
