@@ -10,11 +10,11 @@ import { AcceptShareComponent } from './components/device/accept-share/accept-sh
 import { FriendsComponent } from './components/device/friends/friends.component';
 import { WaypointListComponent } from './admin/components/mapa/waypoint-list/waypoint-list.component';
 import { RoutinesComponent } from './components/rotinas/routines/routines.component';
-import { PainelUsuarioLogadoComponent } from './admin/modulos/minha-conta/painel-usuario-logado/painel-usuario-logado.component';
-import { KeycloakSessionsComponent } from './core/minha-conta/keycloak/keycloak-sessions/keycloak-sessions.component';
 import { KeycloakUserProfileComponent } from './core/minha-conta/keycloak/keycloak-user-profile/keycloak-user-profile.component';
-
-
+import { KeycloakSessionsComponent } from './core/minha-conta/keycloak/keycloak-sessions/keycloak-sessions.component';
+import { PainelUsuarioLogadoComponent } from './core/minha-conta/painel-usuario-logado/painel-usuario-logado.component';
+import { PainelRouteBaseComponent } from './shared/components/painel-route-base/painel-route-base.component';
+ 
 
 const painelRoutes: Routes = [
 

@@ -1,10 +1,50 @@
 <div class="card w-full h-full">
   <div class="flex items-center">
-    <i class="pi pi-user-edit mx-3 !text-3xl text-primary-500"></i>
+    <div
+      class="cursor-pointer flex items-center justify-center bg-indigo-100/30 dark:bg-indigo-400/10 rounded-full w-8 h-8 shrink-0 mr-2">
+      <i class="pi pi-user-edit text-indigo-500 text-sm"></i>
+    </div>
     <span>Meus Dados</span>
   </div>
 
   <div *ngIf="!profileForm" class="flex justify-center items-center h-40">
     <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
   </div>
+
+  <div [formGroup]="profileForm" class="flex flex-col gap-4 flex-grow w-full">
+          <div class="flex flex-wrap gap-2 w-full">
+            <label for="firstname" class="required">Nome</label>
+            <input [class.border-error]="isInvalid('firstName')" formControlName="firstName" pInputText
+              type="text" />
+            @if (isInvalid('firstName')) {
+            <span class="text-error">Nome é obrigatório</span>
+            }
+          </div>
+          <div class="flex flex-wrap gap-2 w-full">
+            <label for="lastName" class="required">Sobrenome</label>
+            <input [class.border-error]="isInvalid('lastName')" formControlName="lastName" pInputText type="text" />
+            @if (isInvalid('lastName')) {
+            <span class="text-error">Sobrenome é obrigatório</span>
+            }
+          </div>
+          <div class="flex flex-wrap gap-2 w-full">
+            <label for="username" class="required">Nome de usuário</label>
+            <input [class.border-error]="isInvalid('username')" formControlName="username" name="username"
+              pInputText type="text" />
+            @if (isInvalid('username')) {
+            <span class="text-error">Documento é obrigatório</span>
+            }
+          </div>
+          <div class="flex flex-wrap gap-2 w-full">
+            <label for="email" class="required">Email</label>
+            <input [class.border-error]="isInvalid('email')" formControlName="email" pInputText type="text" />
+            @if (isInvalid('email')) {
+            <span class="text-error">Email inválido</span>
+            }
+          </div>
+
+          <button [disabled]="profileForm.invalid" [loading]="isLoading" pButton type="button" label="Salvar Alterações" icon="pi pi-salve"
+            class="p-button-success mt-4" (click)="enviarFormulario()">
+          </button>
+        </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Módulos PrimeNG
@@ -6,8 +6,9 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { AuthService } from '@/core/auth/services/auth.service';
-import { KeycloakService } from '@/shared/services/keycloak.service';
+import { generateCodeChallenge, KeycloakService } from '@/shared/services/keycloak.service';
+ import { AuthService } from '@/core/auth/services/auth.service';
+import { ptBRTranslationMap } from '@/shared/models/translate';
 
 // --- Interfaces para os dados do Keycloak ---
 interface UserCredentialMetadata {
@@ -78,7 +79,7 @@ export class KeycloakAccountSettingsComponent implements OnInit {
     }
   }
 
-/*   protected addMethod(action: string | undefined): void {
+  protected addMethod(action: string | undefined): void {
      generateCodeChallenge().then(code => {
       window.location.href = this.authService.getUrlUpdatePassword(code, action)
     })
@@ -101,7 +102,7 @@ export class KeycloakAccountSettingsComponent implements OnInit {
     if (ptBRTranslationMap.has(label))
       return ptBRTranslationMap.get(label);
     return label;
-  } */
+  }
 
   getNameCredential(auth: UserCredentialMetadata){
     if(auth.credential.type == 'password')
