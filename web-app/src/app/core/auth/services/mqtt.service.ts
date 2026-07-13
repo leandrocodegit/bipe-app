@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject, Subject, Subscription, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { IMqttMessage, IOnErrorEvent, MqttConnectionState, MqttService } from 'ngx-mqtt';
@@ -12,14 +13,16 @@ export class MqttConnectionService {
   public connected$ = new BehaviorSubject<boolean>(false);
   private topicSubjects = new Map<string, Subject<IMqttMessage>>();
   private topicSubscriptions = new Map<string, Subscription>();
-
-  // Cache para simular mensagens "retained" do MQTT localmente
   private messageCache = new Map<string, IMqttMessage>();
+  
+  // Evita múltiplas chamadas simultâneas de refresh de token
+  private isRefreshing = false;
 
   constructor(
     private readonly mqttService: MqttService,
     private readonly oauthService: OAuthService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {
     this.mqttService.state.subscribe((state) => {
       const isConnected = state === MqttConnectionState.CONNECTED;
@@ -27,15 +30,13 @@ export class MqttConnectionService {
     });
   }
 
-  public observe(topic: string) {
-    // Se ainda não temos uma ponte para esse tópico com o broker, criamos agora.
+  public observe(topic: string): Observable<IMqttMessage> {
     if (!this.topicSubjects.has(topic)) {
       const subject = new Subject<IMqttMessage>();
       this.topicSubjects.set(topic, subject);
 
       const sub = this.mqttService.observe(topic).subscribe(
         msg => {
-          // Atualiza o cache com a última mensagem deste subtópico exato
           this.messageCache.set(msg.topic, msg);
           subject.next(msg);
         },
@@ -51,21 +52,17 @@ export class MqttConnectionService {
       this.topicSubscriptions.set(topic, sub);
     }
 
-    // Converte o tópico MQTT (com + e #) para Regex para podermos buscar no cache
     const regexStr = '^' + topic.replace(/\+/g, '[^/]+').replace(/#/g, '.*') + '$';
     const topicRegex = new RegExp(regexStr);
 
     return new Observable<IMqttMessage>(observer => {
-      // 1. Envia imediatamente todas as mensagens do cache que batem com o tópico
       for (const [msgTopic, msg] of this.messageCache.entries()) {
         if (topicRegex.test(msgTopic)) {
           observer.next(msg);
         }
       }
 
-      // 2. Inscreve-se para receber as novas mensagens do Subject
       const sub = this.topicSubjects.get(topic)!.subscribe(observer);
-
       return () => sub.unsubscribe();
     });
   }
@@ -74,7 +71,6 @@ export class MqttConnectionService {
     this.mqttService.unsafePublish(topic, message, options);
   }
 
-  /** Chame uma vez, por exemplo no AppComponent (ngOnInit) ou num APP_INITIALIZER. */
   init(): void {
     console.log('[MqttConnectionService] init() called');
     if (this.authService.isLoggedIn() && this.oauthService.getAccessToken()) {
@@ -84,13 +80,10 @@ export class MqttConnectionService {
       console.log('[MqttConnectionService] init() - No valid token found yet.');
     }
 
-    // 'token_received' dispara tanto no login quanto num refresh (silent refresh).
     this.oauthService.events
       .pipe(filter((event: OAuthEvent) => event.type === 'token_received'))
       .subscribe(() => this.connectWithCurrentToken());
 
-    // Se o refresh falhar (token realmente expirou e não deu pra renovar),
-    // pelo menos você fica sabendo — decida aqui se quer desconectar o MQTT também.
     this.oauthService.events
       .pipe(filter((event: OAuthEvent) => event.type === 'token_expires'))
       .subscribe(() => {
@@ -98,8 +91,10 @@ export class MqttConnectionService {
       });
   }
 
-  private connectWithCurrentToken(): void {
-
+  /**
+   * Centraliza a configuração e tentativa de conexão no broker MQTT
+   */
+  private connectBroker(): void {
     this.mqttService.connect({
       hostname: environment.urlWebSocket,
       port: environment.portaWebSocket,
@@ -108,36 +103,49 @@ export class MqttConnectionService {
       username: this.authService.extrairEmailUsuario(),
       password: this.oauthService.getAccessToken()
     });
+  }
+
+  private connectWithCurrentToken(): void {
+    this.connectBroker();
 
     this.mqttService.onError.subscribe((error: IOnErrorEvent) => {
-      if (error.message.includes('Not authorized')){
-        this.authService.refreshToken().subscribe(token => {
-          this.mqttService.connect({
-            hostname: environment.urlWebSocket,
-            port: environment.portaWebSocket,
-            protocol: environment.protocoloWebSocket,
-            path: '/ws',
-            username: this.authService.extrairEmailUsuario(),
-            password: this.oauthService.getAccessToken()
-          });
+      const isNotAuthorized = error.message.includes('Not authorized');
+      const isRefused = error.message.includes('Refused');
 
-        });
-      }else       if (error.message.includes('Refused')){
+      if ((isNotAuthorized || isRefused) && !this.isRefreshing) {
+        this.isRefreshing = true;
+        
+        console.warn(`[MqttConnectionService] Conexão falhou (${error.message}). Tentando atualizar o token...`);
 
-        this.mqttService.disconnect();
+        if (isRefused) {
+          this.mqttService.disconnect();
+        }
 
-        this.authService.refreshToken().subscribe(token => {
-          this.mqttService.connect({
-            hostname: environment.urlWebSocket,
-            port: environment.portaWebSocket,
-            protocol: environment.protocoloWebSocket,
-            path: '/ws',
-            username: this.authService.extrairEmailUsuario(),
-            password: this.oauthService.getAccessToken()
-          });
-
+        this.authService.refreshToken().subscribe({
+          next: (success: boolean) => {
+            this.isRefreshing = false;
+            
+            if (success) {
+              console.log('[MqttConnectionService] Token atualizado com sucesso! Reconectando ao MQTT...');
+              this.connectBroker();
+            } else {
+              console.error('[MqttConnectionService] Falha ao renovar token. Redirecionando para login.');
+              this.redirectToLogin();
+            }
+          },
+          error: (err) => {
+            this.isRefreshing = false;
+            console.error('[MqttConnectionService] Erro crítico no refresh token:', err);
+            this.redirectToLogin();
+          }
         });
       }
-    })
+    });
+  }
+
+  private redirectToLogin(): void {
+    this.mqttService.disconnect();
+    // Você também pode usar this.authService.logout() caso o seu serviço de autenticação limpe a sessão
+    this.router.navigate(['/login']);
   }
 }
