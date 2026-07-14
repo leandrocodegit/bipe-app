@@ -101,7 +101,8 @@ export class MqttConnectionService {
       protocol: environment.protocoloWebSocket,
       path: '/ws',
       username: this.authService.extrairEmailUsuario(),
-      password: this.oauthService.getAccessToken()
+      password: this.oauthService.getAccessToken(),
+      clientId: `web-app-${crypto.randomUUID()}`;
     });
   }
 
