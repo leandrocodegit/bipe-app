@@ -1,9 +1,0 @@
-{ 
-  "name": "front",
-  "pages_build_output_dir": "dist/front/browser",
-  "compatibility_date": "2025-05-10",
-  "vars": {
-    "MAP_BOX_TOKEN": "",
-    "SITE_KEY": ""
-  }
-}
