@@ -1,7 +1,7 @@
 
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
-const token = export async function GET() {
+const token = async function GET() {
   const myVar = getRequestContext().env.MAP_BOX_TOKEN;
   return new Response(myVar);
 }
