@@ -664,9 +664,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       marker.setLatLng(latLng);
       circle.setLatLng(latLng);
       circle.setRadius(precisao);
-      marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload));
-
       const highlighted = this.monitoredCardTid === tid;
+      marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, highlighted));
+      
       marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload.color, highlighted));
 
       if (this.monitoredCardTid === tid) {
@@ -709,7 +709,11 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
           btn.parentNode.replaceChild(novoBtn, btn);
 
           novoBtn.addEventListener('click', () => {
-            this.monitorFromPopup(id);
+            if(btn.innerHTML == 'Monitorar')
+              this.monitorFromPopup(id);
+            else this.monitoredCardService.clearMonitoredCard()
+            console.log(btn.innerHTML);
+            
           });
         }
       }
@@ -755,18 +759,18 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       conteudoCentro = `<span style="color: #1e293b; font-family: system-ui, sans-serif; font-size: 14px; font-weight: bold;z-index: 9999999;background: white;width: 100%;height: 100%;text-align: center;line-height: 2;">${tid}</span>`;
     }
-
-    const destaque = highlighted ? 'box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.35);' : '';
-    const borda = highlighted ? 'border: 2px solid #f59e0b;' : '';
+ 
+    const fill = highlighted ? '#f59e0b' : color ? color : '#3b82f6';
+    const width = highlighted ? 'width: 60px; height: 75px;' : 'width: 40px; height: 55px;';
 
     const htmlMarcador = `
-      <div style="position: relative; width: 40px; height: 55px; display: flex; justify-content: center; ${destaque}">
+      <div style="position: relative; ${width}; display: flex; justify-content: center;">
 
         <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3));" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg">
-          <path fill="${color ? color : '#3b82f6'}" d="M12 0C5.37 0 0 5.37 0 12c0 7.5 12 24 12 24s12-16.5 12-24C24 5.37 18.63 0 12 0z"/>
+          <path fill="${fill}" d="M12 0C5.37 0 0 5.37 0 12c0 7.5 12 24 12 24s12-16.5 12-24C24 5.37 18.63 0 12 0z"/>
         </svg>
 
-        <div style="position: absolute; top: 4px; width: 28px; height: 28px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: inset 0px 1px 3px rgba(0,0,0,0.2); ${borda}">
+        <div style="position: absolute; top: 4px; width: 28px; height: 28px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: inset 0px 1px 3px rgba(0,0,0,0.2);">
           ${conteudoCentro}
         </div>
 
@@ -782,7 +786,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private criarPopupOwnTracks(user: string, device: string, payload: any): string {
+  private criarPopupOwnTracks(user: string, device: string, payload: any, ativo?: boolean): string {
     const dataHora = new Date(payload.tst * 1000).toLocaleString();
     const bateria = payload.batt ? `${payload.batt}%` : 'N/A';
     const conexao = payload.conn === 'w' ? 'Wi-Fi' : payload.conn === 'o' ? 'Offline' : payload.conn === 'm' ? 'Mobile' : 'Desconhecida';
@@ -814,7 +818,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         </div>
 
         <button class="monitorar-btn-popup" data-user="${user}" data-device="${device}" style="margin-top: 8px; width: 100%; padding: 6px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">
-          Monitorar
+          ${ativo ? 'Parar Monitoramento' : 'Monitorar'}
         </button>
       </div>`;
   }

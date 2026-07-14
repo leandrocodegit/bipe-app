@@ -112,7 +112,7 @@ export class AppMenu implements OnInit {
       {
         order: 1,
         label: '',
-        items: [{ label: 'Status', icon: 'pi pi-bolt', separator: false, routerLink: ['/friends'] }]
+        items: [{ label: 'Amigos', icon: 'pi pi-users', separator: false, routerLink: ['/friends'] }]
       },
       {
         order: 2,
