@@ -1,6 +1,15 @@
-import { HttpHeaders } from "@angular/common/http";
+const fs = require('fs');
+const path = require('path');
 
-export const environment = {
+const targetPath = path.join(__dirname, './src/environments/environment.prod.ts');
+
+// O script lê tudo do ambiente do Cloudflare
+const mapboxToken = process.env.MAPBOX_TOKEN || '';
+const sitekey = process.env.SITE_KEY || '';
+ 
+const envConfigFile = `
+export const environment =  
+{
   production: true,
   portal: true,
   router: 'portal',
@@ -9,15 +18,15 @@ export const environment = {
   portaWebSocket: 8084,
   protocoloWebSocket: 'wss' as 'wss' | 'ws',
   timeout: 30000,
-  sitekey: '',
-  mapboxToken: '',
+  sitekey: '${sitekey}',
+  mapboxToken: 'access_token=${mapboxToken}',
   authConfig: {
-    issuer: `https://auth.simodapp.com:8443/realms/sincroled`,
+    issuer: 'https://auth.simodapp.com:8443/realms/sincroled',
     redirectUri: window.location.origin + '/auth',
     postLogoutRedirectUri: window.location.origin,
     clientId: 'sincroled',
     responseType: 'code',
-    scope: `openid profile email`,
+    scope: 'openid profile email',
     showDebugInformation: true,
     strictDiscoveryDocumentValidation: false,
     timeoutFactor: 0.75,
@@ -29,5 +38,8 @@ export const environment = {
     clockSkewInSec: 0,
     requireHttps: true
   } 
-};
+}
+`;
 
+fs.writeFileSync(targetPath, envConfigFile, 'utf8');
+console.log(`Ambiente de produção gerado com sucesso!`);

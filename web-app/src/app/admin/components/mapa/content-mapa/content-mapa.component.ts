@@ -18,6 +18,7 @@ import { Waypoint } from '@/shared/models/waypoint.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 import { log } from 'console';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-content-mapa',
@@ -388,16 +389,25 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       maxZoom: 19,
       attribution: '&copy; Esri'
     });
-
-    this.aliadeSmooth = Leaflet.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+ 
+    // 2. Defina os Layers usando os IDs oficiais de estilo do Mapbox (Light e Dark)
+    this.aliadeSmooth = Leaflet.tileLayer(
+      `https://api.mapbox.com/styles/v1/mapbox/light-v11/tiles/{z}/{x}/{y}?access_token=${environment.mapboxToken}`, {
       maxZoom: 19,
-      attribution: '&copy; Esri'
-    });
+      tileSize: 512, // O Mapbox usa tiles de 512px por padrão
+      zoomOffset: -1, // Ajuste necessário para compensar o tamanho de 512px no Leaflet
+      attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }
+    );
 
-    this.aliadeSmoothDark = Leaflet.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+    this.aliadeSmoothDark = Leaflet.tileLayer(
+      `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${environment.mapboxToken}`, {
       maxZoom: 19,
-      attribution: '&copy; Esri'
-    });
+      tileSize: 512,
+      zoomOffset: -1,
+      attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }
+    );
 
     if (this.layoutService.isDarkTheme())
       this.aliadeSmoothDark.addTo(this.mapa);
@@ -466,32 +476,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private addLayerToggleButton(): void {
 
-    const btnCenter = new Leaflet.Control({ position: 'topright' });
 
-    btnCenter.onAdd = () => {
-      const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
-
-      el.innerHTML = '<img src="assets/drawable/centralizar.png"/>';
-      Object.assign(el.style, {
-        cursor: 'pointer',
-        border: 'none',
-        marginTop: '10px',
-        width: '30px'
-      });
-
-      el.onclick = () => {
-        if (this.markers.size > 0 && !this.markers.has('edicao')) {
-          const group = new Leaflet.FeatureGroup(Array.from(this.markers.values()));
-          this.mapa.fitBounds(group.getBounds(), { padding: [30, 30] });
-        } else {
-          this.mapa.setView(this.cordenadas, 14);
-        }
-      };
-
-      return el;
-    };
-
-    btnCenter.addTo(this.mapa);
 
     const btn = new Leaflet.Control({ position: 'topright' });
 
@@ -508,12 +493,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
       el.onclick = () => {
 
-        if (this.tileType == 'SATELITE')
-          this.mapa.removeLayer(this.esriLayer);
-        else if (this.tileType == 'NONE' && this.layoutService.isDarkTheme())
-          this.mapa.removeLayer(this.aliadeSmoothDark);
-        else if (this.tileType == 'NONE')
-          this.mapa.removeLayer(this.aliadeSmooth);
+        this.mapa.removeLayer(this.esriLayer);
+        this.mapa.removeLayer(this.aliadeSmoothDark);
+        this.mapa.removeLayer(this.aliadeSmooth);
 
         if (this.tileType == 'GOOGLE') {
           this.tileType = 'NONE';
@@ -545,12 +527,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       el.onclick = () => {
-        if (this.tileType == 'GOOGLE')
-          this.mapa.removeLayer(this.esriLayer);
-        else if (this.tileType == 'NONE' && this.layoutService.isDarkTheme())
-          this.mapa.removeLayer(this.aliadeSmoothDark);
-        else if (this.tileType == 'NONE')
-          this.mapa.removeLayer(this.aliadeSmooth);
+        this.mapa.removeLayer(this.googleLayer);
+        this.mapa.removeLayer(this.aliadeSmoothDark);
+        this.mapa.removeLayer(this.aliadeSmooth);
 
         if (this.tileType == 'SATELITE') {
           this.tileType = 'NONE';
@@ -582,10 +561,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       el.onclick = () => {
-        if (this.tileType == 'GOOGLE')
-          this.mapa.removeLayer(this.googleLayer);
-        else if (this.tileType == 'SATELITE')
-          this.mapa.removeLayer(this.esriLayer);
+        this.mapa.removeLayer(this.googleLayer);
+        this.mapa.removeLayer(this.esriLayer);
 
         this.aplicarTile();
       };
@@ -594,6 +571,33 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     btnDefaulTitle.addTo(this.mapa);
+
+    const btnCenter = new Leaflet.Control({ position: 'topright' });
+
+    btnCenter.onAdd = () => {
+      const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
+
+      el.innerHTML = '<img src="assets/drawable/centralizar.png"/>';
+      Object.assign(el.style, {
+        cursor: 'pointer',
+        border: 'none',
+        marginTop: '10px',
+        width: '30px'
+      });
+
+      el.onclick = () => {
+        if (this.markers.size > 0 && !this.markers.has('edicao')) {
+          const group = new Leaflet.FeatureGroup(Array.from(this.markers.values()));
+          this.mapa.fitBounds(group.getBounds(), { padding: [30, 30] });
+        } else {
+          this.mapa.setView(this.cordenadas, 14);
+        }
+      };
+
+      return el;
+    };
+
+    btnCenter.addTo(this.mapa);
 
   }
 

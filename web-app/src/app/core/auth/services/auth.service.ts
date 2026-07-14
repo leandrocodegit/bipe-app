@@ -35,7 +35,7 @@ export class AuthService {
     formData.append('grant_type', 'urn:ietf:params:oauth:grant-type:token-exchange');
 
 
-    return this.http.post<any>(environment.authConfig.issuer + '/protocol/openid-connect/token', {}, environment.headers
+    return this.http.post<any>(environment.authConfig.issuer + '/protocol/openid-connect/token', {}
     )
   }
 

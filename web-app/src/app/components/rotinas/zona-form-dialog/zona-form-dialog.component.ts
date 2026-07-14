@@ -71,7 +71,7 @@ export class ZonaFormDialogComponent implements OnInit {
     horaInicio: '08:00',
     horaTermino: '18:00',
     diasSemana: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
-    devices: [] as string[],
+    devices: [] ,
     tipo: 'ENTER',
     ativo: true
   };
@@ -107,7 +107,10 @@ export class ZonaFormDialogComponent implements OnInit {
 
     this.salvar.emit();
     this.fechar();
-    this.rotinaService.criarWayPoint(this.formulario).subscribe(() => this.resetFormulario());
+    this.rotinaService.criarWayPoint({
+      ...this.formulario,
+      devices: this.formulario.devices.map(device => device.id) , 
+  }).subscribe(() => this.resetFormulario());
   }
 
   private resetFormulario(): void {
@@ -151,7 +154,7 @@ export class ZonaFormDialogComponent implements OnInit {
   }
 
   isDeviceSelected(device: any): boolean {
-    return this.formulario.devices.includes(device.id);
+    return this.formulario.devices.some(d => device.id == d.id);
   }
 
   toggleDevice(device: any): void {
@@ -159,14 +162,14 @@ export class ZonaFormDialogComponent implements OnInit {
     if (idx >= 0) {
       this.formulario.devices.splice(idx, 1);
     } else {
-      this.formulario.devices.push(device.id);
+      this.formulario.devices.push(device);
     }
   }
 
   get allFilteredSelected(): boolean {
     return (
       this.filteredDevicesTable.length > 0 &&
-      this.filteredDevicesTable.every((d) => this.formulario.devices.includes(d.id))
+      this.filteredDevicesTable.every((d) => this.formulario.devices.some(device => device.id == d.id))
     );
   }
 
@@ -174,12 +177,12 @@ export class ZonaFormDialogComponent implements OnInit {
     if (this.allFilteredSelected) {
       // desmarca só os que estão visíveis no filtro atual
       this.formulario.devices = this.formulario.devices.filter(
-        (id: string) => !this.filteredDevicesTable.some((d) => d.id === id)
+        (id: Device) => !this.filteredDevicesTable.some((d) => d.id === id.id)
       );
     } else {
       const idsToAdd = this.filteredDevicesTable
         .map((d) => d.id)
-        .filter((id) => !this.formulario.devices.includes(id));
+        .filter((id) => !this.formulario.devices.some(device => device.id == id.id));
       this.formulario.devices = [...this.formulario.devices, ...idsToAdd];
     }
   }

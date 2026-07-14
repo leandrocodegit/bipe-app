@@ -1,3 +1,4 @@
+import { Device } from './device.model';
 import { Waypoint } from './waypoint.model';
 
 export type RoutineEventType = 'ENTER' | 'EXIT' | 'ENTER_EXIT';
@@ -35,7 +36,7 @@ export interface Routine {
   horaTermino: string;
   diasSemana: string[];
   /** IDs dos dispositivos aos quais esta rotina se aplica. */
-  devices: string[];
+  devices: Device[];
   tipo: RoutineEventType;
   waypoint?: Waypoint;
   ativo: boolean;

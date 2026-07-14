@@ -10,6 +10,7 @@ export const environment = {
   protocoloWebSocket: 'wss' as 'wss' | 'ws',
   timeout: 100000,
   sitekey: '1x00000000000000000000AA',
+  mapboxToken: '',
   authConfig: {
     issuer: `http://auth.simodapp.com:8443/realms/simod`,
     redirectUri: window.location.origin + '/auth',
@@ -26,10 +27,5 @@ export const environment = {
     decreaseExpirationBySec: 10000,
     clockSkewInSec: 0,
     requireHttps: false
-  },
-  headers: {
-    headers: new HttpHeaders({
-      "Content-Type": "application/json"
-    })
-  },
+  }
 };

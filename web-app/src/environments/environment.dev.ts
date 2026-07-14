@@ -9,7 +9,8 @@ export const environment = {
   portaWebSocket: 8084,
   protocoloWebSocket: 'wss' as 'wss' | 'ws',
   timeout: 100000,
-  sitekey: '1x00000000000000000000AA',
+  sitekey: '',
+  mapboxToken: '',
   authConfig: {
     issuer: `https://auth.simodapp.com:8443/realms/sincroled`,
     redirectUri: window.location.origin + '/auth',
@@ -26,10 +27,5 @@ export const environment = {
     decreaseExpirationBySec: 10000,
     clockSkewInSec: 0,
     requireHttps: false
-  },
-  headers: {
-    headers: new HttpHeaders({
-      "Content-Type": "application/json"
-    })
-  },
+  }
 };

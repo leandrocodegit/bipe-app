@@ -149,7 +149,7 @@ export class RoutinesComponent {
     horaInicio: '08:00',
     horaTermino: '18:00',
     diasSemana: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
-    devices: [] as string[],
+    devices: [],
     tipo: 'ENTER',
     ativo: true
   };
