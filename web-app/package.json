@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "node src/assets/js/set-env.js && ng build --configuration production",
+    "build": "MAP_BOX_TOKEN='' node src/assets/js/set-env.js && ng build --configuration production",
     "build:portal": "ng build --configuration portal",
     "build:portal-prod": "ng build --configuration portal-production",
     "watch": "ng build --watch --configuration development",
