@@ -102,7 +102,7 @@ export class MqttConnectionService {
       path: '/ws',
       username: this.authService.extrairEmailUsuario(),
       password: this.oauthService.getAccessToken(),
-      clientId: `web-app-${crypto.randomUUID()}`;
+      clientId: `web-app-${crypto.randomUUID()}`
     });
   }
 
