@@ -2,11 +2,11 @@ const fs = require('fs');
 const path = require('path');
  
 const targetPath = './src/environments/environment.prod.ts';
-// O script lê tudo do ambiente do Cloudflare
+
 const mapboxToken = process.env.MAP_BOX_TOKEN || '';
 const sitekey = process.env.SITE_KEY || '';
 
-console.log(process.env);
+console.log(process);
  
 const envConfigFile = `
 export const environment =  
