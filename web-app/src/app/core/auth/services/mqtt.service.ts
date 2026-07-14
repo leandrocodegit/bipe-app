@@ -14,9 +14,10 @@ export class MqttConnectionService {
   private topicSubjects = new Map<string, Subject<IMqttMessage>>();
   private topicSubscriptions = new Map<string, Subscription>();
   private messageCache = new Map<string, IMqttMessage>();
-  
+
   // Evita múltiplas chamadas simultâneas de refresh de token
   private isRefreshing = false;
+  private onErrorSubscription?: Subscription;
 
   constructor(
     private readonly mqttService: MqttService,
@@ -27,6 +28,12 @@ export class MqttConnectionService {
     this.mqttService.state.subscribe((state) => {
       const isConnected = state === MqttConnectionState.CONNECTED;
       this.connected$.next(isConnected);
+    });
+    // Quando o cliente se reconectar, garante que os tópicos sejam re-subscriptos
+    this.mqttService.state.subscribe((state) => {
+      if (state === MqttConnectionState.CONNECTED) {
+        this.reconnectTopicSubscriptions();
+      }
     });
   }
 
@@ -89,6 +96,13 @@ export class MqttConnectionService {
       .subscribe(() => {
         console.warn('Token OAuth expirando — verifique se o refresh silencioso está configurado.');
       });
+
+    // Reconnect quando a aba voltar a ficar visível (ex: após sleep do SO)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        this.handleVisibilityResume();
+      }
+    });
   }
 
   /**
@@ -109,13 +123,15 @@ export class MqttConnectionService {
   private connectWithCurrentToken(): void {
     this.connectBroker();
 
-    this.mqttService.onError.subscribe((error: IOnErrorEvent) => {
+    // Inscreve no onError somente uma vez
+    if (!this.onErrorSubscription || this.onErrorSubscription.closed) {
+      this.onErrorSubscription = this.mqttService.onError.subscribe((error: IOnErrorEvent) => {
       const isNotAuthorized = error.message.includes('Not authorized');
       const isRefused = error.message.includes('Refused');
 
       if ((isNotAuthorized || isRefused) && !this.isRefreshing) {
         this.isRefreshing = true;
-        
+
         console.warn(`[MqttConnectionService] Conexão falhou (${error.message}). Tentando atualizar o token...`);
 
         if (isRefused) {
@@ -125,7 +141,7 @@ export class MqttConnectionService {
         this.authService.refreshToken().subscribe({
           next: (success: boolean) => {
             this.isRefreshing = false;
-            
+
             if (success) {
               console.log('[MqttConnectionService] Token atualizado com sucesso! Reconectando ao MQTT...');
               this.connectBroker();
@@ -142,6 +158,69 @@ export class MqttConnectionService {
         });
       }
     });
+    }
+  }
+
+  private handleVisibilityResume(): void {
+    try {
+      if (!this.authService.isLoggedIn()) return;
+
+      if (this.connected$.value) {
+        // Já conectado, nada a fazer
+        return;
+      }
+
+      const token = this.oauthService.getAccessToken();
+      if (!token) {
+        // Tenta refresh de token antes de reconectar
+        if (!this.isRefreshing) {
+          this.isRefreshing = true;
+          this.authService.refreshToken().subscribe({
+            next: (success: boolean) => {
+              this.isRefreshing = false;
+              if (success) {
+                this.connectBroker();
+              } else {
+                this.redirectToLogin();
+              }
+            },
+            error: (err) => {
+              this.isRefreshing = false;
+              console.error('[MqttConnectionService] Erro no refresh ao retomar visibilidade:', err);
+              this.redirectToLogin();
+            }
+          });
+        }
+      } else {
+        // Token presente, apenas conecta
+        this.connectWithCurrentToken();
+      }
+    } catch (err) {
+      console.error('[MqttConnectionService] Erro ao tratar visibilidade:', err);
+    }
+  }
+
+  private reconnectTopicSubscriptions(): void {
+    for (const [topic, subject] of this.topicSubjects.entries()) {
+      const currentSub = this.topicSubscriptions.get(topic);
+      if (!currentSub || (currentSub && currentSub.closed)) {
+        const sub = this.mqttService.observe(topic).subscribe(
+          msg => {
+            this.messageCache.set(msg.topic, msg);
+            subject.next(msg);
+          },
+          err => {
+            this.topicSubjects.delete(topic);
+            subject.error(err);
+          },
+          () => {
+            this.topicSubjects.delete(topic);
+            subject.complete();
+          }
+        );
+        this.topicSubscriptions.set(topic, sub);
+      }
+    }
   }
 
   private redirectToLogin(): void {
