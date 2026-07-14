@@ -162,9 +162,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
       const iconeCentral = Leaflet.icon({
-        iconUrl: 'assets/drawable/waypoint.png',
-        iconSize: [64, 64],
-        iconAnchor: [30, 50]
+        iconUrl: 'assets/drawable/marker-geo.png',
+        iconSize: [50, 50],
+        iconAnchor: [25, 40]
       });
 
       const marcadorRepresentativo = Leaflet.marker(latLng, {
