@@ -378,7 +378,11 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private inicializarMapa(): void {
-    this.mapa = Leaflet.map('map').setView(this.cordenadas, 13);
+    this.mapa = Leaflet.map('map', {
+      center: this.cordenadas,
+      zoom: 13,
+      zoomControl: this.layoutService.isDesktop()
+    });
 
     this.googleLayer = Leaflet.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=pt-BR&x={x}&y={y}&z={z}', {
       maxZoom: 20,
@@ -389,7 +393,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       maxZoom: 19,
       attribution: '&copy; Esri'
     });
- 
+
     // 2. Defina os Layers usando os IDs oficiais de estilo do Mapbox (Light e Dark)
     this.aliadeSmooth = Leaflet.tileLayer(
       `https://api.mapbox.com/styles/v1/mapbox/light-v11/tiles/{z}/{x}/{y}?access_token=${environment.mapboxToken}`, {

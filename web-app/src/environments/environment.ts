@@ -1,5 +1,3 @@
-import { HttpHeaders } from "@angular/common/http";
-
 export const environment = {
   production: false,
   portal: true,
@@ -10,7 +8,7 @@ export const environment = {
   protocoloWebSocket: 'wss' as 'wss' | 'ws',
   timeout: 100000,
   sitekey: '1x00000000000000000000AA',
-  mapboxToken: '',
+  mapboxToken: ``,
   authConfig: {
     issuer: `http://auth.simodapp.com:8443/realms/simod`,
     redirectUri: window.location.origin + '/auth',

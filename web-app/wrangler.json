@@ -1,8 +1,5 @@
-{
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bipe-app",
+{ 
+  "name": "web-app",
   "pages_build_output_dir": "dist/front/browser",
-  "vars": {
-    "MAP_BOX_TOKEN": ""
-  }
+  "compatibility_date": "2025-05-10" 
 }
