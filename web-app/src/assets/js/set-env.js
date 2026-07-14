@@ -1,8 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-
-const targetPath = path.join(__dirname, './src/environments/environment.prod.ts');
-
+ 
+const targetPath = path.resolve(__dirname, '../../../environments/environment.prod.ts');
 // O script lê tudo do ambiente do Cloudflare
 const mapboxToken = process.env.MAPBOX_TOKEN || '';
 const sitekey = process.env.SITE_KEY || '';
