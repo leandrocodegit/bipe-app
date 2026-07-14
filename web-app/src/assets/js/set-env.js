@@ -7,7 +7,7 @@ const targetPath = './src/environments/environment.prod.ts';
 const mapboxToken = process.env.MAP_BOX_TOKEN || '';
 const sitekey = process.env.SITE_KEY || '';
 
-console.log(process);
+console.log(process.env);
  
 const envConfigFile = `
 export const environment =  
