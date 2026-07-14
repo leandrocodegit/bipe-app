@@ -162,7 +162,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
       const iconeCentral = Leaflet.icon({
-        iconUrl: 'assets/drawable/alfinete.png',
+        iconUrl: 'assets/drawable/waypoint.png',
         iconSize: [64, 64],
         iconAnchor: [30, 50]
       });
