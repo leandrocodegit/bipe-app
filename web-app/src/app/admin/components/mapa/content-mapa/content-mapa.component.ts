@@ -49,6 +49,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private caminhosLayer!: L.Polyline;
   private transicoesClusterGroup: any;
   private posicoesClusterGroup: any;
+  private monitoredMarkerLayer: any;
   private googleLayer!: Leaflet.TileLayer;
   private esriLayer!: Leaflet.TileLayer;
   private isGoogleActive = false;
@@ -424,6 +425,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }).addTo(this.mapa);
 
+    this.monitoredMarkerLayer = Leaflet.layerGroup().addTo(this.mapa);
+
     this.conectarMqttComToken();
 
     if (this.edicao)
@@ -538,11 +541,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       circle.setRadius(precisao);
       marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload));
 
-      // Atualiza o ícone do mapa dinamicamente caso o usuário tenha trocado de figura
-      marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload.color));
+      const highlighted = this.monitoredCardTid === tid;
+      marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload.color, highlighted));
 
       if (this.monitoredCardTid === tid) {
         this.centerMonitoredCard(latLng.lat, latLng.lng);
+        this.moveMarkerToMonitoredLayer(marker, tid);
       }
     } else {
       this.criarMarcadorRastreamento(uniqueId, latLng, precisao, tid, iconName, user, deviceName, payload);
@@ -563,10 +567,11 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       radius: precisao
     }).addTo(this.mapa);
 
-    const icon = this.obterIconeLeaflet(iconName, tid, payload?.color);
+    const highlighted = this.monitoredCardTid === tid;
+    const icon = this.obterIconeLeaflet(iconName, tid, payload?.color, highlighted);
     const popupHtml = this.criarPopupOwnTracks(user, deviceName, payload);
 
-    const marker = Leaflet.marker(latLng, { icon })
+    const marker = Leaflet.marker(latLng, { icon, zIndexOffset: highlighted ? 1000 : 0 })
       .bindPopup(popupHtml, { className: 'owntracks-popup', maxWidth: 250 });
 
     marker.on('popupopen', (e: any) => {
@@ -589,7 +594,11 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.markers.set(id, marker);
     this.markerTidIndex.set(tid, id);
 
-    this.posicoesClusterGroup.addLayer(marker);
+    if (this.monitoredCardTid === tid) {
+      this.monitoredMarkerLayer.addLayer(marker);
+    } else {
+      this.posicoesClusterGroup.addLayer(marker);
+    }
   }
 
   private monitorFromPopup(id: string): void {
@@ -612,7 +621,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.monitoredCardService.monitorCard(friend);
   }
 
-  private obterIconeLeaflet(iconName: string | undefined, tid: string, color?: string): Leaflet.DivIcon {
+  private obterIconeLeaflet(iconName: string | undefined, tid: string, color?: string, highlighted = false): Leaflet.DivIcon {
     let conteudoCentro = '';
 
     if (iconName) {
@@ -622,14 +631,17 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       conteudoCentro = `<span style="color: #1e293b; font-family: system-ui, sans-serif; font-size: 14px; font-weight: bold;z-index: 9999999;background: white;width: 100%;height: 100%;text-align: center;line-height: 2;">${tid}</span>`;
     }
 
+    const destaque = highlighted ? 'box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.35);' : '';
+    const borda = highlighted ? 'border: 2px solid #f59e0b;' : '';
+
     const htmlMarcador = `
-      <div style="position: relative; width: 40px; height: 55px; display: flex; justify-content: center;">
+      <div style="position: relative; width: 40px; height: 55px; display: flex; justify-content: center; ${destaque}">
 
         <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3));" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg">
           <path fill="${color ? color : '#3b82f6'}" d="M12 0C5.37 0 0 5.37 0 12c0 7.5 12 24 12 24s12-16.5 12-24C24 5.37 18.63 0 12 0z"/>
         </svg>
 
-        <div style="position: absolute; top: 4px; width: 28px; height: 28px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: inset 0px 1px 3px rgba(0,0,0,0.2);">
+        <div style="position: absolute; top: 4px; width: 28px; height: 28px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: inset 0px 1px 3px rgba(0,0,0,0.2); ${borda}">
           ${conteudoCentro}
         </div>
 
@@ -718,10 +730,31 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.monitoredCardSubscription = this.monitoredCardService.monitoredCard$.subscribe((card) => {
-      this.monitoredCardTid = card?.card.tid ?? null;
+      const previousTid = this.monitoredCardTid;
+      const currentTid = card?.card?.tid ?? null;
+
+      if (previousTid && previousTid !== currentTid) {
+        this.resetMarkerToCluster(previousTid);
+      }
+
+      this.monitoredCardTid = currentTid;
       if (!this.mapa) {
         return;
       }
+
+      if (!currentTid) {
+        return;
+      }
+
+      const markerId = this.markerTidIndex.get(currentTid);
+      const marker = markerId ? this.markers.get(markerId) : undefined;
+      const payload = markerId ? this.markerData.get(markerId)?.payload : undefined;
+
+      if (marker) {
+        marker.setIcon(this.obterIconeLeaflet(payload?.icon, currentTid, payload?.color, true));
+        this.moveMarkerToMonitoredLayer(marker, currentTid);
+      }
+
       if (card?.location) {
         this.centerMonitoredCard(card.location.lat, card.location.lon, true);
       }
@@ -745,6 +778,38 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.mapa.panTo(latLng);
     }
+  }
+
+  private moveMarkerToMonitoredLayer(marker: Leaflet.Marker, tid: string): void {
+    if (!marker) return;
+
+    if (this.posicoesClusterGroup?.hasLayer(marker)) {
+      this.posicoesClusterGroup.removeLayer(marker);
+    }
+
+    if (!this.monitoredMarkerLayer?.hasLayer(marker)) {
+      this.monitoredMarkerLayer.addLayer(marker);
+    }
+  }
+
+  private resetMarkerToCluster(tid: string): void {
+    const markerId = this.markerTidIndex.get(tid);
+    if (!markerId) return;
+
+    const marker = this.markers.get(markerId);
+    if (!marker) return;
+
+    if (this.monitoredMarkerLayer?.hasLayer(marker)) {
+      this.monitoredMarkerLayer.removeLayer(marker);
+    }
+
+    if (!this.posicoesClusterGroup?.hasLayer(marker)) {
+      this.posicoesClusterGroup.addLayer(marker);
+    }
+
+    const markerInfo = this.markerData.get(markerId);
+    const payload = markerInfo?.payload;
+    marker.setIcon(this.obterIconeLeaflet(payload?.icon, tid, payload?.color, false));
   }
 
   limpar(): void {
