@@ -21,9 +21,11 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
   protected motionLabel = '';
   protected motionEmoji = '';
   protected isVisibleOnRoute = true;
-  
+  protected mapReady = false;
+
   private routerSub!: Subscription;
   private cardSub!: Subscription;
+  private mapReadySub!: Subscription;
 
   constructor(
     private monitoredCardService: MonitoredCardService,
@@ -45,11 +47,15 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
       this.monitoredCard = card;
       this.updateComputedFields();
     });
+    this.mapReadySub = this.monitoredCardService.mapReady$.subscribe((ready) => {
+      this.mapReady = !!ready;
+    });
   }
 
   ngOnDestroy(): void {
     if (this.routerSub) this.routerSub.unsubscribe();
     if (this.cardSub) this.cardSub.unsubscribe();
+    if (this.mapReadySub) this.mapReadySub.unsubscribe();
   }
 
   private checkRouteVisibility(url: string): void {

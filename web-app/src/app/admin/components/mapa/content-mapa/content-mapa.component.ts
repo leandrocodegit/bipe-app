@@ -103,7 +103,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.layoutService.isMobile()) {
-     // this.height = '93.5vh';
+      // this.height = '93.5vh';
     }
 
   }
@@ -113,7 +113,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activedRoute.queryParams.subscribe(param => {
       this.edicao = this.route.url == '/mapa/waypoint'
       this.inicializarMapa();
-      this.subscribeMonitoredCard();
+
     })
 
   }
@@ -374,6 +374,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.esriLayer.addTo(this.mapa);
 
+    // Informa ao serviço que o mapa foi criado e está pronto para receber pedidos de centralização
+    this.monitoredCardService.setMapReady(true);
+
     this.addCenterButton();
     this.addLayerToggleButton();
 
@@ -426,6 +429,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.edicao)
       this.iniciarCriacaoZonas();
     this.listarWaypoints();
+
+    if (!this.edicao)
+      this.subscribeMonitoredCard();
   }
 
   private addLayerToggleButton(): void {
@@ -439,7 +445,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       Object.assign(el.style, {
         background: '#000000b3',
         color: '#676c8a',
-        padding: '6px 10px',
+        padding: '6px 9px',
         fontSize: '16px',
         cursor: 'pointer',
         border: '1px solid #76767696',
@@ -571,7 +577,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
           // Remove listeners antigos para evitar duplicidade
           const novoBtn = btn.cloneNode(true);
           btn.parentNode.replaceChild(novoBtn, btn);
-          
+
           novoBtn.addEventListener('click', () => {
             this.monitorFromPopup(id);
           });
@@ -590,7 +596,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const data = this.markerData.get(id);
     if (!data) return;
     const { user, deviceName, payload, tid } = data;
-    
+
     // Constrói um objeto compatível com FriendPresence
     const friend: any = {
       id: `owntracks/${user}/${deviceName}`,
@@ -602,7 +608,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       location: payload
     };
-    
+
     this.monitoredCardService.monitorCard(friend);
   }
 
@@ -669,7 +675,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         <div style="margin-top: 10px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 4px;">
           Atualizado: ${dataHora}
         </div>
-        
+
         <button class="monitorar-btn-popup" data-user="${user}" data-device="${device}" style="margin-top: 8px; width: 100%; padding: 6px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">
           Monitorar
         </button>
@@ -764,7 +770,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected onSalvarNovaZona(payload: any): void {
-    
+
     this.route.navigate(['/waypoint'])
   }
 
@@ -817,6 +823,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.mapa) {
       this.mapa.remove();
     }
+    // Limpa o estado no serviço ao destruir o mapa
+    this.monitoredCardService.setMapReady(false);
   }
 
 }

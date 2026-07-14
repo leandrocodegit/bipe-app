@@ -20,4 +20,8 @@ export class WaypointService {
     return this.http.post<any>(`${environment.urlApi}/bipe/waypoints`, request);
   }
 
+  public deleteWayPoint(id: string): Observable<any> {
+    return this.http.delete<any>(`${environment.urlApi}/bipe/waypoints/${id}`);
+  }
+
 }

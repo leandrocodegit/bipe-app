@@ -8,6 +8,8 @@ import { FriendPresence } from '@/shared/models/friends.model';
 export class MonitoredCardService {
   private monitoredCardSubject = new BehaviorSubject<FriendPresence | null>(null);
   private centerRequestedSubject = new Subject<FriendPresence>();
+  private mapReadySubject = new BehaviorSubject<boolean>(false);
+  mapReady$ = this.mapReadySubject.asObservable();
 
   monitoredCard$ = this.monitoredCardSubject.asObservable();
   centerRequested$ = this.centerRequestedSubject.asObservable();
@@ -41,10 +43,22 @@ export class MonitoredCardService {
     sessionStorage.removeItem('rastreador_monitored_card');
   }
 
+  /**
+   * Request the map to center on the currently monitored card.
+   * Only emits when the map has been registered as ready.
+   */
   requestCenter(): void {
     const card = this.monitoredCardSubject.value;
-    if (card) {
-      this.centerRequestedSubject.next(card);
+    if (!card) return;
+    if (!this.mapReadySubject.value) {
+      // Ignore requests made before the map is initialized
+      return;
     }
+    this.centerRequestedSubject.next(card);
+  }
+
+  /** Called by the map component to inform the service that the map is ready */
+  setMapReady(ready: boolean): void {
+    this.mapReadySubject.next(!!ready);
   }
 }
