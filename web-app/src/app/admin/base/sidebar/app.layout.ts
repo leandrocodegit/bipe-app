@@ -35,7 +35,7 @@ import { MonitoredCardComponent } from '@/shared/components/monitored-card/monit
   <app-top-bar></app-top-bar>
     <app-sidebar></app-sidebar>
   <div class="layout-main-container">
-    <div class="block lg:flex flex-col gap-4 h-[97%] bg-white dark:bg-neutral-950">
+    <div class="block lg:flex flex-col gap-4 h-full bg-white dark:bg-neutral-950">
         <div class="layout-main flex flex-col lg:flex-row w-full h-full overflow-hidden relative">
           @if(load){
           <app-preload></app-preload>
