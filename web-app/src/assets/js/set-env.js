@@ -18,7 +18,7 @@ export const environment =
   protocoloWebSocket: 'wss' as 'wss' | 'ws',
   timeout: 30000,
   sitekey: '${sitekey}',
-  mapboxToken: 'access_token=${mapboxToken}',
+  mapboxToken: '${mapboxToken}',
   authConfig: {
     issuer: 'https://auth.simodapp.com:8443/realms/sincroled',
     redirectUri: window.location.origin + '/auth',
