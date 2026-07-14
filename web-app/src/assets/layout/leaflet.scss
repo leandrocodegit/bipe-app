@@ -184,3 +184,9 @@
 .leaflet-draw-actions li:first-child a {
   border-left: none !important;
 }
+
+.leaflet-control-container .leaflet-right{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

@@ -126,8 +126,8 @@ export class MqttConnectionService {
     // Inscreve no onError somente uma vez
     if (!this.onErrorSubscription || this.onErrorSubscription.closed) {
       this.onErrorSubscription = this.mqttService.onError.subscribe((error: IOnErrorEvent) => {
-      const isNotAuthorized = error.message.includes('Not authorized');
-      const isRefused = error.message.includes('Refused');
+      const isNotAuthorized = error.message.toLowerCase().includes('not authorized');
+      const isRefused = error.message.toLowerCase().includes('refused');
 
       if ((isNotAuthorized || isRefused) && !this.isRefreshing) {
         this.isRefreshing = true;

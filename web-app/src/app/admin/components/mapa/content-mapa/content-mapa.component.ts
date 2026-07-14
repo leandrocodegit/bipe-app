@@ -17,6 +17,7 @@ import { WaypointService } from '@/shared/services/waypoint.service';
 import { Waypoint } from '@/shared/models/waypoint.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
+import { log } from 'console';
 
 @Component({
   selector: 'app-content-mapa',
@@ -52,7 +53,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private monitoredMarkerLayer: any;
   private googleLayer!: Leaflet.TileLayer;
   private esriLayer!: Leaflet.TileLayer;
-  private isGoogleActive = false;
+  private aliadeSmooth!: Leaflet.TileLayer;
+  private aliadeSmoothDark!: Leaflet.TileLayer;
+  private tileType: 'GOOGLE' | 'SATELITE' | 'NONE' = 'NONE';
   private markerTidIndex = new Map<string, string>(); // tid -> uniqueId
 
   // Guarda os dados brutos para recriar o FriendPresence ao clicar em "Monitorar" no popup
@@ -87,11 +90,9 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private readonly route: Router,
     private readonly layoutService: LayoutService,
-    private readonly mqttService: MqttService,
     public readonly mapUltilService: MapUltilService,
     private readonly recorderService: RecorderService,
     private readonly authService: AuthService,
-    private readonly oauthService: OAuthService,
     private readonly activedRoute: ActivatedRoute,
     private readonly deviceService: DeviceService,
     private readonly waypointService: WaypointService,
@@ -99,8 +100,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly monitoredCardService: MonitoredCardService
   ) {
 
+    layoutService.configUpdate$.subscribe(() => {
+      this.aplicarTile();
+    })
   }
-
 
   ngOnInit(): void {
     if (this.layoutService.isMobile()) {
@@ -119,6 +122,19 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
+  private aplicarTile() {
+
+    console.log('Tilando');
+
+    if (this.layoutService.isDarkTheme()) {
+      this.mapa.removeLayer(this.aliadeSmooth);
+      this.aliadeSmoothDark.addTo(this.mapa);
+    }
+    else {
+      this.mapa.removeLayer(this.aliadeSmoothDark);
+      this.aliadeSmooth.addTo(this.mapa);
+    }
+  }
 
   private connectedSubscription?: Subscription;
 
@@ -373,12 +389,23 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       attribution: '&copy; Esri'
     });
 
-    this.esriLayer.addTo(this.mapa);
+    this.aliadeSmooth = Leaflet.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; Esri'
+    });
+
+    this.aliadeSmoothDark = Leaflet.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; Esri'
+    });
+
+    if (this.layoutService.isDarkTheme())
+      this.aliadeSmoothDark.addTo(this.mapa);
+    else this.aliadeSmooth.addTo(this.mapa);
 
     // Informa ao serviço que o mapa foi criado e está pronto para receber pedidos de centralização
     this.monitoredCardService.setMapReady(true);
 
-    this.addCenterButton();
     this.addLayerToggleButton();
 
     const L_any = (window as any).L || Leaflet;
@@ -439,38 +466,63 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private addLayerToggleButton(): void {
 
+    const btnCenter = new Leaflet.Control({ position: 'topright' });
+
+    btnCenter.onAdd = () => {
+      const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
+
+      el.innerHTML = '<img src="assets/drawable/centralizar.png"/>';
+      Object.assign(el.style, {
+        cursor: 'pointer',
+        border: 'none',
+        marginTop: '10px',
+        width: '30px'
+      });
+
+      el.onclick = () => {
+        if (this.markers.size > 0 && !this.markers.has('edicao')) {
+          const group = new Leaflet.FeatureGroup(Array.from(this.markers.values()));
+          this.mapa.fitBounds(group.getBounds(), { padding: [30, 30] });
+        } else {
+          this.mapa.setView(this.cordenadas, 14);
+        }
+      };
+
+      return el;
+    };
+
+    btnCenter.addTo(this.mapa);
+
     const btn = new Leaflet.Control({ position: 'topright' });
 
     btn.onAdd = () => {
       const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
 
-      el.innerHTML = '🛰️';
+      el.innerHTML = '<img src="assets/drawable/google-maps.png"/>';
       Object.assign(el.style, {
-        background: '#000000b3',
-        color: '#676c8a',
-        padding: '6px 9px',
-        fontSize: '16px',
         cursor: 'pointer',
-        border: '1px solid #76767696',
-        borderRadius: '12px',
-        fontWeight: 'bold',
-        marginTop: '10px'
+        border: 'none',
+        marginTop: '10px',
+        width: '40px'
       });
 
       el.onclick = () => {
-        if (this.isGoogleActive) {
 
-          this.mapa.removeLayer(this.googleLayer);
-          this.esriLayer.addTo(this.mapa);
-          this.isGoogleActive = false;
-
-          el.innerHTML = '🗺️';
-        } else {
+        if (this.tileType == 'SATELITE')
           this.mapa.removeLayer(this.esriLayer);
-          this.googleLayer.addTo(this.mapa);
-          this.isGoogleActive = true;
+        else if (this.tileType == 'NONE' && this.layoutService.isDarkTheme())
+          this.mapa.removeLayer(this.aliadeSmoothDark);
+        else if (this.tileType == 'NONE')
+          this.mapa.removeLayer(this.aliadeSmooth);
 
-          el.innerHTML = '🛰️';
+        if (this.tileType == 'GOOGLE') {
+          this.tileType = 'NONE';
+          this.mapa.removeLayer(this.googleLayer);
+          this.aplicarTile();
+        }
+        else {
+          this.googleLayer.addTo(this.mapa);
+          this.tileType = 'GOOGLE';
         }
       };
 
@@ -478,6 +530,71 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     btn.addTo(this.mapa);
+
+    const btnSatelite = new Leaflet.Control({ position: 'topright' });
+
+    btnSatelite.onAdd = () => {
+      const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
+
+      el.innerHTML = '<img src="assets/drawable/satelite.png"/>';
+      Object.assign(el.style, {
+        cursor: 'pointer',
+        border: 'none',
+        marginTop: '8px',
+        width: '41px'
+      });
+
+      el.onclick = () => {
+        if (this.tileType == 'GOOGLE')
+          this.mapa.removeLayer(this.esriLayer);
+        else if (this.tileType == 'NONE' && this.layoutService.isDarkTheme())
+          this.mapa.removeLayer(this.aliadeSmoothDark);
+        else if (this.tileType == 'NONE')
+          this.mapa.removeLayer(this.aliadeSmooth);
+
+        if (this.tileType == 'SATELITE') {
+          this.tileType = 'NONE';
+          this.mapa.removeLayer(this.esriLayer);
+          this.aplicarTile();
+        }
+        else {
+          this.esriLayer.addTo(this.mapa);
+          this.tileType = 'SATELITE';
+        }
+      };
+
+      return el;
+    };
+
+    btnSatelite.addTo(this.mapa);
+
+    const btnDefaulTitle = new Leaflet.Control({ position: 'topright' });
+
+    btnDefaulTitle.onAdd = () => {
+      const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
+
+      el.innerHTML = '<img src="assets/drawable/apple-maps.png"/>';
+      Object.assign(el.style, {
+        cursor: 'pointer',
+        border: 'none',
+        marginTop: '10px',
+        width: '37px'
+      });
+
+      el.onclick = () => {
+        if (this.tileType == 'GOOGLE')
+          this.mapa.removeLayer(this.googleLayer);
+        else if (this.tileType == 'SATELITE')
+          this.mapa.removeLayer(this.esriLayer);
+
+        this.aplicarTile();
+      };
+
+      return el;
+    };
+
+    btnDefaulTitle.addTo(this.mapa);
+
   }
 
   private iniciarRastreamentoMqtt(): void {
@@ -704,25 +821,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         this.markers.set('edicao', marker); */
   }
 
-  private addCenterButton(): void {
-    const btn = new Leaflet.Control({ position: 'topright' });
-    btn.onAdd = () => {
-      const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
-      el.innerHTML = '⊕';
-      Object.assign(el.style, { background: '#000000b3', color: '#676c8a', padding: '6px 12px', fontSize: '16px', cursor: 'pointer', border: '1px solid #76767696', borderRadius: '12px', fontWeight: 'bold' });
-
-      el.onclick = () => {
-        if (this.markers.size > 0 && !this.markers.has('edicao')) {
-          const group = new Leaflet.FeatureGroup(Array.from(this.markers.values()));
-          this.mapa.fitBounds(group.getBounds(), { padding: [30, 30] });
-        } else {
-          this.mapa.setView(this.cordenadas, 14);
-        }
-      };
-      return el;
-    };
-    btn.addTo(this.mapa);
-  }
 
   private subscribeMonitoredCard(): void {
     if (this.monitoredCardSubscription || this.centerRequestSubscription) {

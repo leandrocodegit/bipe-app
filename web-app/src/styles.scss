@@ -1697,11 +1697,16 @@ p-togglebutton,
   padding: 0 7px !important;
 }
 
-.p-0 .p-card-body{
+.p-0 .p-card-body {
   padding: 5px 0 !important;
 }
 
 .leaflet-top,
 .leaflet-bottom {
-	z-index: 994!important;
-	}
+  z-index: 994 !important;
+}
+
+.p-dialog {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}

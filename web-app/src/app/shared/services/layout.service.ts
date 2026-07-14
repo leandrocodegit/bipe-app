@@ -55,6 +55,7 @@ export class LayoutService {
 
   private resetSource = new Subject();
   private colorTheme = new Subject();
+  private darkTheme = new Subject();
   private viewTabs = new Subject<boolean>();
 
   moduloItem$ = this.moduloItem.asObservable();
