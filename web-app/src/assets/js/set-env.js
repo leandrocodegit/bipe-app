@@ -1,3 +1,13 @@
+
+import { getRequestContext } from '@cloudflare/next-on-pages';
+
+const token = export async function GET() {
+  const myVar = getRequestContext().env.MAP_BOX_TOKEN;
+  return new Response(myVar);
+}
+console.log('Token', token);
+
+
 const fs = require('fs');
 const path = require('path');
  
