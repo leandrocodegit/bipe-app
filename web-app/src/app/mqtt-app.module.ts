@@ -6,7 +6,6 @@ export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
   port: environment.portaWebSocket,
   protocol: environment.protocoloWebSocket,
   path: '/ws',
-  username: crypto.randomUUID(),
   connectOnCreate: false,
 }
 //74e892085fed204e

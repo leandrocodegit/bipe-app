@@ -1,0 +1,13 @@
+#remoteVideo{
+    border: solid salmon;
+
+}
+
+#localVideo{
+    border: solid greenyellow;
+}
+
+#remoteVideo, #localVideo{
+    width: 300px;
+    height: 150px;
+}

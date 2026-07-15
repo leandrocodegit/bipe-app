@@ -127,8 +127,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private aplicarTile() {
 
-    console.log('Tilando');
-
     if (this.layoutService.isDarkTheme()) {
       this.mapa.removeLayer(this.aliadeSmooth);
       this.aliadeSmoothDark.addTo(this.mapa);
@@ -621,7 +619,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         const topic = message.topic;
 
         this.showMqttMessageIndicator();
-        console.log(payload);
 
         if (payload._type === 'location') {
           this.processarEventoLocalizacao(topic, payload);
@@ -642,7 +639,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         const topic = message.topic;
 
         this.showMqttMessageIndicator();
-        console.log('Shared', payload);
 
       } catch (error) {
         console.error('Erro ao processar payload MQTT do OwnTracks:', error);

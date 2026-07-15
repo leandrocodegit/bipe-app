@@ -119,9 +119,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
         const jsonString = new TextDecoder().decode(message.payload);
         const payload = JSON.parse(jsonString);
 
-        console.log(payload);
-
-
         if (payload._type === 'card') {
           this.upsertCard(payload as FriendCard, message.topic);
         } else if (payload._type === 'location') {
@@ -141,7 +138,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
   }
 
   listaTransicoes() {
-    console.log(this.selectedFriend);
 
     if (this.selectedFriend?.card?.name)
       this.recorderService.listaTransicoes(

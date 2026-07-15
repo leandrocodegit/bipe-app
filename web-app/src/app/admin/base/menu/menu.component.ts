@@ -122,6 +122,11 @@ export class AppMenu implements OnInit {
       {
         order: 3,
         label: '',
+        items: [{ label: 'Áudio', icon: 'pi pi-phone', separator: false, routerLink: ['/audio'] }]
+      },
+      {
+        order: 4,
+        label: '',
         items: [{ label: 'Rotinas', icon: 'pi pi-directions', separator: false, routerLink: ['/rotinas'] }]
       },
       {

@@ -14,7 +14,8 @@ import { KeycloakUserProfileComponent } from './core/minha-conta/keycloak/keyclo
 import { KeycloakSessionsComponent } from './core/minha-conta/keycloak/keycloak-sessions/keycloak-sessions.component';
 import { PainelUsuarioLogadoComponent } from './core/minha-conta/painel-usuario-logado/painel-usuario-logado.component';
 import { PainelRouteBaseComponent } from './shared/components/painel-route-base/painel-route-base.component';
- 
+import { AudioWebrtcComponent } from './components/media/audio-webrtc/audio-webrtc.component';
+
 
 const painelRoutes: Routes = [
 
@@ -30,15 +31,20 @@ const painelRoutes: Routes = [
     ]
   },
   {
-        path: 'conta', component: AppLayout, children: [
-          { path: '', component: PainelUsuarioLogadoComponent },
-          { path: 'sessions', component: KeycloakSessionsComponent },
-          { path: 'perfil', component: KeycloakUserProfileComponent },
-        ]
-      },
+    path: 'conta', component: AppLayout, children: [
+      { path: '', component: PainelUsuarioLogadoComponent },
+      { path: 'sessions', component: KeycloakSessionsComponent },
+      { path: 'perfil', component: KeycloakUserProfileComponent },
+    ]
+  },
+  {
+    path: 'audio', component: AppLayout, children: [
+      { path: '', component: AudioWebrtcComponent }
+    ]
+  },
   { path: 'login', component: LoginSocialComponent },
   { path: 'logout', component: LogoutComponent },
-  { path: 'auth', component: AutenticacaoComponent },
+  { path: 'auth', component: AutenticacaoComponent }
 
 ];
 
