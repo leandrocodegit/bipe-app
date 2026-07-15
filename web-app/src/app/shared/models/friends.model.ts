@@ -35,17 +35,17 @@ export interface OwnTracksLocation {
    * Activity Recognition API do Android) porque foi o que você descreveu. Se o formato
    * real publicado pelo seu app for diferente, ajuste esta interface e `topMotionActivity` em `geo.util.ts`.
    */
-  motionactivities?: MotionActivity[];
+  motionactivities?: string[];
   topic?: string;
 }
- 
+
 export interface MotionActivity {
   /** ex: "still", "walking", "running", "in_vehicle", "on_bicycle" */
   type: string;
   /** Confiança de 0 a 100. */
   confidence: number;
 }
- 
+
 /** Região cadastrada no seu backend (geofence circular), independente das regiões do próprio OwnTracks. */
 export interface Region {
   id: string;
@@ -56,7 +56,7 @@ export interface Region {
   radius: number;
   color?: string;
 }
- 
+
 export interface FriendPresence {
   id: string;
   topic: string;

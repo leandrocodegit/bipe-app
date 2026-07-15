@@ -1,6 +1,6 @@
 import { MotionActivity, Region } from "./models/friends.model";
 
- 
+
 
 const EARTH_RADIUS_M = 6371000;
 
@@ -60,23 +60,31 @@ export interface MotionInfo {
 
 const MOTION_LABELS: Record<string, { emoji: string; label: string }> = {
   still: { emoji: '🧍', label: 'Parado' },
+  stationary: { emoji: '🧍', label: 'Parado' },
   walking: { emoji: '🚶', label: 'Caminhando' },
   on_foot: { emoji: '🚶', label: 'Caminhando' },
   running: { emoji: '🏃', label: 'Correndo' },
   in_vehicle: { emoji: '🚗', label: 'No veículo' },
+  automotive: { emoji: '🚗', label: 'No veículo' },
   on_bicycle: { emoji: '🚴', label: 'De bicicleta' },
+  cycling: { emoji: '🚴', label: 'De bicicleta' },
   tilting: { emoji: '📱', label: 'Movimentando o aparelho' },
   unknown: { emoji: '❓', label: 'Desconhecido' },
 };
 
 /** Pega a atividade de maior confiança na lista e devolve emoji + rótulo em pt-BR. */
-export function topMotionActivity(activities?: MotionActivity[]): MotionInfo | null {
+export function topMotionActivity(activities?: string[]): MotionInfo | null {
   if (!activities || !activities.length) {
     return null;
   }
-  const top = [...activities].sort((a, b) => b.confidence - a.confidence)[0];
-  const info = MOTION_LABELS[top.type?.toLowerCase()] ?? MOTION_LABELS['unknown'];
-  return { emoji: info.emoji, label: info.label, confidence: Math.round(top.confidence) };
+  const top = [...activities][0];
+
+  if(!top)
+    return null;
+
+  const info = MOTION_LABELS[top?.toLowerCase()] ?? MOTION_LABELS['unknown'];
+
+  return { emoji: info.emoji, label: info.label, confidence: 0 };
 }
 
 /** Formata um timestamp (segundos desde epoch) como "há 2 min", "há 3 h", etc. */
