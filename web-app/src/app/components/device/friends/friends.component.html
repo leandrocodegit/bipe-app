@@ -99,39 +99,51 @@
     <div
       class="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
 
-      <div class="flex justify-between items-start gap-2">
-        <div class="w-6"></div>
-        <!-- Avatar e identificação -->
-        <div class="flex flex-col items-center gap-1 text-center">
-          <div class="flex h-20 w-20 items-center justify-center rounded-full text-4xl shadow-sm"
-            [style.background]="friend.card.color + '22'" [style.border]="'2px solid ' + friend.card.color">
-            <img src="assets/drawable/{{friend.card.face}}.png" alt="">
+      <div class="flex items-center justify-between gap-3 py-2 px-3 border-b border-slate-100 dark:border-slate-800/50">
+
+        <!-- Avatar e identificação alinhados na horizontal -->
+        <div class="flex items-center gap-2.5 min-w-0">
+          <!-- Avatar reduzido de h-20 (80px) para h-11 (44px) -->
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm"
+            [style.background]="friend.card.color + '22'" [style.border]="'1.5px solid ' + friend.card.color">
+            <!-- Imagem adaptada para caber no container menor -->
+            <img src="assets/drawable/{{friend.card.face}}.png" alt="" class="h-7 w-7 object-contain">
           </div>
-          <div>
-            <p class="text-sm font-semibold text-slate-900">{{ friend.card.tid }}</p>
+
+          <!-- Texto ao lado do avatar em vez de embaixo -->
+          <div class="min-w-0">
+            <p class="text-xs text-slate-400 dark:text-slate-500 font-medium leading-none mb-0.5">Amigo</p>
+            <p class="text-sm font-bold text-slate-900 dark:text-slate-105 truncate leading-tight">
+              {{ friend.card.tid }}
+            </p>
           </div>
         </div>
 
-        <div class="flex gap-2">
+        <!-- Ações e Timeline agrupadas à direita -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Botão de Monitorar (Play) compactado -->
           <button (click)="monitorFriend(friend)"
-            class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-500 transition-colors hover:bg-slate-200 active:scale-95 dark:bg-emerald-900/50 dark:text-emerald-400 dark:hover:bg-slate-800/50">
-            <i class="pi pi-play-circle text-xs"></i>
+            class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 transition-colors hover:bg-emerald-200 active:scale-95 dark:bg-emerald-950/40 dark:text-emerald-400">
+            <i class="pi pi-play-circle text-sm"></i>
           </button>
-          <app-transition-timeline [transitions]="minhaListaDeTransicoes" (onSelect)="listaTransicoes()"/>
 
+          <!-- Componente de Timeline integrado na mesma linha -->
+          <app-transition-timeline [transitions]="minhaListaDeTransicoes" (onSelect)="listaTransicoes()" />
+
+          <!-- Botão de Fechar compacto -->
           <button (click)="closeDetails()"
-            class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 active:scale-95 dark:bg-slate-500/20 dark:text-slate-400 dark:hover:bg-slate-800">
+            class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 active:scale-95 dark:bg-slate-800 dark:text-slate-400">
             <i class="pi pi-times text-xs"></i>
           </button>
         </div>
       </div>
 
       <!-- ID com copiar -->
-      <div
+<!--       <div
         class="flex w-full items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 dark:bg-neutral-950 px-2.5 py-2">
         <p class="min-w-0 flex-1 truncate text-center text-[11px] text-slate-500 dark:text-teal-400">{{ friend.card.name
           }}</p>
-      </div>
+      </div> -->
 
       <ng-container *ngIf="friend.location; else semLocalizacao">
         <!-- Bateria e movimento -->
@@ -161,23 +173,39 @@
           </div>
         </div>
 
-        <div class="mt-2">
-          <div class="flex items-center justify-between gap-2 text-[10px] font-medium text-slate-500">
-            <span>Localização</span>
-            <span class="text-[9px] text-slate-400 dark:text-slate-200">{{ lastUpdate(friend) }}</span>
-          </div>
-          <div *ngIf="isInsideAnyRegion(friend); else foraDeRegiao" class="flex flex-wrap gap-1">
-            <span *ngFor="let region of regionsOf(friend)"
-              class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-              📍 {{ region }}
-            </span>
-          </div>
-          <ng-template #foraDeRegiao>
-            <span class="rounded-full bg-slate-100 dark:bg-neutral-950 px-2.5 py-1 text-xs font-medium text-slate-500">
-              Fora de qualquer região cadastrada
-            </span>
-          </ng-template>
-        </div>
+<div class="mt-2.5 p-2 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/60">
+
+  <!-- Header do mini-card (Rótulo + Última atualização) -->
+  <div class="flex items-center justify-between gap-2 mb-1.5 px-0.5">
+    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+      📍 Localização Atual
+    </span>
+    <span class="text-[9px] font-medium text-slate-400 dark:text-slate-500 flex items-center gap-0.5">
+      {{ lastUpdate(friend) }}
+    </span>
+  </div>
+
+  <!-- Status / Regiões -->
+  <div>
+    <!-- Caso: Dentro de alguma região -->
+    <div *ngIf="isInsideAnyRegion(friend); else foraDeRegiao" class="flex flex-wrap gap-1">
+      <span *ngFor="let region of regionsOf(friend)"
+        class="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-600/10 dark:ring-emerald-400/20">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> <!-- Indicador ativo piscando -->
+        {{ region }}
+      </span>
+    </div>
+
+    <!-- Caso: Fora de qualquer região -->
+    <ng-template #foraDeRegiao>
+      <div class="inline-flex items-center gap-1.5 rounded-md bg-slate-100 dark:bg-slate-900/60 px-2 py-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+        <span class="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-600"></span>
+        Fora de áreas monitoradas
+      </div>
+    </ng-template>
+  </div>
+
+</div>
 
         <!-- QUEM ESTÁ JUNTO -->
         <div *ngIf="getCompanhias(friend).length > 0"
