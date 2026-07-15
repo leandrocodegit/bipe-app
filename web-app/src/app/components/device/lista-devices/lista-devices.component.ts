@@ -13,6 +13,7 @@ import { Device } from '@/shared/models/device.model';
 import { ShareDeviceComponent } from '../share-device/share-device.component';
 import { DialogModule } from 'primeng/dialog';
 import { DeviceService } from '@/shared/services/device.service';
+import { AudioCallService } from '@/shared/services/audio-call.service';
 
 @Component({
   selector: 'app-lista-devices',
@@ -46,8 +47,13 @@ export class ListaDevicesComponent {
   protected selected?: Device;
   protected apelido = '';
 
-  constructor(private readonly deviceService: DeviceService) { }
+  constructor(
+    private audioCallService: AudioCallService,
+    private readonly deviceService: DeviceService) { }
 
+  chamar(){
+    this.audioCallService.startOutgoingCall('owntracks/usuario/dispositivo', 'Nome do Aparelho')
+  }
 
   salvarApelido() {
     this.deviceService.salvarApelido({

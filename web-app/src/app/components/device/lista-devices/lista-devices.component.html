@@ -69,6 +69,12 @@
 
         <!-- Status + ações -->
         <div *ngIf="!shareMode" class="flex shrink-0 flex-col items-end">
+                    <button pButton type="button" class="p-button-rounded p-button-text !h-8 !w-8" pTooltip="Compartilhar"
+            tooltipPosition="left" (click)="chamar()">
+            <span class="material-symbols-outlined">
+              call
+            </span>
+          </button>
           <button pButton type="button" class="p-button-rounded p-button-text !h-8 !w-8" pTooltip="Compartilhar"
             tooltipPosition="left" (click)="editApelido(device)">
             <span class="material-symbols-outlined">

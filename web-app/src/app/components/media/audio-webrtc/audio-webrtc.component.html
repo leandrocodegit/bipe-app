@@ -1,29 +1,47 @@
-<div class="flex flex-col gap-4 p-4">
+<div *ngIf="callState !== 'IDLE'"
+     class="flex items-center justify-between w-full px-4 py-2 bg-slate-900 text-white shadow-md z-50 transition-all duration-300">
+  
   <div class="flex items-center gap-3">
-    <button pButton type="button" label="Disparar chamada" class="p-button-sm" (click)="start()"></button>
-    <button pButton type="button" label="Encerrar" class="p-button-sm p-button-secondary" (click)="stop()"></button>
-  </div>
-
-  <div class="grid gap-4 sm:grid-cols-2  overflow-y-auto max-h-[350px]">
-    <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-      <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Mensagens locais</h3>
-      <ul class="space-y-2 text-xs text-slate-500 dark:text-slate-400">
-        <li *ngFor="let mensagem of mensagensLocal">{{ mensagem.tipo }}</li>
-      </ul>
+    <div class="relative flex items-center justify-center w-10 h-10 bg-slate-800 rounded-full">
+      <i class="pi pi-phone text-emerald-400" *ngIf="callState === 'IN_CALL'"></i>
+      <i class="pi pi-phone animate-pulse text-yellow-400" *ngIf="callState === 'RINGING'"></i>
+      <i class="pi pi-phone animate-pulse text-blue-400" *ngIf="callState === 'OUTGOING'"></i>
     </div>
-    <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-      <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Mensagens remotas</h3>
-      <ul class="space-y-2 text-xs text-slate-500 dark:text-slate-400">
-        <li *ngFor="let mensagem of mensagensRemoto">{{ mensagem.tipo }}</li>
-      </ul>
+    <div class="flex flex-col">
+      <span class="text-sm font-semibold truncate max-w-[150px] md:max-w-[300px]">
+        {{ callInfo?.userName || callInfo?.deviceId || 'Desconhecido' }}
+      </span>
+      <span class="text-xs text-slate-400" *ngIf="callState === 'RINGING'">Chamada recebida...</span>
+      <span class="text-xs text-slate-400" *ngIf="callState === 'OUTGOING'">Chamando...</span>
+      <span class="text-xs text-emerald-400" *ngIf="callState === 'IN_CALL'">{{ callDuration }}</span>
     </div>
   </div>
 
-  <div class="grid gap-4 sm:grid-cols-2">
-
-    <div class="space-y-2">
-      <div class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Audio remoto</div>
-      <audio #remoteAudio autoplay controls class="w-full rounded-2xl bg-slate-100 dark:bg-slate-900"></audio>
-    </div>
+  <div class="flex items-center gap-2">
+    <!-- Atender (Apenas se Ringing) -->
+    <button *ngIf="callState === 'RINGING'"
+            pButton type="button" 
+            icon="pi pi-phone" 
+            class="p-button-rounded p-button-success p-button-sm shadow-md" 
+            (click)="acceptCall()">
+    </button>
+    
+    <!-- Recusar (Apenas se Ringing) -->
+    <button *ngIf="callState === 'RINGING'"
+            pButton type="button" 
+            icon="pi pi-phone" 
+            class="p-button-rounded p-button-danger p-button-sm shadow-md rotate-[135deg]" 
+            (click)="rejectCall()">
+    </button>
+    
+    <!-- Desligar (Se em chamada ou chamando) -->
+    <button *ngIf="callState === 'IN_CALL' || callState === 'OUTGOING'"
+            pButton type="button" 
+            icon="pi pi-phone" 
+            class="p-button-rounded p-button-danger p-button-sm shadow-md rotate-[135deg]" 
+            (click)="hangupCall()">
+    </button>
   </div>
+
+  <audio #remoteAudio autoplay class="hidden"></audio>
 </div>

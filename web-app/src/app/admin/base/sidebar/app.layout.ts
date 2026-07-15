@@ -14,6 +14,7 @@ import { LayoutService } from '@/shared/services/layout.service';
 import { LoadService } from '@/shared/components/preload/load.service';
 import { PreloadComponent } from '@/shared/components/preload/preload.component';
 import { MonitoredCardComponent } from '@/shared/components/monitored-card/monitored-card.component';
+import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webrtc.component';
 
 @Component({
   selector: 'app-layout',
@@ -28,14 +29,16 @@ import { MonitoredCardComponent } from '@/shared/components/monitored-card/monit
     ConfirmDialogModule,
     TabsModule,
     ButtonModule,
-    MonitoredCardComponent
+    MonitoredCardComponent,
+    AudioWebrtcComponent
   ],
   template: `
 <div class="layout-wrapper" [ngClass]="containerClass">
   <app-top-bar></app-top-bar>
     <app-sidebar></app-sidebar>
   <div class="layout-main-container">
-    <div class="block lg:flex flex-col gap-4 h-full bg-white dark:bg-neutral-950">
+    <div class="block lg:flex flex-col gap-4 h-full bg-white dark:bg-neutral-950 relative">
+        <app-audio-webrtc class="absolute top-0 left-0 right-0 z-50"></app-audio-webrtc>
         <div class="layout-main flex flex-col lg:flex-row w-full h-full overflow-hidden relative">
           @if(load){
           <app-preload></app-preload>
