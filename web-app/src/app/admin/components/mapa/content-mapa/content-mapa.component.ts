@@ -46,6 +46,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private mqttSubscription!: Subscription;
   protected desenhando = false;
   protected temDesenho = false;
+  protected mqttMessageActive = false;
+  private mqttIndicatorTimer: any;
   protected statusInstrucao = 'Toque no botão para iniciar';
   protected geoJSON?: any;
   private caminhosLayer!: L.Polyline;
@@ -417,8 +419,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.aliadeSmoothDark.addTo(this.mapa);
     else this.aliadeSmooth.addTo(this.mapa);
 
-    // Informa ao serviço que o mapa foi criado e está pronto para receber pedidos de centralização
-    this.monitoredCardService.setMapReady(true);
+    // Aguarda o mapa estar totalmente pronto antes de sinalizar para centralização
+    this.mapa.whenReady(() => {
+      this.monitoredCardService.setMapReady(true);
+    });
 
     this.addLayerToggleButton();
 
@@ -612,8 +616,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         const payload = JSON.parse(jsonString);
         const topic = message.topic;
 
+        this.showMqttMessageIndicator();
         console.log(payload);
-
 
         if (payload._type === 'location') {
           this.processarEventoLocalizacao(topic, payload);
@@ -633,8 +637,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         const payload = JSON.parse(jsonString);
         const topic = message.topic;
 
+        this.showMqttMessageIndicator();
         console.log('Shared', payload);
-
 
       } catch (error) {
         console.error('Erro ao processar payload MQTT do OwnTracks:', error);
@@ -666,7 +670,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       circle.setRadius(precisao);
       const highlighted = this.monitoredCardTid === tid;
       marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, highlighted));
-      
+
       marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload.color, highlighted));
 
       if (this.monitoredCardTid === tid) {
@@ -694,7 +698,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const highlighted = this.monitoredCardTid === tid;
     const icon = this.obterIconeLeaflet(iconName, tid, payload?.color, highlighted);
-    const popupHtml = this.criarPopupOwnTracks(user, deviceName, payload);
+    const popupHtml = this.criarPopupOwnTracks(user, deviceName, payload, highlighted);
 
     const marker = Leaflet.marker(latLng, { icon, zIndexOffset: highlighted ? 1000 : 0 })
       .bindPopup(popupHtml, { className: 'owntracks-popup', maxWidth: 250 });
@@ -709,11 +713,15 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
           btn.parentNode.replaceChild(novoBtn, btn);
 
           novoBtn.addEventListener('click', () => {
-            if(btn.innerHTML == 'Monitorar')
+            const currentlyActive = this.monitoredCardTid === tid;
+            if (currentlyActive) {
+              this.monitoredCardService.clearMonitoredCard();
+              marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, false));
+            } else {
               this.monitorFromPopup(id);
-            else this.monitoredCardService.clearMonitoredCard()
-            console.log(btn.innerHTML);
-            
+              marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, true));
+            }
+            marker.openPopup();
           });
         }
       }
@@ -759,7 +767,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       conteudoCentro = `<span style="color: #1e293b; font-family: system-ui, sans-serif; font-size: 14px; font-weight: bold;z-index: 9999999;background: white;width: 100%;height: 100%;text-align: center;line-height: 2;">${tid}</span>`;
     }
- 
+
     const fill = highlighted ? '#f59e0b' : color ? color : '#3b82f6';
     const width = highlighted ? 'width: 60px; height: 75px;' : 'width: 40px; height: 55px;';
 
@@ -865,7 +873,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         this.moveMarkerToMonitoredLayer(marker, currentTid);
       }
 
-      if (card?.location) {
+      if (card?.location?.lat && card?.location?.lon) {
         this.centerMonitoredCard(card.location.lat, card.location.lon, true);
       }
     });
@@ -874,6 +882,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!card?.location || !this.mapa) {
         return;
       }
+      if (card?.location?.lat && card?.location?.lon)
       this.centerMonitoredCard(card.location.lat, card.location.lon, true);
     });
   }
@@ -882,11 +891,23 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.mapa) {
       return;
     }
+
     const latLng = Leaflet.latLng(lat, lon);
-    if (fly) {
-      this.mapa.flyTo(latLng, 16, { animate: true });
+    const performCenter = () => {
+      if (!this.mapa || !this.mapa._loaded) {
+        return;
+      }
+      if (fly) {
+        this.mapa.flyTo(latLng, 16, { animate: true });
+      } else {
+        this.mapa.panTo(latLng);
+      }
+    };
+
+    if (this.mapa._loaded) {
+      performCenter();
     } else {
-      this.mapa.panTo(latLng);
+      this.mapa.whenReady(performCenter);
     }
   }
 
@@ -900,6 +921,16 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.monitoredMarkerLayer?.hasLayer(marker)) {
       this.monitoredMarkerLayer.addLayer(marker);
     }
+  }
+
+  private showMqttMessageIndicator(): void {
+    this.mqttMessageActive = true;
+    if (this.mqttIndicatorTimer) {
+      clearTimeout(this.mqttIndicatorTimer);
+    }
+    this.mqttIndicatorTimer = setTimeout(() => {
+      this.mqttMessageActive = false;
+    }, 1200);
   }
 
   private resetMarkerToCluster(tid: string): void {

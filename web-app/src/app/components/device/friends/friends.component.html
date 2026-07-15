@@ -87,72 +87,71 @@
   </div>
 
   <!-- Detalhe do amigo (Inline na lateral desktop / Barra no mobile) -->
-  <div *ngIf="selectedFriend as friend" 
-       class="relative w-full lg:w-96 shrink-0 bg-white dark:bg-neutral-900
+  <div *ngIf="selectedFriend as friend"
+       class="relative w-full lg:w-64 shrink-0 bg-white/95 dark:bg-neutral-900/95
               border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-neutral-800
-              shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)] lg:shadow-none
-              rounded-t-3xl lg:rounded-none z-40 flex flex-col max-h-[75vh] lg:max-h-full transition-transform duration-300">
-    
+              shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)] lg:shadow-lg
+              rounded-t-3xl lg:rounded-none lg:p-4 z-40 flex flex-col transition-transform duration-300
+              lg:sticky lg:top-5 backdrop-blur-xl">
+
     <div class="h-1 w-10 self-center rounded-full bg-slate-200 lg:hidden mt-3 mb-1"></div>
-    
-    <div class="flex-1 overflow-y-auto px-4 pb-6 pt-2 flex flex-col gap-4">
-      
-      <div class="flex justify-between items-start lg:mt-4">
-        <div class="w-8"></div> <!-- spacer -->
+    <div class="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+
+      <div class="flex justify-between items-start gap-2">
+        <div class="w-6"></div>
         <!-- Avatar e identificação -->
-        <div class="flex flex-col items-center gap-2 text-center">
-          <div class="flex h-24 w-24 items-center justify-center rounded-full text-6xl shadow-sm"
-            [style.background]="friend.card.color + '22'" [style.border]="'3px solid ' + friend.card.color">
+        <div class="flex flex-col items-center gap-1 text-center">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full text-4xl shadow-sm"
+            [style.background]="friend.card.color + '22'" [style.border]="'2px solid ' + friend.card.color">
             <img src="assets/drawable/{{friend.card.face}}.png" alt="">
           </div>
           <div>
-            <p class="text-lg font-semibold text-slate-900">{{ friend.card.tid }}</p>
+            <p class="text-sm font-semibold text-slate-900">{{ friend.card.tid }}</p>
           </div>
         </div>
         <!-- Fechar (visível no desktop na mesma linha, e no mobile também) -->
-        <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-text p-button-secondary w-8 h-8 !p-0" (click)="closeDetails()"></button>
+        <button pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-text p-button-secondary w-7 h-7 !p-0" (click)="closeDetails()"></button>
       </div>
 
       <!-- ID com copiar -->
-      <div class="flex w-full items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 dark:bg-neutral-950 px-3 py-2.5">
-        <p class="min-w-0 flex-1 truncate text-center text-xs text-slate-500 dark:text-teal-400">{{ friend.card.name }}</p>
+      <div class="flex w-full items-center gap-2 rounded-xl border border-slate-100 bg-slate-50 dark:bg-neutral-950 px-2.5 py-2">
+        <p class="min-w-0 flex-1 truncate text-center text-[11px] text-slate-500 dark:text-teal-400">{{ friend.card.name }}</p>
       </div>
 
       <ng-container *ngIf="friend.location; else semLocalizacao">
         <!-- Bateria e movimento -->
-        <div class="grid grid-cols-2 gap-3">
-          <div class="flex flex-col items-center gap-1 rounded-xl border border-slate-100 px-3 py-2.5 shadow-sm">
-            <span class="text-lg">🔋</span>
-            <ng-container *ngIf="battery(friend) as batt; else semBateria">
-              <p class="text-sm font-semibold" [ngClass]="batt.colorClass">
-                {{ batt.percent }}%
-                <i *ngIf="batt.isCharging" class="pi pi-bolt ml-0.5 text-emerald-500"></i>
-              </p>
-            </ng-container>
-            <ng-template #semBateria>
-              <p class="text-sm text-slate-400 dark:text-slate-200">—</p>
-            </ng-template>
-            <p class="text-[10px] text-slate-400 dark:text-slate-200">Bateria</p>
-          </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="flex flex-col items-center gap-0.5 rounded-2xl border border-slate-100 px-2 py-1 shadow-sm text-[11px]">
+            <div class="flex items-center gap-1">
+              <span class="text-sm">🔋</span>
+              <span class="font-semibold" [ngClass]="battery(friend)?.colorClass">{{ battery(friend)?.percent }}%</span>
+            </div>
+           </div>
 
-          <div class="flex flex-col items-center gap-1 rounded-xl border border-slate-100 px-3 py-2.5 shadow-sm">
+          <div class="flex flex-col items-center gap-0.5 rounded-2xl border border-slate-100 px-2 py-1 shadow-sm text-[11px]">
             <ng-container *ngIf="motion(friend) as m; else semMovimento">
-              <span class="text-lg">{{ m.emoji }}</span>
-              <p class="text-xs font-semibold text-slate-700">{{ m.label }}</p>
+              <div class="flex items-center gap-1">
+                <span class="text-base">{{ m.emoji }}</span>
+                <span class="font-semibold text-slate-700">{{ m.label }}</span>
+              </div>
             </ng-container>
             <ng-template #semMovimento>
-              <span class="text-lg">❓</span>
-              <p class="text-xs text-slate-400 dark:text-slate-200">Sem dado</p>
+              <div class="flex items-center gap-1">
+                <span class="text-base">❓</span>
+                <span class="text-slate-400 dark:text-slate-200">Sem dado</span>
+              </div>
             </ng-template>
-            <p class="text-[10px] text-slate-400 dark:text-slate-200">Atividade</p>
-          </div>
+           </div>
         </div>
 
-        <div>
-          <p class="mb-1.5 text-xs font-medium text-slate-500">Localização</p>
-          <div *ngIf="isInsideAnyRegion(friend); else foraDeRegiao" class="flex flex-wrap gap-1.5">
+        <div class="mt-2">
+          <div class="flex items-center justify-between gap-2 text-[10px] font-medium text-slate-500">
+            <span>Localização</span>
+            <span class="text-[9px] text-slate-400 dark:text-slate-200">{{ lastUpdate(friend) }}</span>
+          </div>
+          <div *ngIf="isInsideAnyRegion(friend); else foraDeRegiao" class="flex flex-wrap gap-1">
             <span *ngFor="let region of regionsOf(friend)"
-              class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+              class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
               📍 {{ region }}
             </span>
           </div>
@@ -165,8 +164,8 @@
 
         <!-- QUEM ESTÁ JUNTO -->
         <div *ngIf="getCompanhias(friend).length > 0"
-          class="mt-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/20 p-3 border border-indigo-100 dark:border-indigo-800/30">
-          <p class="mb-2 text-[11px] font-bold text-indigo-500 uppercase tracking-wider">
+          class="mt-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/20 p-2 border border-indigo-100 dark:border-indigo-800/30">
+          <p class="mb-1 text-[10px] font-bold text-indigo-500 uppercase tracking-wider">
             👥 Acompanhado por
           </p>
           <div class="flex flex-wrap gap-2">
@@ -185,27 +184,27 @@
         </div>
 
         <!-- Lat/lon + endereço -->
-        <div class="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50 dark:bg-neutral-950 px-3 py-2.5">
-          <div class="flex items-center justify-between gap-2">
+        <div class="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50 dark:bg-neutral-950 px-2.5 py-2">
+          <div class="flex items-center justify-between gap-2 text-[11px]">
             <p class="font-mono text-xs text-slate-600 dark:text-slate-200">
               {{ friend.location.lat.toFixed(5) }}, {{ friend.location.lon.toFixed(5) }}
             </p>
             <span class="shrink-0 text-[10px] text-slate-400 dark:text-slate-200">{{ lastUpdate(friend) }}</span>
           </div>
 
-          <p *ngIf="hasAddress(friend); else buscarEndereco" class="text-xs text-slate-700">
+          <p *ngIf="hasAddress(friend); else buscarEndereco" class="text-[11px] text-slate-700">
             {{ addressOf(friend) }}
           </p>
           <ng-template #buscarEndereco>
             <button pButton type="button" label="Buscar endereço" icon="pi pi-map-marker"
-              class="p-button-text p-button-sm self-start !px-0 !text-xs" (click)="requestAddress(friend)"></button>
+              class="p-button-text p-button-sm self-start !px-0 !text-[11px]" (click)="requestAddress(friend)"></button>
           </ng-template>
         </div>
       </ng-container>
 
       <ng-template #semLocalizacao>
         <div
-          class="rounded-xl border border-dashed border-slate-200 bg-white/60 dark:bg-neutral-950 px-3 py-4 text-center text-xs text-slate-400 dark:text-slate-200">
+          class="rounded-xl border border-dashed border-slate-200 bg-white/60 dark:bg-neutral-950 px-2.5 py-3 text-center text-[11px] text-slate-400 dark:text-slate-200">
           Ainda não recebemos a localização deste amigo.
         </div>
       </ng-template>
@@ -213,11 +212,11 @@
       <!-- Espaço para não encostar os botões no fundo ao dar scroll -->
       <div class="pb-16 lg:pb-0"></div>
     </div>
-    
-    <!-- Botões fixos no rodapé do painel -->
-    <div class="absolute lg:static bottom-0 left-0 w-full bg-white dark:bg-neutral-900 border-t border-slate-100 dark:border-neutral-800 p-3 flex gap-2">
-      <button pButton type="button" label="Monitorar" icon="pi pi-crosshairs" class="p-button-sm flex-1" (click)="monitorFriend(friend)"></button>
-      <button pButton type="button" label="Fechar" icon="pi pi-times" class="p-button-sm p-button-text flex-1 lg:hidden" (click)="closeDetails()"></button>
+
+    <!-- Botões ajustados para economizar espaço -->
+    <div class="absolute lg:static bottom-0 left-0 w-full bg-white/95 dark:bg-neutral-900/95 border-t border-slate-100 dark:border-neutral-800 p-2 flex gap-2">
+      <button pButton type="button" label="Monitorar" icon="pi pi-crosshairs" class="p-button-sm flex-1 !px-2" (click)="monitorFriend(friend)"></button>
+      <button pButton type="button" label="Fechar" icon="pi pi-times" class="p-button-sm p-button-text flex-1 lg:hidden !px-2" (click)="closeDetails()"></button>
     </div>
   </div>
 

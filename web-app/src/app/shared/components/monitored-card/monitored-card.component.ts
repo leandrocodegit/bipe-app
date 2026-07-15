@@ -67,6 +67,10 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
     this.monitoredCardService.clearMonitoredCard();
   }
 
+    closeMonitor(): void {
+    this.monitoredCardService.closeMonitoredCard();
+  }
+
   centerOnCard(): void {
     this.monitoredCardService.requestCenter();
   }

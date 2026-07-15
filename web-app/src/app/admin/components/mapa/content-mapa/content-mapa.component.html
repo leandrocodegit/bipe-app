@@ -1,7 +1,8 @@
 <div class="relative w-full lg:rounded-xl overflow-hidden lg:border lg:border-slate-200 dark:border-[#1e2736]"
   [style.height]="height">
-
   <div id="map" class="w-full h-full"></div>
+
+  <div class="mqtt-message-indicator" [class.active]="mqttMessageActive" title="Recebendo mensagens MQTT"></div>
 </div>
 
 <app-waypoint-form-dialog

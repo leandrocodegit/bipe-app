@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { __await } from 'tslib';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { PaginatorState } from 'primeng/paginator';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable({
@@ -11,10 +11,10 @@ import { PaginatorState } from 'primeng/paginator';
 },
 )
 export class UsuarioService {
- 
+
   constructor(
     private readonly http: HttpClient) { }
- 
+
 
   public atualizarUsuario(request: any): Observable<any> {
     return this.http.put<any>(`${environment.urlApi}/usuario`, request);

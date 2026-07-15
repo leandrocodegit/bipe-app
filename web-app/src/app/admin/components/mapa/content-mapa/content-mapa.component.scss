@@ -7,3 +7,34 @@
   display: flex;
   justify-content: center;
 }
+
+.mqtt-message-indicator {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0);
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  z-index: 99999;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mqtt-message-indicator.active {
+  background: #22c55e;
+  transform: scale(1.25);
+  box-shadow: 0 0 12px 4px rgba(34, 197, 94, 0.35);
+  animation: mqtt-led-blink 1s ease-in-out infinite;
+}
+
+@keyframes mqtt-led-blink {
+  0%, 100% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}

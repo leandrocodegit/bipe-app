@@ -20,7 +20,7 @@ export class MonitoredCardService {
       try {
         const card = JSON.parse(saved);
         this.monitoredCardSubject.next(card);
-      } catch (e) {}
+      } catch (e) { }
     }
   }
 
@@ -41,6 +41,10 @@ export class MonitoredCardService {
   clearMonitoredCard(): void {
     this.monitoredCardSubject.next(null);
     sessionStorage.removeItem('rastreador_monitored_card');
+  }
+
+  closeMonitoredCard(): void {
+    this.mapReadySubject.next(false);
   }
 
   /**
