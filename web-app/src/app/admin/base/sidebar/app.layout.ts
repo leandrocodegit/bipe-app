@@ -40,7 +40,7 @@ import { MonitoredCardComponent } from '@/shared/components/monitored-card/monit
           @if(load){
           <app-preload></app-preload>
           }
-          <div class="flex-1 w-full h-full relative overflow-hidden">
+          <div class="flex-1 w-full h-full relative overflow-hidden dark:bg-neutral-900">
             <router-outlet></router-outlet>
           </div>
           <app-monitored-card *ngIf="router.url != '/mapa/waypoint'" class="contents"></app-monitored-card>

@@ -1,0 +1,81 @@
+<button (click)="view = true; onSelect.emit()"
+  class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-500 transition-colors hover:bg-slate-200 active:scale-95 dark:bg-blue-900/40 dark:text-blue-400 dark:hover:bg-blue-800/70">
+  <span class="material-symbols-outlined">route</span>
+</button>
+
+<p-drawer [(visible)]="view" [modal]="true" [draggable]="false" position="bottom" [showCloseIcon]="false"
+  styleClass="p-4 rounded-t-3xl overflow-hidden" [style]="{ width: '100vw', maxHeight: '88vh' }">
+  <div class="flex flex-col w-full gap-4 pr-2">
+
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div
+          class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+          <span class="material-symbols-outlined">route</span>
+        </div>
+        <div class="min-w-0">
+          <p class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-0.5">Histórico de transições</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Últimas mudanças de região do dispositivo</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <button pButton type="button" icon="pi pi-refresh" (click)="onSelect.emit()"
+        class="p-button-rounded p-button-text p-button-secondary h-9 w-9 !p-0"></button>
+          <button pButton type="button" icon="pi pi-times"
+        class="p-button-rounded p-button-text p-button-secondary h-9 w-9 !p-0" (click)="view = false"></button>
+    </div>
+
+    </div>
+
+    <div *ngIf="!transitions || transitions.length === 0"
+      class="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-100 bg-slate-50/80 py-10 px-4 text-center text-slate-600 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">
+      <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 mb-3">
+        <i class="pi pi-compass text-2xl"></i>
+      </div>
+      <p class="text-sm font-semibold">Nenhuma transição recente de áreas</p>
+      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">As movimentações aparecerão aqui assim que houver
+        registro.</p>
+    </div>
+
+    <div *ngIf="transitions && transitions.length > 0" class="grid gap-3">
+      <div *ngFor="let t of transitions"
+        class="rounded-3xl border border-slate-100 bg-white/90 p-4 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-950">
+
+        <div class="flex items-start gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-2xl" [ngClass]="t.evento === 'enter'
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300'
+              : 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300'">
+              <span class="material-symbols-outlined !text-2xl">
+              {{t.evento === 'enter' ? 'input_circle' : 'output_circle'}}
+            </span>
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="min-w-0">
+                <p class="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{{ t.descricaoRegiao }}</p>
+              </div>
+              <span class="shrink-0 text-[11px] text-slate-400 dark:text-slate-500">{{ formatDate(t.dataHoraTransito)
+                }}</span>
+            </div>
+
+            <div class="mt-2 flex flex-wrap gap-2">
+              <span
+                class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                {{ t.evento === 'enter' ? 'Entrou' : 'Saiu' }}
+              </span>
+              <span
+                class="rounded-full bg-slate-100 px-2 py-1 text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                {{ t.usuario }}
+              </span>
+              <span
+                class="rounded-full bg-slate-100 px-2 py-1 text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                {{ t.dispositivo }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</p-drawer>

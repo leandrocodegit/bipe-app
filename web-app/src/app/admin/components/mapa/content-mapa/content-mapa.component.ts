@@ -245,7 +245,11 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.transicoesClusterGroup?.clearLayers) {
       this.transicoesClusterGroup.clearLayers();
     }
-    this.recorderService.listaTransicoes().subscribe({
+    this.recorderService.listaTransicoes({
+        device: '',
+        lastDay: true,
+        limit: 20
+      }).subscribe({
       next: (geoJsonData: any) => {
         if (geoJsonData && geoJsonData.features) {
           geoJsonData.features.forEach((feature: any) => {

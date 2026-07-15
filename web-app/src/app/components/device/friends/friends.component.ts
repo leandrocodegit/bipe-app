@@ -27,6 +27,8 @@ import { Device } from '@/shared/models/device.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { AuthService } from '@/core/auth/services/auth.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
+import { Transition, TransitionTimelineComponent } from '@/shared/components/transition-timeline/transition-timeline.component';
+import { RecorderService } from '@/shared/services/recorder.service';
 
 
 @Component({
@@ -41,6 +43,7 @@ import { MonitoredCardService } from '@/shared/services/monitored-card.service';
     InputIconModule,
     InputTextModule,
     TooltipModule,
+    TransitionTimelineComponent
   ],
   templateUrl: './friends.component.html',
   styleUrls: ['./friends.component.scss'],
@@ -50,54 +53,36 @@ export class FriendsComponent implements OnInit, OnDestroy {
   friends: FriendPresence[] = [];
   @Input() registeredRegions: Region[] = [];
   @Input() addressById: Record<string, string> = {};
-  loading = true;
 
   @Output() friendSelected = new EventEmitter<FriendPresence>();
   @Output() refresh = new EventEmitter<void>();
-
-  /**
-   * Emitido quando o usuário pede o endereço de um amigo a partir do lat/lon.
-   * A busca reversa em si (Google Geocoding) fica para uma próxima etapa —
-   * este evento já deixa o gancho pronto para o componente pai chamar a API
-   * e devolver o resultado via `[addressById]`.
-   */
   @Output() locateAddress = new EventEmitter<{ id: string; lat: number; lon: number }>();
 
   searchTerm = '';
   selectedFriend: FriendPresence | null = null;
   copied = false;
+  loading = true;
   justArrivedIds = new Set<string>();
 
 
   private mqttSubscription?: Subscription;
-
-  /** Fonte de verdade: card e location são cruzados pelo `tid`, não pelo tópico. */
+  protected minhaListaDeTransicoes: Transition[] = [];
   private presenceByTid = new Map<string, FriendPresence>();
 
-  /** topic -> tid, só para saber quem remover quando chega um "lwt" (que pode não trazer tid). */
   private tidByTopic = new Map<string, string>();
-
   private isInitialBurst = true;
   private initialBurstTimer?: ReturnType<typeof setTimeout>;
   private arrivalTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private copiedTimeout?: ReturnType<typeof setTimeout>;
-
-  /**
-   * ID do usuário logado, usado para não mostrar o próprio card na lista de amigos.
-   * Ajuste a claim conforme o seu provedor OIDC, caso não seja `sub`.
-   */
   private currentUserId: string | null = null;
 
   constructor(
-    private readonly authService: AuthService,
-    private readonly layoutService: LayoutService,
-    private readonly mqttService: MqttService,
     private readonly oauthService: OAuthService,
     private readonly mqttConnectionService: MqttConnectionService,
     private readonly monitoredCardService: MonitoredCardService,
+    private readonly recorderService: RecorderService,
     private readonly router: Router
   ) {
-
 
   }
 
@@ -122,30 +107,15 @@ export class FriendsComponent implements OnInit, OnDestroy {
       // Just waiting for the state subscription above to trigger
     }
 
-  }
+    this.listaTransicoes()
 
-  ngOnDestroy(): void {
-    if (this.mqttSubscription) {
-      this.mqttSubscription.unsubscribe();
-    }
-    if (this.connectedSubscription) {
-      this.connectedSubscription.unsubscribe();
-    }
-    clearTimeout(this.initialBurstTimer);
-    this.arrivalTimers.forEach((timer) => clearTimeout(timer));
-    clearTimeout(this.copiedTimeout);
   }
 
   private iniciarRastreamentoMqtt(): void {
     this.loading = true;
 
-    console.log('Iniciando card');
-
-
     this.mqttSubscription = this.mqttConnectionService.observe('owntracks/#').subscribe((message: IMqttMessage) => {
       try {
-        // TextDecoder lida corretamente com payloads maiores e com acentos/emoji,
-        // ao contrário de String.fromCharCode(...payload), que quebra em ambos os casos.
         const jsonString = new TextDecoder().decode(message.payload);
         const payload = JSON.parse(jsonString);
 
@@ -164,33 +134,37 @@ export class FriendsComponent implements OnInit, OnDestroy {
       }
     });
 
-
-
-
-    // Mensagens retidas chegam quase imediatamente após a assinatura;
-    // depois dessa janela, tratamos qualquer novidade como presença ao vivo.
     this.initialBurstTimer = setTimeout(() => {
       this.isInitialBurst = false;
       this.loading = false;
     }, 1500);
   }
 
+  listaTransicoes() {
+    console.log(this.selectedFriend);
+
+    if (this.selectedFriend?.card?.name)
+      this.recorderService.listaTransicoes(
+        {
+          device: this.selectedFriend.card.name,
+          lastDay: true,
+          limit: 20
+        }).subscribe(response => {
+          this.minhaListaDeTransicoes = response;
+        });
+  }
 
   getCompanhias(friend: FriendPresence): FriendPresence[] {
     if (!friend || !friend.location) return [];
 
-    // Pega as regiões do amigo atual
     const regioesDoAmigo = this.regionsOf(friend);
     if (regioesDoAmigo.length === 0) return [];
 
-    // Filtra a lista geral cruzando as regiões
     return this.friends.filter(outroAmigo => {
-      // Ignora ele mesmo
       if (outroAmigo.id === friend.id) return false;
 
       const regioesDoOutro = this.regionsOf(outroAmigo);
 
-      // Retorna true se houver alguma interseção (estão na mesma região)
       return regioesDoAmigo.some(regiao => regioesDoOutro.includes(regiao));
     });
   }
@@ -230,7 +204,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
     return relativeTime(friend.location?.tst);
   }
 
-  /** Nomes de todas as regiões (as que o próprio OwnTracks já calcula + as cadastradas no seu backend). */
   regionsOf(friend: FriendPresence): string[] {
     const loc = friend.location;
     if (!loc) {
@@ -245,7 +218,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
     return this.regionsOf(friend).length > 0;
   }
 
-  /** Cor para o indicador de região na bolha do grid: usa a primeira região cadastrada que bateu, senão um cinza neutro. */
   regionDotColor(friend: FriendPresence): string | null {
     const loc = friend.location;
     if (!loc) {
@@ -338,7 +310,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
     };
     this.presenceByTid.set(card.tid, presence);
     this.tidByTopic.set(topic, card.tid);
-    this.rebuildFriends();
+  //  this.rebuildFriends();
 
     if (isNewTid && !this.isInitialBurst) {
       this.markAsJustArrived(presence.id);
@@ -363,8 +335,6 @@ export class FriendsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Localização chegou antes do card desse tid: cria uma entrada provisória,
-    // que será completada assim que a mensagem "card" desse dispositivo chegar.
     const placeholderCard: FriendCard = {
       _type: 'card',
       qos: 0,
@@ -404,7 +374,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
 
   private rebuildFriends(): void {
     this.friends = Array.from(this.presenceByTid.values());
-    
+
     // Restaura o card selecionado se a página foi recarregada
     if (!this.selectedFriend) {
       const savedFriendId = sessionStorage.getItem('rastreador_selected_friend_id');
@@ -428,5 +398,17 @@ export class FriendsComponent implements OnInit, OnDestroy {
       this.arrivalTimers.delete(id);
     }, 3000);
     this.arrivalTimers.set(id, timer);
+  }
+
+  ngOnDestroy(): void {
+    if (this.mqttSubscription) {
+      this.mqttSubscription.unsubscribe();
+    }
+    if (this.connectedSubscription) {
+      this.connectedSubscription.unsubscribe();
+    }
+    clearTimeout(this.initialBurstTimer);
+    this.arrivalTimers.forEach((timer) => clearTimeout(timer));
+    clearTimeout(this.copiedTimeout);
   }
 }
