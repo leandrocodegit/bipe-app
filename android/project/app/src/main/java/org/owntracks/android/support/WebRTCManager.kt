@@ -5,6 +5,7 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaRecorder
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.PowerManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -43,7 +44,6 @@ class WebRTCManager @Inject constructor(
     private var currentUserName: String? = null
     private var currentClienteId: String? = null
     
-    // Filtro de mensagens processadas para evitar loops
     private val processedMessageIds = Collections.synchronizedSet(HashSet<String>())
 
     init {
@@ -78,14 +78,11 @@ class WebRTCManager @Inject constructor(
             return
         }
         
-        Timber.d("WebRTC: Iniciando oferta (Send Only). Sessão: $sessionId")
-        
-        if (!requestAudioFocus()) {
-            Timber.e("WebRTC: Falha ao obter foco de áudio. Abortando chamada.")
-            return
-        }
-
+        if (!requestAudioFocus()) return
         acquireWakeLock()
+        
+        // Toca o bipe personalizado
+        playCustomBeep()
         
         _isCallInProgress.value = true
         currentSessionId = sessionId
@@ -111,6 +108,32 @@ class WebRTCManager @Inject constructor(
                 }
             }
         }, constraints)
+    }
+
+    private fun playCustomBeep() {
+        try {
+            // Busca o recurso bipe_digital na pasta res/raw
+            val resId = context.resources.getIdentifier("bipe_digital", "raw", context.packageName)
+            if (resId != 0) {
+                val mp = MediaPlayer.create(context, resId)
+                mp.setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                mp.setOnCompletionListener { it.release() }
+                mp.start()
+                Timber.d("WebRTC: Tocando bipe_digital.mp3")
+            } else {
+                Timber.w("WebRTC: Arquivo bipe_digital não encontrado, usando fallback PTT")
+                val tg = android.media.ToneGenerator(AudioManager.STREAM_MUSIC, 100)
+                tg.startTone(android.media.ToneGenerator.TONE_SUP_PIP, 150)
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ tg.release() }, 200)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Falha ao tocar bipe")
+        }
     }
 
     private fun setupAudioMode(on: Boolean) {
@@ -155,7 +178,7 @@ class WebRTCManager @Inject constructor(
             wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sincroled:WebRTCCall")
         }
         if (!wakeLock!!.isHeld) {
-            wakeLock!!.acquire(10 * 60 * 1000L /*10 minutes max*/)
+            wakeLock!!.acquire(10 * 60 * 1000L)
         }
     }
 
@@ -183,14 +206,10 @@ class WebRTCManager @Inject constructor(
                 sendIceCandidate(candidate)
             }
             override fun onIceConnectionChange(state: PeerConnection.IceConnectionState?) {
-                Timber.d("WebRTC Connection: $state")
                 if (state == PeerConnection.IceConnectionState.DISCONNECTED || 
                     state == PeerConnection.IceConnectionState.FAILED ||
                     state == PeerConnection.IceConnectionState.CLOSED) {
-                    
-                    // Release resources if connection is broken
                     if (_isCallInProgress.value) {
-                        Timber.d("WebRTC: Connection lost or closed. Stopping call.")
                         stopCall()
                     }
                 }
@@ -220,12 +239,10 @@ class WebRTCManager @Inject constructor(
     }
 
     fun handleIncomingSignaling(message: MessageRTC) {
-        // Filtro de Duplicidade por _id da mensagem
         val msgId = message.messageId.toString()
         if (processedMessageIds.contains(msgId)) return
         processedMessageIds.add(msgId)
 
-        // Capture session info from any incoming RTC message if not already set
         if (currentUserName == null) currentUserName = message.userName
         if (currentClienteId == null) currentClienteId = message.clienteId
 
@@ -244,6 +261,7 @@ class WebRTCManager @Inject constructor(
         
         if (!requestAudioFocus()) return
         acquireWakeLock()
+        playCustomBeep()
         
         _isCallInProgress.value = true
         currentSessionId = sessionId
@@ -306,12 +324,9 @@ class WebRTCManager @Inject constructor(
             this.clienteId = currentClienteId
         }
         
-        // Construct custom topic: owntracks/{userName}/{clienteId}/rtc/send
         val customTopic = if (currentUserName != null && currentClienteId != null) {
             "owntracks/${currentUserName}/${currentClienteId}/rtc/send"
-        } else {
-            null
-        }
+        } else null
 
         messageProcessor.queueMessageForSending(msg, customTopic)
     }
@@ -330,15 +345,12 @@ class WebRTCManager @Inject constructor(
 
         val customTopic = if (currentUserName != null && currentClienteId != null) {
             "owntracks/${currentUserName}/${currentClienteId}/rtc/send"
-        } else {
-            null
-        }
+        } else null
 
         messageProcessor.queueMessageForSending(msg, customTopic)
     }
 
     fun stopCall() {
-        Timber.d("WebRTC: Parando chamada e liberando recursos.")
         _isCallInProgress.value = false
         currentSessionId = null
         currentUserName = null
