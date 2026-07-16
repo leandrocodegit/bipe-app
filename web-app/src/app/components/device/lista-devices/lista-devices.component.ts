@@ -51,8 +51,8 @@ export class ListaDevicesComponent {
     private audioCallService: AudioCallService,
     private readonly deviceService: DeviceService) { }
 
-  chamar(){
-    this.audioCallService.startOutgoingCall('owntracks/usuario/dispositivo', 'Nome do Aparelho')
+  chamar(device: Device){
+    this.audioCallService.startOutgoingCall( device.id, device.username)
   }
 
   salvarApelido() {

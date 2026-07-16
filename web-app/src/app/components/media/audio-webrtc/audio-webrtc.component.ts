@@ -16,6 +16,8 @@ interface RtcSignal {
   sdpMLineIndex?: number;
   senderId?: string;
   _id?: string;
+  userName: string;
+  clienteId: string;
 }
 
 @Component({
@@ -45,10 +47,12 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
   };
 
-  private signalingListenTopic = 'owntracks/+/+/rtc';
-  private incomingCallListenTopic = 'owntracks/+/+/call';
-
+  private readonly userName = `uid-${Math.random().toString(36).slice(2, 10)}`;
   private readonly clientId = `web-${Math.random().toString(36).slice(2, 10)}`;
+
+
+  private signalingListenTopic = `owntracks/${this.userName}/${this.clientId}/rtc/send`;
+
   private processedMessageIds = new Set<string>();
 
   constructor(
@@ -62,7 +66,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
       this.audioCallService.callState$.subscribe(state => {
         const prevState = this.callState;
         this.callState = state;
-        
+
         if (state === 'OUTGOING' && prevState === 'IDLE') {
           this.initOutgoingCall();
         } else if (state === 'IN_CALL' && prevState === 'RINGING') {
@@ -103,6 +107,22 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   }
 
   public rejectCall(): void {
+
+    if (!this.callInfo) return;
+
+    const callPublishTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/call`;
+
+    this.mqttConnectionService.unsafePublish(
+      callPublishTopic,
+      JSON.stringify(
+        {
+          _type: 'stop',
+          userName: this.userName,
+          clienteId: this.clientId,
+          _id: this.generateMessageId()
+        }),
+      { qos: 1, retain: false }
+    );
     this.audioCallService.endCall();
   }
 
@@ -116,36 +136,41 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     if (this.mqttSignalingSub && !this.mqttSignalingSub.closed) return;
 
     this.mqttSignalingSub = this.mqttConnectionService.observe(this.signalingListenTopic).subscribe({
-      next: (msg: any) => this.handleSignalingMessage(msg)
-    });
-
-    this.mqttCallSub = this.mqttConnectionService.observe(this.incomingCallListenTopic).subscribe({
       next: (msg: any) => this.handleIncomingCallMessage(msg)
     });
   }
 
   private handleIncomingCallMessage(message: any): void {
-    const payload = this.parseMqttPayload(message);
-    if (!payload || payload._type !== 'call' || payload.senderId === this.clientId) return;
 
-    if (this.isDuplicate(payload._id)) return;
+    this.handleSignalingMessage(message);
+    const payload = this.parseMqttPayload(message);
 
     const parts = message.topic.split('/');
     if (parts.length >= 3) {
       const deviceTopic = `${parts[0]}/${parts[1]}/${parts[2]}`;
       if (this.callState === 'IDLE') {
-        this.audioCallService.receiveIncomingCall(deviceTopic, parts[2]);
+        //   this.audioCallService.receiveIncomingCall(deviceTopic, parts[2]);
       }
     }
   }
 
   private async initOutgoingCall(): Promise<void> {
+
+    console.log('Init', this.callInfo);
+
     if (!this.callInfo) return;
-    const callPublishTopic = `${this.callInfo.deviceId}/call`;
-    
+    const callPublishTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/call`;
+
     this.mqttConnectionService.unsafePublish(
       callPublishTopic,
-      JSON.stringify({ _type: 'call', senderId: this.clientId, _id: this.generateMessageId() }),
+      JSON.stringify(
+        {
+          _type: 'call',
+          senderId: this.clientId,
+          userName: this.userName,
+          clienteId: this.clientId,
+          _id: this.generateMessageId()
+        }),
       { qos: 1, retain: false }
     );
   }
@@ -180,19 +205,8 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async prepareLocalMedia(): Promise<void> {
-    if (this.localStream) return;
-    try {
-      this.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    } catch (error) {
-      console.error('Erro ao acessar o microfone:', error);
-    }
-  }
-
   private async ensurePeerConnection(): Promise<void> {
     if (this.peerConnection) return;
-
-    await this.prepareLocalMedia();
 
     this.peerConnection = new RTCPeerConnection(this.configuration);
 
@@ -204,17 +218,25 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
           candidate: event.candidate.candidate,
           sdpMid: event.candidate.sdpMid!,
           sdpMLineIndex: event.candidate.sdpMLineIndex!,
-          senderId: this.clientId
+          userName: this.userName,
+          clienteId: this.clientId
         });
       }
     };
 
     this.peerConnection.ontrack = (event) => {
-      if (event.streams && event.streams[0]) {
-        if (this.remoteAudio?.nativeElement) {
-          this.remoteAudio.nativeElement.srcObject = event.streams[0];
-          this.remoteAudio.nativeElement.play().catch(console.error);
-        }
+      console.log('Track recebida!', event);
+      const stream = event.streams && event.streams.length > 0 ? event.streams[0] : new MediaStream([event.track]);
+
+      if (this.remoteAudio?.nativeElement) {
+        this.remoteAudio.nativeElement.srcObject = stream;
+        this.remoteAudio.nativeElement.muted = false;
+        this.remoteAudio.nativeElement.autoplay = true;
+        this.remoteAudio.nativeElement.play().then(() => {
+          console.log('Audio playing successfully');
+        }).catch(err => {
+          console.error('Erro ao dar play no áudio:', err);
+        });
       }
     };
 
@@ -227,11 +249,8 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
       }
     };
 
-    if (this.localStream) {
-      this.localStream.getTracks().forEach(track => {
-        this.peerConnection?.addTrack(track, this.localStream!);
-      });
-    }
+    // Apenas recebe áudio, não transmite
+    this.peerConnection.addTransceiver('audio', { direction: 'recvonly' });
   }
 
   private async onReceivedOffer(payload: any): Promise<void> {
@@ -250,9 +269,10 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
         _type: 'rtc',
         subtype: 'answer',
         sdp: answer.sdp,
-        senderId: this.clientId
+        userName: this.userName,
+        clienteId: this.clientId
       });
-      
+
       this.audioCallService.acceptCall();
     } catch (err) {
       console.error('Erro ao processar offer:', err);
@@ -288,9 +308,14 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   private sendSignalingMessage(message: RtcSignal): void {
     if (!this.callInfo) return;
     message._id = this.generateMessageId();
-    
-    const topic = `${this.callInfo.deviceId}/rtc`;
-    this.mqttConnectionService.unsafePublish(topic, JSON.stringify(message), { qos: 1, retain: false });
+
+    const topic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/call`;
+    this.mqttConnectionService.unsafePublish(topic, JSON.stringify(
+      {
+        ...message,
+        userName: this.userName,
+        clienteId: this.clientId
+      }), { qos: 1, retain: false });
   }
 
   private parseMqttPayload(message: any): any {

@@ -1,4 +1,4 @@
-<div *ngIf="callState !== 'IDLE'"
+<div [class.hidden]="callState === 'IDLE'"
      class="flex items-center justify-between w-full px-4 py-2 bg-slate-900 text-white shadow-md z-50 transition-all duration-300">
   
   <div class="flex items-center gap-3">
@@ -18,6 +18,7 @@
   </div>
 
   <div class="flex items-center gap-2">
+    <audio #remoteAudio autoplay playsinline controls class="h-8 w-40"></audio>
     <!-- Atender (Apenas se Ringing) -->
     <button *ngIf="callState === 'RINGING'"
             pButton type="button" 
@@ -43,5 +44,4 @@
     </button>
   </div>
 
-  <audio #remoteAudio autoplay class="hidden"></audio>
 </div>

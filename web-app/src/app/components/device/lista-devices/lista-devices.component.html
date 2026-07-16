@@ -58,8 +58,8 @@
 
         <!-- Nome e detalhes -->
         <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-300 mb-2" [pTooltip]=" device?.apelido ?? device.nome"
-            tooltipPosition="top">
+          <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-300 mb-1"
+            [pTooltip]=" device?.apelido ?? device.nome" tooltipPosition="top">
             {{ device?.apelido ?? device.nome }}
           </p>
           <p class="truncate text-xs text-slate-500 dark:text-slate-400">
@@ -68,18 +68,15 @@
         </div>
 
         <!-- Status + ações -->
-        <div *ngIf="!shareMode" class="flex shrink-0 flex-col items-end">
-                    <button pButton type="button" class="p-button-rounded p-button-text !h-8 !w-8" pTooltip="Compartilhar"
-            tooltipPosition="left" (click)="chamar()">
-            <span class="material-symbols-outlined">
-              call
-            </span>
+        <div *ngIf="!shareMode" class="flex shrink-0 items-center gap-1">
+          <button pButton type="button" class="p-button-rounded p-button-text p-button-plain !h-11 !w-11"
+            pTooltip="Ligar" tooltipPosition="top" (click)="chamar(device)">
+            <span class="material-symbols-outlined text-[22px]">call</span>
           </button>
-          <button pButton type="button" class="p-button-rounded p-button-text !h-8 !w-8" pTooltip="Compartilhar"
-            tooltipPosition="left" (click)="editApelido(device)">
-            <span class="material-symbols-outlined">
-              edit_square
-            </span>
+
+          <button pButton type="button" class="p-button-rounded p-button-text p-button-plain !h-11 !w-11"
+            pTooltip="Editar apelido" tooltipPosition="top" (click)="editApelido(device)">
+            <span class="material-symbols-outlined text-[22px]">edit_square</span>
           </button>
 
           <app-share-device [device]="device" />
@@ -118,9 +115,7 @@
       <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-outlined flex-1 !rounded-xl"
         (click)="view = false"></button>
       <button pButton type="button" label="Salvar" icon="pi pi-trash"
-        class="p-button-outlined p-button-success flex-1 !rounded-xl"
-        (click)="salvarApelido()"
-        ></button>
+        class="p-button-outlined p-button-success flex-1 !rounded-xl" (click)="salvarApelido()"></button>
     </div>
   </div>
 </p-dialog>
