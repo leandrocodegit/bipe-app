@@ -36,9 +36,12 @@ import org.owntracks.android.model.CommandAction
 import org.owntracks.android.model.Parser
 import org.owntracks.android.model.messages.MessageBase
 import org.owntracks.android.model.messages.MessageCard
+import org.owntracks.android.model.messages.MessageCall
 import org.owntracks.android.model.messages.MessageClear
 import org.owntracks.android.model.messages.MessageCmd
 import org.owntracks.android.model.messages.MessageLocation
+import org.owntracks.android.model.messages.MessageRTC
+import org.owntracks.android.model.messages.MessageStop
 import org.owntracks.android.model.messages.MessageTransition
 import org.owntracks.android.model.messages.MessageUnknown
 import org.owntracks.android.model.messages.MessageWaypoint
@@ -74,6 +77,7 @@ constructor(
     private val messageReceivedIdlingResource: IdlingResourceWithData<MessageBase>,
   @param:Named("CAKeyStore") private val caKeyStore: KeyStore,
   private val locationProcessorLazy: Lazy<LocationProcessor>,
+  private val webRTCManagerLazy: Lazy<org.owntracks.android.support.WebRTCManager>,
   @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
   @param:ApplicationScope private val scope: CoroutineScope,
   @param:Named("mqttConnectionIdlingResource")
@@ -196,9 +200,12 @@ constructor(
         mqttConnectionIdlingResource)
   }
 
-  fun queueMessageForSending(message: MessageBase) {
+  fun queueMessageForSending(message: MessageBase, customTopic: String? = null) {
     outgoingQueueIdlingResource.increment()
     scope.launch(ioDispatcher) {
+      if (customTopic != null) {
+          message.topic = customTopic
+      }
       val currentSize = outgoingQueue.size()
       Timber.d("Queueing message=$message, current queueLength:$currentSize")
       if (!outgoingQueue.enqueue(message)) {
@@ -424,6 +431,15 @@ constructor(
       }
       is MessageTransition -> {
         processIncomingMessage(message)
+      }
+      is MessageCall -> {
+        webRTCManagerLazy.get().startCall(message.sessaoid, message.userName, message.clienteId)
+      }
+      is MessageStop -> {
+        webRTCManagerLazy.get().stopCall()
+      }
+      is MessageRTC -> {
+        webRTCManagerLazy.get().handleIncomingSignaling(message as MessageRTC)
       }
       is MessageUnknown -> {
         Timber.w("Unknown message type received")

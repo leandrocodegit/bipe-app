@@ -114,18 +114,20 @@ fun Preferences.toMqttConnectionConfiguration(): MqttConnectionConfiguration =
         pubTopicBaseWithUserDetails,
         if (subTopic.contains(" ")) {
           subTopic.split(" ").toSortedSet()
-        } else if (subTopic == DefaultsProvider.DEFAULT_SUB_TOPIC) {
-          if (info) {
-            sortedSetOf(
-                subTopic,
-                subTopic + infoTopicSuffix,
-                subTopic + eventTopicSuffix,
-                subTopic + statusTopicSuffix,
-                receivedCommandsTopic)
-          } else {
-            sortedSetOf(subTopic, subTopic + eventTopicSuffix, receivedCommandsTopic)
-          }
         } else {
-          sortedSetOf(subTopic)
+          val topics = sortedSetOf(subTopic)
+          // Always subscribe to our own signaling and command topics
+          topics.add(pubTopicBaseWithUserDetails + "/call")
+          topics.add(receivedCommandsTopic)
+          if (subTopic == DefaultsProvider.DEFAULT_SUB_TOPIC) {
+            if (info) {
+                topics.add(subTopic + infoTopicSuffix)
+                topics.add(subTopic + eventTopicSuffix)
+                topics.add(subTopic + statusTopicSuffix)
+            } else {
+                topics.add(subTopic + eventTopicSuffix)
+            }
+          }
+          topics
         },
         subQos)

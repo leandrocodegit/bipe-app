@@ -56,6 +56,10 @@ class MessageTransition(
 
   @SerialName("lat") var latitude = 0.0
 
+  @SerialName("userName") var userName: String? = null
+
+  @SerialName("clienteId") var clienteId: String? = null
+
   override fun annotateFromPreferences(preferences: Preferences) {
     topic = preferences.pubTopicEvents
     qos = preferences.pubQosEvents.value

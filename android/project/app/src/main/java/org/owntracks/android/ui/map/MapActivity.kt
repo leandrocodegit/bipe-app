@@ -51,6 +51,7 @@ class MapActivity :
     @Inject lateinit var drawerProvider: DrawerProvider
     @Inject lateinit var authManager: AuthManager
     @Inject lateinit var requirementsChecker: org.owntracks.android.support.RequirementsChecker
+    @Inject lateinit var webRTCManager: org.owntracks.android.support.WebRTCManager
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -166,7 +167,7 @@ class MapActivity :
                 useWideViewPort = true
             }
             
-            loadUrl("http://192.168.15.171:5500/mapa")
+            loadUrl("https://bipe.simodapp.com/mapa")
         }
     }
 
@@ -227,6 +228,20 @@ class MapActivity :
                 preferences.setupCompleted = false
                 startActivity(Intent(this@MapActivity, LoginActivity::class.java))
                 finish()
+            }
+        }
+
+        @JavascriptInterface
+        fun startVoiceCall() {
+            runOnUiThread {
+                webRTCManager.startCall()
+            }
+        }
+
+        @JavascriptInterface
+        fun stopVoiceCall() {
+            runOnUiThread {
+                webRTCManager.stopCall()
             }
         }
 

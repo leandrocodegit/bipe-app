@@ -8,8 +8,11 @@
 
     <uses-feature
         android:name="android.hardware.location.gps"
-        android:required="true"
-        tools:ignore="UnnecessaryRequiredFeature,UnsupportedChromeOsHardware" />
+        android:required="true" />
+
+    <uses-feature
+        android:name="android.hardware.location.network"
+        android:required="false" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -19,38 +22,41 @@
         android:name="android.hardware.wifi"
         android:required="false" />
 
+    <!-- Conectividade e Sincronização -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- To access the network -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- To handle connectivity changes and reconnect -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
-    <!-- To prevent the device from sleeping while handling MQTT traffic -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!-- To autostart the app once the device boots -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
-
-    <!-- Not actively requested. Has to be enabled manually. Access to broker certificates in private storage on older APIs or on devices not providing files through content:// URIs -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <!-- To locate the device -->
+    <!-- Localização -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <!-- To receive location in background service -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
-    <!-- API v28 requires this for foreground services -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Áudio e WebRTC -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
-    <!-- API v34 requires this for foreground services -->
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <!-- Notificações e UI -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+
+    <!-- Armazenamento (Certificados e Logs) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Serviços de Primeiro Plano (Necessário para Android 10-14+) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+    <!-- Permissões específicas de fabricantes para estabilidade -->
+    <uses-permission android:name="oppo.permission.OPPO_COMPONENT_SAFE" />
+    <uses-permission android:name="com.huawei.permission.external_app_settings.USE_COMPONENT" />
 
     <application
         android:name=".App"
@@ -117,7 +123,7 @@
             android:name=".services.BackgroundService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="connectedDevice" />
+            android:foregroundServiceType="location|microphone|connectedDevice" />
 
         <receiver
             android:name=".support.receiver.ExternalIntentReceiver"
@@ -150,11 +156,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.map.MapActivity" />
         </activity>
-        <activity
-            android:name=".ui.contacts.ContactsActivity"
-            android:clearTaskOnLaunch="true"
-            android:label="@string/title_activity_contacts"
-            android:launchMode="singleTask" />
+
         <activity
             android:name="net.openid.appauth.RedirectUriReceiverActivity"
             android:exported="true"
@@ -205,5 +207,4 @@
             android:grantUriPermissions="true" />
 
     </application>
-
 </manifest>

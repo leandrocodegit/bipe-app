@@ -118,6 +118,8 @@ class BackgroundService : LifecycleService(), Preferences.OnPreferenceChangeList
 
   @Inject lateinit var mascotManager: MascotManager
 
+  @Inject lateinit var webRTCManager: org.owntracks.android.support.WebRTCManager
+
   @Inject
   @Named("contactsClearedIdlingResource")
   lateinit var contactsClearedIdlingResource: SimpleIdlingResource
@@ -240,6 +242,15 @@ class BackgroundService : LifecycleService(), Preferences.OnPreferenceChangeList
                 else preferences.url.toHttpUrlOrNull()?.host ?: "")
           }
         }
+        launch {
+          webRTCManager.isCallInProgress.collect { inCall ->
+            if (inCall) {
+                ongoingNotification.setTitle("Transmissão de Áudio Ativa")
+            } else {
+                ongoingNotification.refresh() // Will revert to default mascot title
+            }
+          }
+        }
         endpointStateRepo.setServiceStartedNow()
       }
     }
@@ -339,25 +350,23 @@ class BackgroundService : LifecycleService(), Preferences.OnPreferenceChangeList
   }
 
   private fun startForegroundService() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    val notification = ongoingNotification.getNotification()
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
       try {
+        var type = android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION or
+                   android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or
+                   android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+
         startForeground(
             NOTIFICATION_ID_ONGOING,
-            ongoingNotification.getNotification(),
-            FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
-      } catch (e: ForegroundServiceStartNotAllowedException) {
-        Timber.e(
-            e,
-            "Foreground service start not allowed. backgroundRestricted=${activityManager.isBackgroundRestricted}")
-        return
+            notification,
+            type)
+      } catch (e: Exception) {
+        Timber.e(e, "Foreground service start failed")
+        startForeground(NOTIFICATION_ID_ONGOING, notification)
       }
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-      startForeground(
-          NOTIFICATION_ID_ONGOING,
-          ongoingNotification.getNotification(),
-          FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
     } else {
-      startForeground(NOTIFICATION_ID_ONGOING, ongoingNotification.getNotification())
+      startForeground(NOTIFICATION_ID_ONGOING, notification)
     }
   }
 
@@ -693,6 +702,12 @@ class BackgroundService : LifecycleService(), Preferences.OnPreferenceChangeList
     super.onBind(intent)
     Timber.d("Background service bound intent=$intent")
     return localServiceBinder
+  }
+
+  override fun onTaskRemoved(rootIntent: Intent?) {
+    super.onTaskRemoved(rootIntent)
+    Timber.i("App swiped away from recents. BackgroundService will continue running.")
+    // No need to stop the service here, it must stay alive for tracking and audio.
   }
 
   companion object {

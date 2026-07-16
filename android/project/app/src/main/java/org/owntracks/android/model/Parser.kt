@@ -17,11 +17,14 @@ import org.owntracks.android.model.messages.MessageCard
 import org.owntracks.android.model.messages.MessageClear
 import org.owntracks.android.model.messages.MessageCmd
 import org.owntracks.android.model.messages.MessageConfiguration
+import org.owntracks.android.model.messages.MessageCall
 import org.owntracks.android.model.messages.MessageEncrypted
 import org.owntracks.android.model.messages.MessageLocation
 import org.owntracks.android.model.messages.MessageLocationDeserializer
 import org.owntracks.android.model.messages.MessageLwt
+import org.owntracks.android.model.messages.MessageRTC
 import org.owntracks.android.model.messages.MessageStatus
+import org.owntracks.android.model.messages.MessageStop
 import org.owntracks.android.model.messages.MessageTransition
 import org.owntracks.android.model.messages.MessageUnknown
 import org.owntracks.android.model.messages.MessageWaypoint
@@ -40,12 +43,15 @@ class Parser @Inject constructor(private val encryptionProvider: EncryptionProvi
     polymorphic(MessageBase::class) {
       subclass(MessageCard::class)
       subclass(MessageClear::class)
+      subclass(MessageCall::class)
       subclass(MessageCmd::class)
       subclass(MessageConfiguration::class, MessageConfiguration.MessageConfigurationSerializer)
       subclass(MessageEncrypted::class)
       subclass(MessageLocation::class, MessageLocationDeserializer)
       subclass(MessageLwt::class)
       subclass(MessageStatus::class)
+      subclass(MessageStop::class)
+      subclass(MessageRTC::class)
       subclass(MessageTransition::class)
       subclass(MessageWaypoint::class)
       subclass(MessageWaypoints::class)

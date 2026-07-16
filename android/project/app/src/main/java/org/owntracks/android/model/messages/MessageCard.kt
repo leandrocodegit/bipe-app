@@ -22,6 +22,10 @@ class MessageCard(@Transient private val messageWithId: MessageWithId = MessageW
 
   @SerialName("color") var color: String? = null
 
+  @SerialName("userName") var userName: String? = null
+
+  @SerialName("clienteId") var clienteId: String? = null
+
   @SerialName("tid") var trackerId: String? = null
 
   override fun annotateFromPreferences(preferences: Preferences) {

@@ -45,6 +45,7 @@ play-services-location = "21.3.0"
 slf4j-timber = "1.0.1"
 square-leakcanary = "2.14"
 square-tape2 = "2.0.0-beta1"
+webrtc = "1.0.32006"
 timber = "5.0.1"
 junit = "4.13.2"
 espresso-core = "3.7.0"
@@ -115,6 +116,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
 widgets-materialdrawer = { module = "com.mikepenz:materialdrawer", version.ref = "materialdrawer" }
 widgets-materialize = { module = "com.mikepenz:materialize", version.ref = "materialize" }
+webrtc = { module = "com.dafruits:webrtc", version = "113.0.0" }
 
 # Testing
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }

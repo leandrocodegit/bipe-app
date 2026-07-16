@@ -252,6 +252,8 @@ dependencies {
   // Utility libraries
   implementation(libs.bundles.hilt)
   implementation(libs.square.tape2)
+  implementation(libs.webrtc)
+  implementation("com.google.code.gson:gson:2.11.0")
   implementation(libs.timber)
   implementation(libs.bundles.androidx.room)
   implementation(libs.bundles.objectbox.migration)

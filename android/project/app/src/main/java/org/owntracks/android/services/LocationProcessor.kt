@@ -60,6 +60,8 @@ constructor(
           face = preferences.face
           color = preferences.markerColor
           userId = authManager.getUserId()
+          userName = preferences.username
+          clienteId = preferences.clientId
           trackerId = preferences.tid.toString()
         }
     )
@@ -162,6 +164,8 @@ constructor(
               trackerId = preferences.tid.toString()
               icon = preferences.face
               this.color = preferences.markerColor
+              userName = preferences.username
+              clienteId = preferences.clientId
               inregions = calculateInRegions(loadedWaypoints)
             }
     Timber.v("Actually publishing location $location triggered by $trigger as message=$message")
@@ -259,6 +263,8 @@ constructor(
           setTransition(transition)
           this.trigger = trigger
           trackerId = preferences.tid.toString()
+          userName = preferences.username
+          clienteId = preferences.clientId
           latitude = triggeringLocation.latitude
           longitude = triggeringLocation.longitude
           accuracy = triggeringLocation.accuracy.roundToInt()

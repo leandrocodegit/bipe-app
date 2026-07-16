@@ -28,6 +28,8 @@ class PermissionActivity : AppCompatActivity() {
     private val backgroundRequester = BackgroundLocationPermissionRequester(this, { updateUi() }, { updateUi() })
     private val notificationRequester = NotificationPermissionRequester(this, { updateUi() }, { updateUi() })
 
+    private val audioPermissionLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) { updateUi() }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView<UiPermissionsSetupBinding>(this, R.layout.ui_permissions_setup)
@@ -46,6 +48,10 @@ class PermissionActivity : AppCompatActivity() {
             notificationRequester.requestNotificationPermission()
         }
 
+        binding.btnGrantAudio.setOnClickListener {
+            audioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+        }
+
         binding.btnContinue.setOnClickListener {
             startActivity(Intent(this, MapActivity::class.java))
             finish()
@@ -57,10 +63,11 @@ class PermissionActivity : AppCompatActivity() {
     private fun updateUi() {
         val hasLocation = requirementsChecker.hasLocationPermissions()
         val hasBackground = requirementsChecker.hasBackgroundLocationPermission()
-        val hasNotifications = notificationRequester.hasPermission()
+        val hasNotifications = (getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager).areNotificationsEnabled()
+        val hasAudio = androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
         // If everything is already granted, we shouldn't be here or we can leave
-        val isReady = hasLocation && (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || hasBackground) && hasNotifications
+        val isReady = hasLocation && (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || hasBackground) && hasNotifications && hasAudio
         
         if (isReady && !binding.btnContinue.isEnabled) {
             // Logic to handle transition if needed, but let's stick to user clicking for now
@@ -82,6 +89,10 @@ class PermissionActivity : AppCompatActivity() {
         // Notification UI
         binding.btnGrantNotifications.isEnabled = !hasNotifications
         binding.btnGrantNotifications.text = if (hasNotifications) "Ativado" else "Conceder Permissão"
+
+        // Audio UI
+        binding.btnGrantAudio.isEnabled = !hasAudio
+        binding.btnGrantAudio.text = if (hasAudio) "Ativado" else "Conceder Permissão"
 
         // Continue Button - Require location and background (if applicable) and notifications
         binding.btnContinue.isEnabled = isReady
