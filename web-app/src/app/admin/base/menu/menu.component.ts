@@ -109,36 +109,38 @@ export class AppMenu implements OnInit {
   menuInterno(): void {
 
     this.model = [
-      {
-        order: 1,
-        label: '',
-        items: [{ label: 'Amigos', icon: 'pi pi-users', separator: false, routerLink: ['/friends'] }]
-      },
-      {
-        order: 2,
-        label: '',
-        items: [{ label: 'Dispositivos', icon: 'pi pi-microchip', separator: false, routerLink: ['/devices'] }]
-      },
-      {
-        order: 3,
-        label: '',
-        items: [{ label: 'Áudio', icon: 'pi pi-phone', separator: false, routerLink: ['/audio'] }]
-      },
-      {
-        order: 4,
-        label: '',
-        items: [{ label: 'Rotinas', icon: 'pi pi-directions', separator: false, routerLink: ['/rotinas'] }]
-      },
-      {
-        order: 3,
-        label: '',
-        items: [{ label: 'Regiões', icon: 'pi pi-map-marker', separator: false, routerLink: ['/waypoint'] }]
-      },
-      {
-        order: 0,
-        label: '',
-        items: [{ label: 'Mapa', icon: 'pi pi-map', separator: false, routerLink: ['/mapa'] },]
-      },
+      ...(this.layoutService.isMobile() ? [
+        {
+          order: 3,
+          label: '',
+          items: [{ label: 'Regiões', icon: 'pi pi-map-marker', separator: false, routerLink: ['/waypoint'] }]
+        }] : []),
+      ...(this.layoutService.isDesktop() ? [
+        {
+          order: 1,
+          label: '',
+          items: [{ label: 'Amigos', icon: 'pi pi-users', separator: false, routerLink: ['/friends'] }]
+        },
+        {
+          order: 2,
+          label: '',
+          items: [{ label: 'Dispositivos', icon: 'pi pi-microchip', separator: false, routerLink: ['/devices'] }]
+        },
+        {
+          order: 4,
+          label: '',
+          items: [{ label: 'Rotinas', icon: 'pi pi-directions', separator: false, routerLink: ['/rotinas'] }]
+        },
+        {
+          order: 3,
+          label: '',
+          items: [{ label: 'Regiões', icon: 'pi pi-map-marker', separator: false, routerLink: ['/waypoint'] }]
+        },
+        {
+          order: 0,
+          label: '',
+          items: [{ label: 'Mapa', icon: 'pi pi-map', separator: false, routerLink: ['/mapa'] },]
+        }] : []),
       ...(this.layoutService.isMobile() ? [{
         order: 5,
         label: '',
@@ -150,8 +152,8 @@ export class AppMenu implements OnInit {
             }
           }
         }]
-      }] : []),
-      ...(this.layoutService.isMobile() ? [{
+      },
+      {
         order: 5,
         label: '',
         items: [{
@@ -162,8 +164,7 @@ export class AppMenu implements OnInit {
             }
           }
         }]
-      }] : []),
-      ...(this.layoutService.isMobile() ? [{
+      }, {
         order: 5,
         label: '',
         items: [{

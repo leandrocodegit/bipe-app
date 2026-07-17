@@ -91,7 +91,7 @@ export class AppConfigurator {
   ) {
     this.setTemaUsuario();
   }
-  
+
 
   ngOnInit() {
     this.authService.processaAutorizacoes();

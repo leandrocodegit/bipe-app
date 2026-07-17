@@ -19,16 +19,14 @@ import {
 } from '@/shared/GeoUtil';
 import { Router } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { MqttService, IMqttMessage, MqttConnectionState } from 'ngx-mqtt';
-import { LayoutService } from '@/shared/services/layout.service';
-import { Subscription, take } from 'rxjs';
+import { IMqttMessage } from 'ngx-mqtt';
+import { Subscription } from 'rxjs';
 import { FriendCard, FriendPresence, OwnTracksLocation, Region } from '@/shared/models/friends.model';
-import { Device } from '@/shared/models/device.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
-import { AuthService } from '@/core/auth/services/auth.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 import { Transition, TransitionTimelineComponent } from '@/shared/components/transition-timeline/transition-timeline.component';
 import { RecorderService } from '@/shared/services/recorder.service';
+import { AudioCallService } from '@/shared/services/audio-call.service';
 
 
 @Component({
@@ -81,7 +79,8 @@ export class FriendsComponent implements OnInit, OnDestroy {
     private readonly mqttConnectionService: MqttConnectionService,
     private readonly monitoredCardService: MonitoredCardService,
     private readonly recorderService: RecorderService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly audioCallService: AudioCallService
   ) {
 
   }
@@ -254,6 +253,15 @@ export class FriendsComponent implements OnInit, OnDestroy {
     this.monitoredCardService.requestCenter();
     this.closeDetails();
     this.router.navigate(['/mapa']);
+  }
+
+  callFriend(friend: FriendPresence): void {
+    const parts = friend.topic.split('/');
+    if (parts.length >= 3) {
+      const userName = parts[1];
+      const deviceId = parts[2];
+      this.audioCallService.startOutgoingCall(deviceId, userName);
+    }
   }
 
   closeDetails(): void {

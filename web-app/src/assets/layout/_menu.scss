@@ -20,12 +20,12 @@
 .layout-sidebar {
     position: fixed;
     width: 14rem;
-    height: calc(100vh - 6.5rem); // Ajustado para não estourar a tela inferior
+    height: calc(100vh - 0rem); // Ajustado para não estourar a tela inferior
     z-index: 995;
     overflow-y: auto;
     user-select: none;
-    top: 5rem;
-    left: 1.4rem;
+    top: 4rem;
+    left: 0rem;
     transition:
         transform var(--layout-section-transition-duration),
         left var(--layout-section-transition-duration),
@@ -34,9 +34,8 @@
 
     // Design limpo e flutuante baseado no layout enviado
     background-color: var(--surface-overlay);
-    border-radius: var(--content-border-radius);
     padding: 1.5rem 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
 
     // Ajuste de scrollbar minimalista para Light/Dark
     &::-webkit-scrollbar {

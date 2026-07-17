@@ -1,24 +1,26 @@
-<p-tabs [scrollable]="true" (valueChange)="selectTab($event)" [value]="tab">
-  <p-tablist >
-    <p-tab value="device">
-      <span class="material-symbols-outlined">
-        mobile
-      </span>
-      Meus Dipositivos
-    </p-tab>
-    <p-tab value="shared">
-      <span class="material-symbols-outlined">
-        share_location
-      </span>
-      Compartilhando
-    </p-tab>
-  </p-tablist>
-  <p-tabpanels>
-    <p-tabpanel value="device">
-      <app-lista-devices [devices]="devices" (refresh)="listar()"/>
-    </p-tabpanel>
-    <p-tabpanel value="shared">
-      <app-lista-devices [devices]="devices" (refresh)="listar()" [shareMode]="true"/>
-    </p-tabpanel>
-  </p-tabpanels>
-</p-tabs>
+<div class="pointer-events-auto flex-1 lg:flex-none lg:w-[500px] flex flex-col h-full bg-white/10 dark:bg-neutral-900/90 backdrop-blur-sm shadow-2xl transition-all">
+  <p-tabs [scrollable]="true" (valueChange)="selectTab($event)" [value]="tab" class="flex-1 flex flex-col overflow-hidden">
+    <p-tablist>
+      <p-tab value="device">
+        <span class="material-symbols-outlined">
+          mobile
+        </span>
+        Meus Dispositivos
+      </p-tab>
+      <p-tab value="shared">
+        <span class="material-symbols-outlined">
+          share_location
+        </span>
+        Compartilhando
+      </p-tab>
+    </p-tablist>
+    <p-tabpanels class="flex-1 overflow-y-auto">
+      <p-tabpanel value="device">
+        <app-lista-devices [devices]="devices" (refresh)="listar()"/>
+      </p-tabpanel>
+      <p-tabpanel value="shared">
+        <app-lista-devices [devices]="devices" (refresh)="listar()" [shareMode]="true"/>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>

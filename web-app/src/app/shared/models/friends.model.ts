@@ -7,6 +7,7 @@ export interface FriendCard {
   face: string;
   color: string;
   tid: string;
+  nickname?: string;
 }
 
 export interface OwnTracksLocation {
@@ -29,6 +30,7 @@ export interface OwnTracksLocation {
   inregions?: string[];
   /** IDs das regiões do OwnTracks em que o dispositivo está. */
   inrids?: string[];
+  apelido?: string;
   /**
    * ⚠️ Suposição: `motionactivities` NÃO é um campo padrão do payload de localização do OwnTracks.
    * Assumimos esse formato (lista de atividades com confiança de 0-100, no padrão da
@@ -37,6 +39,8 @@ export interface OwnTracksLocation {
    */
   motionactivities?: string[];
   topic?: string;
+  userName?: string;
+  clienteId?: string;
 }
 
 export interface MotionActivity {

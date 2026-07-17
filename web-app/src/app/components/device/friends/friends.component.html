@@ -1,8 +1,8 @@
-<div class="flex flex-col lg:flex-row w-full h-full relative overflow-hidden dark:bg-neutral-900">
+<div class="flex flex-col lg:flex-row w-full h-full relative overflow-hidden pointer-events-none">
 
-  <!-- Lista de amigos (Conteúdo Principal) -->
-  <div class="flex-1 overflow-y-auto flex flex-col gap-4 px-4 pt-5 pb-48 lg:pb-8 sm:px-6 w-full dark:bg-dark"
-    [ngClass]="{'lg:max-w-4xl mx-auto': !selectedFriend}">
+  <!-- Lista de amigos (Painel Lateral no Desktop / Fundo Translúcido no Mobile) -->
+  <div class="pointer-events-auto flex-1 lg:flex-none lg:w-[420px] overflow-y-auto flex flex-col gap-4 px-4 pt-5 pb-48 lg:pb-8 sm:px-6 h-full bg-white/95 dark:bg-neutral-900/90 backdrop-blur-xl shadow-2xl transition-all"
+    [ngClass]="{'lg:max-w-4xl': !selectedFriend}">
     <!-- Cabeçalho -->
     <header class="flex items-start justify-between gap-3">
       <div>
@@ -63,7 +63,7 @@
         </button>
 
         <p class="max-w-[4.5rem] truncate text-center text-xs font-medium text-slate-600 dark:text-slate-200">
-          {{ friend.card.tid }}
+          {{ friend.card?.nickname ?? friend.card.tid }}
         </p>
 
         <!-- Legenda rápida: atividade de movimento -->
@@ -88,12 +88,12 @@
     </ng-template>
   </div>
 
-  <!-- Detalhe do amigo (Inline na lateral desktop / Barra no mobile) -->
-  <div *ngIf="selectedFriend as friend" class="relative w-full lg:w-64 shrink-0
-              border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-neutral-800
-              shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)] lg:shadow-lg
-              rounded-t-3xl lg:rounded-none lg:p-4 z-40 flex flex-col transition-transform duration-300
-              lg:sticky lg:top-5 backdrop-blur-xl">
+  <!-- Detalhe do amigo (Bottom Sheet mobile / Floating Panel desktop) -->
+  <div *ngIf="selectedFriend as friend" class="pointer-events-auto relative w-full lg:w-[350px] shrink-0
+              border-t lg:border border-slate-200/50 dark:border-neutral-800/50
+              shadow-[0_-15px_30px_-5px_rgba(0,0,0,0.15)] lg:shadow-2xl
+              lg:m-4 z-40 flex flex-col transition-transform duration-300
+              bg-white/95 dark:bg-neutral-900/90 backdrop-blur-xl mt-auto lg:m-0">
 
     <div class="h-1 w-10 self-center rounded-full bg-slate-200 lg:hidden mt-3 mb-1"></div>
     <div
@@ -112,19 +112,27 @@
 
           <!-- Texto ao lado do avatar em vez de embaixo -->
           <div class="min-w-0">
-            <p class="text-xs text-slate-400 dark:text-slate-500 font-medium leading-none mb-0.5">Amigo</p>
-            <p class="text-sm font-bold text-slate-900 dark:text-slate-105 truncate leading-tight">
-              {{ friend.card.tid }}
+            <p class="text-xs text-slate-400 dark:text-slate-500 font-medium leading-none mb-0.5">{{ friend.card.tid }}</p>
+            <p class="text-sm font-bold text-slate-900 dark:text-slate-200 truncate leading-tight">
+              {{ friend.card?.nickname ?? friend.card.tid }}
             </p>
           </div>
         </div>
 
         <!-- Ações e Timeline agrupadas à direita -->
         <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Botão de Ligar (Call) -->
+          <button (click)="callFriend(friend)"
+            class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors hover:bg-blue-200 active:scale-95 dark:bg-blue-950/40 dark:text-blue-400"
+            pTooltip="Escutar Áudio" tooltipPosition="top">
+            <i class="pi pi-phone text-sm"></i>
+          </button>
+
           <!-- Botão de Monitorar (Play) compactado -->
           <button (click)="monitorFriend(friend)"
-            class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 transition-colors hover:bg-emerald-200 active:scale-95 dark:bg-emerald-950/40 dark:text-emerald-400">
-            <i class="pi pi-play-circle text-sm"></i>
+            class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 transition-colors hover:bg-emerald-200 active:scale-95 dark:bg-emerald-950/40 dark:text-emerald-400"
+            pTooltip="Monitorar Mapa" tooltipPosition="top">
+            <i class="pi pi-map-marker text-sm"></i>
           </button>
 
           <!-- Componente de Timeline integrado na mesma linha -->
@@ -173,7 +181,7 @@
           </div>
         </div>
 
-<div class="mt-2.5 p-2 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/60">
+<div class="mt-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-800/60">
 
   <!-- Header do mini-card (Rótulo + Última atualização) -->
   <div class="flex items-center justify-between gap-2 mb-1.5 px-0.5">
@@ -222,7 +230,7 @@
                 <img src="assets/drawable/{{companhia.card.face}}.png" class="h-5 w-5 object-cover" alt="">
               </div>
               <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                {{ companhia.card.tid }}
+                {{ companhia.card?.nickname ?? companhia.card.tid }}
               </span>
             </div>
           </div>

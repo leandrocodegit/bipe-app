@@ -1,15 +1,14 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, PLATFORM_ID, AfterViewInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, PLATFORM_ID, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import * as Leaflet from 'leaflet';
 import 'leaflet.markercluster';
 import { LayoutService } from '@/shared/services/layout.service';
-import { MqttService } from 'ngx-mqtt';
+import { CarouselModule } from 'primeng/carousel';
 import { Subscription } from 'rxjs';
 import { MapUltilService } from '@/shared/services/mapa-util.service';
 import { RecorderService } from '@/shared/services/recorder.service';
 import { AuthService } from '@/core/auth/services/auth.service';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { DeviceService } from '@/shared/services/device.service';
 import { Device } from '@/shared/models/device.model';
 import { WaypointFormDialogComponent } from '../waypoint-form-dialog/waypoint-form-dialog.component';
@@ -17,7 +16,6 @@ import { WaypointService } from '@/shared/services/waypoint.service';
 import { Waypoint } from '@/shared/models/waypoint.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
-import { log } from 'console';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -27,11 +25,17 @@ import { environment } from 'src/environments/environment';
     CommonModule,
     RouterModule,
     WaypointFormDialogComponent,
+    CarouselModule
   ],
   templateUrl: './content-mapa.component.html',
-  styleUrls: ['./content-mapa.component.scss']
+  styleUrls: ['./content-mapa.component.scss'],
+  host: {
+    class: 'w-full h-full block'
+  }
 })
 export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
 
   @Input() cordenadas = { lat: -23.548789385634088, lng: -46.63357944308231 };
   @Input() edicao = false;
@@ -43,7 +47,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private markers: Map<string, Leaflet.Marker> = new Map();
   private circles: Map<string, Leaflet.Circle> = new Map();
   private mapa: any;
-  private mqttSubscription!: Subscription;
+  private mqttSubscription?: Subscription;
+  private mqttSharedSubscription?: Subscription;
+  private buscarPosicoesSubscription?: Subscription;
+  private buscarTransicoesSubscription?: Subscription;
   protected desenhando = false;
   protected temDesenho = false;
   protected mqttMessageActive = false;
@@ -75,6 +82,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   protected mostrarDialogZona = false;
   protected coordenadasAlvoClicado: any;
   protected waypoints: Waypoint[] = [];
+  protected ultimasTransicoes: any[] = [];
   private regioesLayer = Leaflet.layerGroup();
 
   private obterLeaflet(): any {
@@ -119,13 +127,19 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.activedRoute.queryParams.subscribe(param => {
       this.edicao = this.route.url == '/mapa/waypoint'
-      this.inicializarMapa();
-
+      if (!this.mapa) {
+        this.inicializarMapa();
+      } else {
+        if (this.edicao) {
+          this.iniciarCriacaoZonas();
+        }
+      }
     })
 
   }
 
   private aplicarTile() {
+    if (!this.mapa) return;
 
     if (this.layoutService.isDarkTheme()) {
       this.mapa.removeLayer(this.aliadeSmooth);
@@ -133,7 +147,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     else {
       this.mapa.removeLayer(this.aliadeSmoothDark);
-      this.aliadeSmooth.addTo(this.mapa);
+      this.esriLayer.addTo(this.mapa);
     }
   }
 
@@ -239,17 +253,25 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private buscarTransicoes(): void {
+    if (!this.route.url.startsWith('/mapa')) {
+      return;
+    }
     if (this.edicao) return;
+    if (this.buscarTransicoesSubscription) {
+      this.buscarTransicoesSubscription.unsubscribe();
+    }
     if (this.transicoesClusterGroup?.clearLayers) {
       this.transicoesClusterGroup.clearLayers();
     }
-    this.recorderService.listaTransicoes({
+    this.buscarTransicoesSubscription = this.recorderService.listaTransicoes({
         device: '',
         lastDay: true,
         limit: 20
       }).subscribe({
       next: (geoJsonData: any) => {
+      //  this.ultimasTransicoes = [];
         if (geoJsonData && geoJsonData.features) {
+          const list: any[] = [];
           geoJsonData.features.forEach((feature: any) => {
             if (feature.geometry && feature.geometry.type === 'Point') {
 
@@ -258,6 +280,15 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
               const props = feature.properties;
               const isEnter = props.evento === 'enter';
+
+              list.push({
+                usuario: props.usuario || 'Usuário',
+                dispositivo: props.dispositivo,
+                regiao: props.descricaoRegiao,
+                evento: props.evento,
+                isEnter: isEnter,
+                data: new Date(props.dataHoraTransito)
+              });
 
               const corBackground = isEnter ? '#10b981' : '#ef4444';
               const iconeSimbolo = isEnter ? '📥' : '📤';
@@ -319,6 +350,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
               this.transicoesClusterGroup.addLayer(marker);
             }
           });
+          this.ultimasTransicoes = list.sort((a, b) => b.data.getTime() - a.data.getTime()).slice(0, 8);
         }
       },
       error: (err) => {
@@ -328,7 +360,13 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private buscarPosicoes(color?: string): void {
-    this.recorderService.listaPosicoes().subscribe({
+    if (!this.route.url.startsWith('/mapa')) {
+      return;
+    }
+    if (this.buscarPosicoesSubscription) {
+      this.buscarPosicoesSubscription.unsubscribe();
+    }
+    this.buscarPosicoesSubscription = this.recorderService.listaPosicoes().subscribe({
       next: (geoJsonData: any) => {
 
         if (this.caminhosLayer) {
@@ -353,7 +391,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
                 weight: 2,
                 fillOpacity: 0.8
               })
-                .bindPopup(`<b>Data:</b> ${feature.properties.isotst}<br><b>Velocidade:</b> ${feature.properties.vel} km/h`)
+                .bindPopup(`<b>Data:</b> ${feature?.properties?.isotst ?? 0}<br><b>Velocidade:</b> ${feature?.properties?.vel ?? 0} km/h`)
                 .addTo(this.mapa);
             }
           });
@@ -382,7 +420,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private inicializarMapa(): void {
-    this.mapa = Leaflet.map('map', {
+    this.mapa = Leaflet.map(this.mapContainer.nativeElement, {
       center: this.cordenadas,
       zoom: 13,
       zoomControl: this.layoutService.isDesktop()
@@ -419,7 +457,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.layoutService.isDarkTheme())
       this.aliadeSmoothDark.addTo(this.mapa);
-    else this.aliadeSmooth.addTo(this.mapa);
+    else this.esriLayer.addTo(this.mapa);
 
     // Aguarda o mapa estar totalmente pronto antes de sinalizar para centralização
     this.mapa.whenReady(() => {
@@ -612,11 +650,17 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private iniciarRastreamentoMqtt(): void {
+    if (this.mqttSubscription) {
+      this.mqttSubscription.unsubscribe();
+    }
     this.mqttSubscription = this.mqttConnectionService.observe(`owntracks/#`).subscribe((message: any) => {
       try {
         const jsonString = String.fromCharCode(...message.payload);
         const payload = JSON.parse(jsonString);
         const topic = message.topic;
+
+        console.log(payload);
+
 
         this.showMqttMessageIndicator();
 
@@ -624,6 +668,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
           this.processarEventoLocalizacao(topic, payload);
           if (payload.color)
             this.buscarPosicoes(payload.color);
+        } else if (payload._type === 'transition') {
+          this.processarEventoTransicao(payload);
         }
       } catch (error) {
         console.error('Erro ao processar payload MQTT do OwnTracks:', error);
@@ -632,7 +678,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private iniciarRastreamentoShared(): void {
-    this.mqttSubscription = this.mqttConnectionService.observe(`shared/${this.authService.extrairIdUsuario()}`).subscribe((message: any) => {
+    if (this.mqttSharedSubscription) {
+      this.mqttSharedSubscription.unsubscribe();
+    }
+    this.mqttSharedSubscription = this.mqttConnectionService.observe(`shared/${this.authService.extrairIdUsuario()}`).subscribe((message: any) => {
       try {
         const jsonString = String.fromCharCode(...message.payload);
         const payload = JSON.parse(jsonString);
@@ -684,6 +733,66 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         this.mapa.setView(latLng, 15, { animate: true });
       }
     }
+  }
+
+  private processarEventoTransicao(payload: any): void {
+    if (!this.mapa) return;
+
+    const lat = payload.lat;
+    const lng = payload.lon;
+    const isEnter = payload.event === 'enter';
+    const cor = isEnter ? '#10b981' : '#ef4444'; // Emerald green vs Red
+
+    // Adiciona o novo evento de transição ao topo do array local para atualização instantânea
+    const novaTransicao = {
+      usuario: payload.userName || 'Usuário',
+      dispositivo: payload.tid || 'Dispositivo',
+      regiao: payload.desc || 'Região',
+      evento: payload.event,
+      isEnter: isEnter,
+      data: new Date()
+    };
+    this.ultimasTransicoes = [novaTransicao, ...this.ultimasTransicoes].slice(0, 5);
+
+    // 1. Criar um círculo pulsante (Ping) temporário no mapa
+    const pingCircle = Leaflet.circle([lat, lng], {
+      radius: payload.acc || 15,
+      color: cor,
+      fillColor: cor,
+      fillOpacity: 0.6,
+      weight: 3,
+      opacity: 0.9
+    }).addTo(this.mapa);
+
+    let radius = payload.acc || 15;
+    let opacity = 0.6;
+    let strokeOpacity = 0.9;
+    const pulseInterval = setInterval(() => {
+      if (!this.mapa) {
+        clearInterval(pulseInterval);
+        return;
+      }
+      radius += 4;
+      opacity = Math.max(0, opacity - 0.05);
+      strokeOpacity = Math.max(0, strokeOpacity - 0.07);
+      pingCircle.setRadius(radius);
+      pingCircle.setStyle({
+        fillOpacity: opacity,
+        opacity: strokeOpacity
+      });
+    }, 80);
+
+    setTimeout(() => {
+      clearInterval(pulseInterval);
+      if (this.mapa && pingCircle) {
+        this.mapa.removeLayer(pingCircle);
+      }
+    }, 2000);
+
+    console.log(this.ultimasTransicoes);
+
+    // 3. Recarregar transições recentes no mapa
+  //  this.buscarTransicoes();
   }
 
   private criarMarcadorRastreamento(id: string, latLng: any, precisao: number, tid: string, iconName: string, user: string, deviceName: string, payload: any): void {
@@ -768,12 +877,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       conteudoCentro = `<span style="color: #1e293b; font-family: system-ui, sans-serif; font-size: 14px; font-weight: bold;z-index: 9999999;background: white;width: 100%;height: 100%;text-align: center;line-height: 2;">${tid}</span>`;
     }
 
-    const fill = highlighted ? '#f59e0b' : color ? color : '#3b82f6';
-    const width = highlighted ? 'width: 60px; height: 75px;' : 'width: 40px; height: 55px;';
+    const fill = highlighted && color ? color + 'b3' : color ? color : '#3b82f6';
+    const width = highlighted ? 'width: 70px; height: 85px;' : 'width: 40px; height: 55px;';
 
     const htmlMarcador = `
       <div style="position: relative; ${width}; display: flex; justify-content: center;">
-
+<div class="p-4 rounded-full bg-green-500 absolute z-50"></div>
         <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3));" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg">
           <path fill="${fill}" d="M12 0C5.37 0 0 5.37 0 12c0 7.5 12 24 12 24s12-16.5 12-24C24 5.37 18.63 0 12 0z"/>
         </svg>
@@ -803,8 +912,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     return `
       <div style="font-family: system-ui, sans-serif; min-width: 180px;">
-        <div style="font-size: 14px; font-weight: bold; color: #0f172a; margin-bottom: 2px;">${user}</div>
-        <div style="font-size: 11px; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">Dispositivo: ${device}</div>
+        <div style="font-size: 14px; font-weight: bold; color: #0f172a; margin-bottom: 2px;">${payload?.nickname ?? user}</div>
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 10px; text-transform: uppercase;">${device}</div>
 
         <div style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #334155;">
           <div style="display: flex; justify-content: space-between;">
@@ -1023,11 +1132,21 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.mqttSubscription) {
       this.mqttSubscription.unsubscribe();
     }
+    if (this.mqttSharedSubscription) {
+      this.mqttSharedSubscription.unsubscribe();
+    }
+    if (this.buscarPosicoesSubscription) {
+      this.buscarPosicoesSubscription.unsubscribe();
+    }
+    if (this.buscarTransicoesSubscription) {
+      this.buscarTransicoesSubscription.unsubscribe();
+    }
     if (this.connectedSubscription) {
       this.connectedSubscription.unsubscribe();
     }
     if (this.mapa) {
       this.mapa.remove();
+      this.mapa = undefined;
     }
     // Limpa o estado no serviço ao destruir o mapa
     this.monitoredCardService.setMapReady(false);

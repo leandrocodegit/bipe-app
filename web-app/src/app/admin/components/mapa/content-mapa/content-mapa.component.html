@@ -1,13 +1,31 @@
-<div class="relative w-full lg:rounded-xl overflow-hidden lg:border lg:border-slate-200 dark:border-[#1e2736]"
-  [style.height]="height">
-  <div id="map" class="w-full h-full"></div>
+<div class="flex flex-col w-full overflow-hidden relative" [style.height]="height">
+  <div class="flex-1 w-full min-h-0 relative">
+    <div id="map" #mapContainer class="w-full h-full" [class.bg-transicoes]="ultimasTransicoes.length"></div>
+    <div class="mqtt-message-indicator" [class.active]="mqttMessageActive" title="Recebendo mensagens MQTT"></div>
+  </div>
 
-  <div class="mqtt-message-indicator" [class.active]="mqttMessageActive" title="Recebendo mensagens MQTT"></div>
+  <div *ngIf="ultimasTransicoes.length"
+    class="flex items-center gap-3 px-4 h-12 w-full bg-neutral-600/50 backdrop-blur z-[9999] absolute bottom-0 text-slate-300 text-xs shrink-0 select-none">
+    <div class="flex-1 flex gap-4 overflow-x-auto whitespace-nowrap scrollbar-none py-1">
+      @for (trans of ultimasTransicoes; track trans) {
+      <div
+        class="inline-flex items-center gap-1.5 bg-white/5 dark:bg-purple-950/40 px-2.5 py-1 rounded-lg border border-purple-500/20 text-[11px] hover:bg-white/10 transition-colors">
+        <span *ngIf="trans.isEnter" class="material-symbols-outlined text-emerald-400">
+          input_circle
+        </span>
+        <span *ngIf="!trans.isEnter" class="material-symbols-outlined text-rose-400">
+          output_circle
+        </span>
+        <strong class="text-slate-100">{{ trans.usuario }}</strong>
+        <span>{{ trans.isEnter ? 'entrou em' : 'saiu de' }}</span>
+        <strong class="text-purple-300">{{ trans.regiao }}</strong>
+        <span class="text-slate-500 text-[10px]">({{ trans.data | date:'HH:mm:ss' }})</span>
+      </div>
+      }
+    </div>
+  </div>
 </div>
 
-<app-waypoint-form-dialog
-  [(visible)]="mostrarDialogZona"
-  [latLng]="coordenadasAlvoClicado"
-  [devices]="devices"
+<app-waypoint-form-dialog [(visible)]="mostrarDialogZona" [latLng]="coordenadasAlvoClicado" [devices]="devices"
   (salvar)="onSalvarNovaZona($event)">
 </app-waypoint-form-dialog>

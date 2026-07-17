@@ -5,10 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { ButtonModule } from 'primeng/button';
 import { AudioCallService, CallState, CallInfo } from '@/shared/services/audio-call.service';
+import { MessageService } from 'primeng/api';
 
 interface RtcSignal {
   _type: 'rtc';
-  subtype: 'offer' | 'answer' | 'candidate';
+  subtype: 'offer' | 'answer' | 'candidate' | 'busy';
   sessaoid?: string;
   sdp?: string;
   candidate?: string;
@@ -57,7 +58,8 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly mqttConnectionService: MqttConnectionService,
-    private readonly audioCallService: AudioCallService
+    private readonly audioCallService: AudioCallService,
+    private readonly messageService: MessageService
   ) { }
 
   ngOnInit(): void {
@@ -156,7 +158,6 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
 
   private async initOutgoingCall(): Promise<void> {
 
-    console.log('Init', this.callInfo);
 
     if (!this.callInfo) return;
     const callPublishTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/call`;
@@ -191,7 +192,23 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
 
   private handleSignalingMessage(message: any): void {
     const payload = this.parseMqttPayload(message);
-    if (!payload || payload._type !== 'rtc') return;
+    if (!payload) return;
+
+    // Se recebemos um busy, significa que o remoto recusou/está ocupado
+    if (payload._type === 'busy' || payload.subtype === 'busy') {
+      if (this.callState === 'OUTGOING' || this.callState === 'RINGING') {
+        this.audioCallService.endCall();
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Ocupado',
+          detail: 'O dispositivo já está em uma chamada no momento.',
+          life: 4000
+        });
+      }
+      return;
+    }
+
+    if (payload._type !== 'rtc') return;
     if (this.isDuplicate(payload._id) || payload.senderId === this.clientId) return;
 
     if (payload.subtype === 'offer') {
@@ -225,7 +242,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     };
 
     this.peerConnection.ontrack = (event) => {
-      console.log('Track recebida!', event);
+      
       const stream = event.streams && event.streams.length > 0 ? event.streams[0] : new MediaStream([event.track]);
 
       if (this.remoteAudio?.nativeElement) {

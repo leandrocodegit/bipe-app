@@ -1,73 +1,71 @@
 <div *ngIf="monitoredCard && isVisibleOnRoute && mapReady"
-  class="w-full lg:w-96 flex flex-col shrink-0 bg-white dark:bg-neutral-900 border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-neutral-800 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)] lg:shadow-none z-40 overflow-y-auto max-h-[60vh] lg:max-h-full p-5 pb-8 lg:pb-5 transition-transform duration-300">
+  class="w-full lg:w-96 flex flex-col shrink-0 lg:rounded-2xl bg-white/95 dark:bg-neutral-900/90 backdrop-blur-xl border-t lg:border border-slate-200/50 dark:border-neutral-800/50 shadow-[0_-15px_30px_-5px_rgba(0,0,0,0.15)] lg:shadow-2xl z-40 overflow-y-auto max-h-[50vh] lg:max-h-[85vh] p-5 pb-safe lg:pb-5 transition-transform duration-300 rounded-t-3xl lg:rounded-3xl mt-auto lg:mt-0">
 
-  <div class="mx-auto -mt-2 mb-4 h-1.5 w-12 rounded-full bg-slate-300 dark:bg-slate-700 sm:hidden"></div>
+  <!-- Pull indicator for mobile bottom sheet -->
+  <div class="mx-auto -mt-2 mb-4 h-1.5 w-12 rounded-full bg-slate-300 dark:bg-slate-700 lg:hidden"></div>
 
   <!-- Cabeçalho -->
   <div class="flex items-start justify-between gap-3">
     <div class="space-y-0.5">
       <div class="flex items-center gap-2">
-        <span class="inline-flex h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
-        <span
-          class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Monitorando</span>
+        <span class="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Monitorando</span>
       </div>
-      <h3 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">{{ monitoredCard.card.tid }}</h3>
-      <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ monitoredCard.card.name }}</p>
+      <h3 class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ monitoredCard.card?.nickname ?? monitoredCard.card.tid }}</h3>
+      <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ monitoredCard.card.name }}</p>
     </div>
 
-    <!-- Botão Fechar Modernizado -->
+    <!-- Botões -->
     <div class="flex gap-2">
       <button (click)="centerOnCard()"
-        class="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-cyan-500 transition-colors hover:bg-slate-200 active:scale-95 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800">
-        <i class="pi pi-map-marker text-xs"></i>
+        class="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-100/80 text-cyan-600 transition-all hover:bg-cyan-200 hover:scale-105 active:scale-95 dark:bg-cyan-900/30 dark:text-cyan-400 dark:hover:bg-cyan-900/50 shadow-sm">
+        <i class="pi pi-map-marker text-sm"></i>
       </button>
       <button (click)="clearMonitor()"
-        class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-orange-500 transition-colors hover:bg-slate-200 active:scale-95 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800">
-        <i class="pi pi-stop-circle text-xs"></i>
+        class="flex h-9 w-9 items-center justify-center rounded-full bg-orange-100/80 text-orange-600 transition-all hover:bg-orange-200 hover:scale-105 active:scale-95 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 shadow-sm">
+        <i class="pi pi-stop-circle text-sm"></i>
       </button>
       <button (click)="closeMonitor()"
-        class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 active:scale-95 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800">
-        <i class="pi pi-chevron-down text-xs"></i>
+        class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-all hover:bg-slate-200 hover:scale-105 active:scale-95 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 shadow-sm">
+        <i class="pi pi-times text-sm"></i>
       </button>
     </div>
   </div>
 
-  <!-- Grid de Status Dinâmico (Estilo Dashboard Mobile) -->
-  <div class="mt-5 grid grid-cols-3 gap-2.5">
-
+  <!-- Grid de Status Dinâmico -->
+  <div class="mt-6 grid grid-cols-3 gap-3">
     <!-- Conexão -->
-    <div class="flex flex-col rounded-xl bg-slate-50 p-3 dark:bg-slate-900/50">
-      <span class="text-[11px] font-medium text-slate-400 dark:text-slate-500">Conexão</span>
-      <span class="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{{ connectionText }}</span>
+    <div class="flex flex-col rounded-2xl bg-white dark:bg-black/20 p-3 shadow-sm border border-slate-100 dark:border-white/5 transition-colors">
+      <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Conexão</span>
+      <span class="mt-1 text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{{ connectionText }}</span>
     </div>
 
     <!-- Bateria -->
-    <div class="flex flex-col rounded-xl bg-slate-50 p-3 dark:bg-slate-900/50">
-      <span class="text-[11px] font-medium text-slate-400 dark:text-slate-500">Bateria</span>
+    <div class="flex flex-col rounded-2xl bg-white dark:bg-black/20 p-3 shadow-sm border border-slate-100 dark:border-white/5 transition-colors">
+      <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Bateria</span>
       <div class="mt-1 flex items-center gap-1.5">
-        <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ battery?.percent ?? '—' }}%</span>
-        <i *ngIf="battery?.isCharging" class="pi pi-bolt text-xs text-emerald-500 animate-bounce"></i>
+        <span class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ battery?.percent ?? '—' }}%</span>
+        <i *ngIf="battery?.isCharging" class="pi pi-bolt text-xs text-emerald-500 animate-bounce drop-shadow-md"></i>
       </div>
     </div>
 
     <!-- Movimento -->
-    <div class="flex items-center justify-between rounded-xl bg-slate-50 p-3 dark:bg-slate-900/50">
+    <div class="flex items-center justify-between rounded-2xl bg-white dark:bg-black/20 p-3 shadow-sm border border-slate-100 dark:border-white/5 transition-colors">
       <div class="flex flex-col">
-        <span class="text-[11px] font-medium text-slate-400 dark:text-slate-500">Estado</span>
-        <span *ngIf="motionLabel; else noMotion"
-          class="mt-0.5 text-sm font-semibold text-slate-800 dark:text-slate-200">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Estado</span>
+        <span *ngIf="motionLabel; else noMotion" class="mt-1 text-sm font-bold text-slate-800 dark:text-slate-200">
           {{ motionEmoji }} {{ motionLabel }}
         </span>
         <ng-template #noMotion>
-          <span class="mt-0.5 text-sm font-medium text-slate-400 dark:text-slate-600">Desconhecido</span>
+          <span class="mt-1 text-sm font-medium text-slate-400 dark:text-slate-600">--</span>
         </ng-template>
       </div>
     </div>
   </div>
 
-  <!-- Linha de Posição (Texto Longo) -->
-  <div class="mt-3 flex items-start gap-2 px-1 text-xs text-slate-500 dark:text-slate-400">
-    <i class="pi pi-map-marker mt-0.5 text-slate-400"></i>
-    <span class="leading-relaxed">{{ locationText }}</span>
+  <!-- Linha de Posição -->
+  <div class="mt-5 flex items-start gap-3 rounded-xl bg-slate-50/50 dark:bg-white/5 p-3">
+    <i class="pi pi-map-marker mt-0.5 text-slate-400 dark:text-slate-500"></i>
+    <span class="text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300">{{ locationText }}</span>
   </div>
 </div>

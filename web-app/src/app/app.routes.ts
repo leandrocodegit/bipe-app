@@ -37,7 +37,8 @@ const painelRoutes: Routes = [
   },
   { path: 'login', component: LoginSocialComponent },
   { path: 'logout', component: LogoutComponent },
-  { path: 'auth', component: AutenticacaoComponent }
+  { path: 'auth', component: AutenticacaoComponent },
+  { path: '', redirectTo: '/mapa', pathMatch: 'full' }
 
 ];
 

@@ -18,6 +18,7 @@ export class MqttConnectionService {
   // Evita múltiplas chamadas simultâneas de refresh de token
   private isRefreshing = false;
   private onErrorSubscription?: Subscription;
+  private readonly clientId = `web-${Math.random().toString(36).slice(2, 10)}`;
 
   constructor(
     private readonly mqttService: MqttService,
@@ -116,7 +117,7 @@ export class MqttConnectionService {
       path: '/ws',
       username: this.authService.extrairEmailUsuario(),
       password: this.oauthService.getAccessToken(),
-      clientId: `web-app-${environment.production ? 'crypto.randomUUID()' : 'dev'}`
+      clientId: `web-app-${this.clientId}`
     });
   }
 

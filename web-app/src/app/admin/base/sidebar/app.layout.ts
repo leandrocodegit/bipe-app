@@ -34,25 +34,61 @@ import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webr
   ],
   template: `
 <div class="layout-wrapper" [ngClass]="containerClass">
-  <app-top-bar></app-top-bar>
-    <app-sidebar></app-sidebar>
-  <div class="layout-main-container">
-    <div class="block lg:flex flex-col gap-4 h-full bg-white dark:bg-neutral-950 relative">
-        <app-audio-webrtc class="absolute top-0 left-0 right-0 z-50"></app-audio-webrtc>
-        <div class="layout-main flex flex-col lg:flex-row w-full h-full overflow-hidden relative">
-          @if(load){
-          <app-preload></app-preload>
-          }
-          <div class="flex-1 w-full h-full relative overflow-hidden dark:bg-neutral-900">
-            <router-outlet></router-outlet>
-          </div>
-          <app-monitored-card *ngIf="router.url != '/mapa/waypoint'" class="contents"></app-monitored-card>
-          <p-toast [breakpoints]="{ '920px': { width: '96%', right: '0', left: '5px' } }"/>
-          <p-confirmdialog />
+  <app-top-bar class="z-50 relative"></app-top-bar>
+  <!-- Sidebar apenas para Desktop (hidden no Mobile, a menos que o menu mobile esteja ativo) -->
+  <app-sidebar [class.hidden]="!layoutService.layoutState().staticMenuMobileActive && layoutService.isMobile()" class="lg:block z-40 relative"></app-sidebar>
+
+  <div class="layout-main-container p-0! h-[100dvh] absolute top-0 left-0 right-0 overflow-hidden"
+       [ngClass]="{ 'bg-surface-50 dark:bg-surface-950': router.url.startsWith('/conta') }">
+    <!-- MAPA GLOBAL NO FUNDO -->
+
+    <!-- UI SOBREPOSTA (ROUTER + BOTTOM BAR) -->
+    <div class="absolute inset-0 z-10 pointer-events-none flex flex-col pt-16">
+      <app-audio-webrtc class="pointer-events-auto z-50 w-full shrink-0"></app-audio-webrtc>
+
+      <div class="flex-1 w-full min-h-0 relative overflow-hidden flex flex-col lg:flex-row pointer-events-none">
+
+        @if(load){
+        <app-preload class="pointer-events-auto z-50"></app-preload>
+        }
+
+        <!-- Outlet transparente -->
+        <div class="flex-1 w-full min-h-0 relative pointer-events-none"
+             [class.pointer-events-auto]="router.url.startsWith('/conta') || router.url.startsWith('/mapa')">
+          <!-- As telas (como friends) usarão pointer-events-auto no seu conteúdo principal -->
+          <router-outlet></router-outlet>
         </div>
+
+        <!-- Monitored Card: Flutuante no Desktop, Bottom Sheet no Mobile -->
+        <app-monitored-card *ngIf="router.url != '/mapa/waypoint' && !router.url.startsWith('/conta')" class="pointer-events-auto shrink-0 z-40 contents lg:block lg:absolute lg:right-4 lg:top-4 lg:w-96"></app-monitored-card>
+
+        <p-toast [breakpoints]="{ '920px': { width: '96%', right: '0', left: '5px' } }" class="pointer-events-auto z-50"/>
+        <p-confirmdialog class="pointer-events-auto z-50"/>
+      </div>
+
+      <!-- BOTTOM NAVIGATION BAR (Apenas Mobile) -->
+      <div class="lg:hidden pointer-events-auto w-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-t border-slate-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
+        <div class="flex justify-around items-center h-16">
+          <a routerLink="/mapa" routerLinkActive="text-emerald-500" [routerLinkActiveOptions]="{exact: true}" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
+            <i class="pi pi-map text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Mapa</span>
+          </a>
+          <a routerLink="/friends" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
+            <i class="pi pi-users text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Amigos</span>
+          </a>
+          <a routerLink="/devices" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
+            <i class="pi pi-tablet text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Dispositivos</span>
+          </a>
+          <a routerLink="/rotinas" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
+            <i class="pi pi-directions text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Rotinas</span>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="layout-mask animate-fadein"></div>
 </div>
   `
 })

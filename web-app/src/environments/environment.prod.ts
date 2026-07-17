@@ -1,6 +1,6 @@
-import { HttpHeaders } from "@angular/common/http";
 
-export const environment = {
+export const environment =  
+{
   production: true,
   portal: true,
   router: 'portal',
@@ -12,12 +12,12 @@ export const environment = {
   sitekey: '',
   mapboxToken: '',
   authConfig: {
-    issuer: `https://auth.simodapp.com:8443/realms/sincroled`,
+    issuer: 'https://auth.simodapp.com:8443/realms/sincroled',
     redirectUri: window.location.origin + '/auth',
     postLogoutRedirectUri: window.location.origin,
     clientId: 'sincroled',
     responseType: 'code',
-    scope: `openid profile email`,
+    scope: 'openid profile email',
     showDebugInformation: true,
     strictDiscoveryDocumentValidation: false,
     timeoutFactor: 0.75,
@@ -29,5 +29,4 @@ export const environment = {
     clockSkewInSec: 0,
     requireHttps: true
   } 
-};
-
+}

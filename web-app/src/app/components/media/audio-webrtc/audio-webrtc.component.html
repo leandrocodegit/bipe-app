@@ -1,6 +1,6 @@
 <div [class.hidden]="callState === 'IDLE'"
      class="flex items-center justify-between w-full px-4 py-2 bg-slate-900 text-white shadow-md z-50 transition-all duration-300">
-  
+
   <div class="flex items-center gap-3">
     <div class="relative flex items-center justify-center w-10 h-10 bg-slate-800 rounded-full">
       <i class="pi pi-phone text-emerald-400" *ngIf="callState === 'IN_CALL'"></i>
@@ -21,25 +21,25 @@
     <audio #remoteAudio autoplay playsinline controls class="h-8 w-40"></audio>
     <!-- Atender (Apenas se Ringing) -->
     <button *ngIf="callState === 'RINGING'"
-            pButton type="button" 
-            icon="pi pi-phone" 
-            class="p-button-rounded p-button-success p-button-sm shadow-md" 
+            pButton type="button"
+            icon="pi pi-phone"
+            class="p-button-rounded p-button-success p-button-sm shadow-md"
             (click)="acceptCall()">
     </button>
-    
+
     <!-- Recusar (Apenas se Ringing) -->
     <button *ngIf="callState === 'RINGING'"
-            pButton type="button" 
-            icon="pi pi-phone" 
-            class="p-button-rounded p-button-danger p-button-sm shadow-md rotate-[135deg]" 
+            pButton type="button"
+            icon="pi pi-phone"
+            class="p-button-rounded p-button-danger p-button-sm shadow-md rotate-[135deg]"
             (click)="rejectCall()">
     </button>
-    
+
     <!-- Desligar (Se em chamada ou chamando) -->
     <button *ngIf="callState === 'IN_CALL' || callState === 'OUTGOING'"
-            pButton type="button" 
-            icon="pi pi-phone" 
-            class="p-button-rounded p-button-danger p-button-sm shadow-md rotate-[135deg]" 
+            pButton type="button"
+            icon="pi pi-phone"
+            class="p-button-rounded p-button-danger p-button-sm shadow-md rotate-[135deg]"
             (click)="hangupCall()">
     </button>
   </div>

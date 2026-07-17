@@ -1,16 +1,16 @@
 
 const fs = require('fs');
 const path = require('path');
- 
+
 const targetPath = './src/environments/environment.prod.ts';
 
 const mapboxToken = process.env.MAP_BOX_TOKEN || '';
 const sitekey = process.env.SITE_KEY || '';
 
 console.log(process.env);
- 
+
 const envConfigFile = `
-export const environment =  
+export const environment =
 {
   production: true,
   portal: true,
@@ -29,7 +29,7 @@ export const environment =
     clientId: 'sincroled',
     responseType: 'code',
     scope: 'openid profile email',
-    showDebugInformation: true,
+    showDebugInformation: false,
     strictDiscoveryDocumentValidation: false,
     timeoutFactor: 0.75,
     sessionChecksEnabled: true,
@@ -39,7 +39,7 @@ export const environment =
     decreaseExpirationBySec: 10000,
     clockSkewInSec: 0,
     requireHttps: true
-  } 
+  }
 }
 `;
 

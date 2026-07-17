@@ -282,6 +282,7 @@ label.required:after {
 
 .p-tabpanels {
   padding: 0 !important;
+  background: transparent !important;
 }
 
 .p-tablist-tab-list .p-tab {
@@ -1709,4 +1710,8 @@ p-togglebutton,
 .rounded-none .p-dialog {
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
+}
+
+.bg-transicoes .leaflet-control-attribution {
+  bottom: 42px;
 }

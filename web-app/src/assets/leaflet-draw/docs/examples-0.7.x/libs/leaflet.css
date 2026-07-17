@@ -90,7 +90,7 @@
 	pointer-events: none;
 	}
 .leaflet-top {
-	top: 0;
+	top:20px;
 	}
 .leaflet-right {
 	right: 0;
@@ -114,12 +114,7 @@
 .leaflet-bottom .leaflet-control {
 	margin-bottom: 10px;
 	}
-.leaflet-left .leaflet-control {
-	margin-left: 10px;
-	}
-.leaflet-right .leaflet-control {
-	margin-right: 10px;
-	}
+  
 
 
 /* zoom and fade animations */
