@@ -149,8 +149,8 @@
     .layout-sidebar {
       transform: translateX(-100%);
       left: 0;
-      top: 35px;
-      padding-top: 30px;
+      top: calc(4rem + env(safe-area-inset-top, 0px));
+      padding-top: env(safe-area-inset-top, 0px);
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
       transition:
