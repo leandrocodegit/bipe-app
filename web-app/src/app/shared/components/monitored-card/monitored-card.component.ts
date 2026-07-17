@@ -7,6 +7,8 @@ import { Subscription } from 'rxjs';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 import { FriendPresence } from '@/shared/models/friends.model';
 import { batteryInfo, BatteryInfo, topMotionActivity } from '@/shared/GeoUtil';
+import { AudioCallService } from '@/shared/services/audio-call.service';
+import { LayoutService } from '@/shared/services/layout.service';
 
 @Component({
   selector: 'app-monitored-card',
@@ -29,8 +31,10 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
 
   constructor(
     private monitoredCardService: MonitoredCardService,
+    private readonly audioCallService: AudioCallService,
+    public readonly layoutService: LayoutService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Verifica a rota inicial
@@ -58,6 +62,15 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
     if (this.mapReadySub) this.mapReadySub.unsubscribe();
   }
 
+  callFriend(): void {
+    const parts = this.monitoredCard.id.split('/');
+    if (parts.length >= 3) {
+      const userName = parts[1];
+      const deviceId = parts[2];
+      this.audioCallService.startOutgoingCall(deviceId, userName);
+    }
+  }
+
   private checkRouteVisibility(url: string): void {
     // Mostra apenas na rota do mapa, pois a tela de amigos já tem o detalhe embutido
     this.isVisibleOnRoute = url.includes('/mapa');
@@ -67,7 +80,7 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
     this.monitoredCardService.clearMonitoredCard();
   }
 
-    closeMonitor(): void {
+  closeMonitor(): void {
     this.monitoredCardService.closeMonitoredCard();
   }
 

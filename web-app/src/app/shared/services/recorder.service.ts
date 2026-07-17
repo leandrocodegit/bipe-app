@@ -22,8 +22,8 @@ export class RecorderService {
   ) { }
 
 
-  public listaPosicoes(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.urlApi}/bipe/devices/locations?user=device&device=emu64xa16k&format=geojson&limit=10&noLoad=true`);
+  public listaPosicoes(user: string, device: string, limit: number = 20): Observable<any> {
+    return this.http.get<any>(`${environment.urlApi}/bipe/devices/locations?user=${user}&device=${device}&format=geojson&limit=${limit}&noLoad=true`);
   }
 
   public listaTransicoes(filtro: FiltroTransicao): Observable<any> {

@@ -6,7 +6,7 @@
 .layout-topbar {
      position: fixed;
     height: calc(4rem + env(safe-area-inset-top, 0px));
-    padding-top: calc(2rem + env(safe-area-inset-top, 0px));
+    padding-top: calc(env(safe-area-inset-top, 0px));
     z-index: 997;
     left: 0;
     top: 0;

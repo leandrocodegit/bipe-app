@@ -1,4 +1,5 @@
 <div class="flex flex-col w-full overflow-hidden relative" [style.height]="height">
+  <app-monitored-card/>
   <div class="flex-1 w-full min-h-0 relative">
     <div id="map" #mapContainer class="w-full h-full" [class.bg-transicoes]="ultimasTransicoes.length"></div>
     <div class="mqtt-message-indicator" [class.active]="mqttMessageActive" title="Recebendo mensagens MQTT"></div>

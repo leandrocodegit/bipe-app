@@ -12,7 +12,6 @@ import { ButtonModule } from 'primeng/button';
 import { LayoutService } from '@/shared/services/layout.service';
 import { LoadService } from '@/shared/components/preload/load.service';
 import { PreloadComponent } from '@/shared/components/preload/preload.component';
-import { MonitoredCardComponent } from '@/shared/components/monitored-card/monitored-card.component';
 import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webrtc.component';
 
 @Component({
@@ -28,7 +27,6 @@ import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webr
     ConfirmDialogModule,
     TabsModule,
     ButtonModule,
-    MonitoredCardComponent,
     AudioWebrtcComponent
   ],
   template: `
@@ -60,7 +58,6 @@ import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webr
         </div>
 
         <!-- Monitored Card: Flutuante no Desktop, Bottom Sheet no Mobile -->
-        <app-monitored-card *ngIf="router.url != '/mapa/waypoint' && !router.url.startsWith('/conta')" class="pointer-events-auto shrink-0 z-40 contents lg:block lg:absolute lg:right-4 lg:top-4 lg:w-96"></app-monitored-card>
 
         <p-toast [breakpoints]="{ '920px': { width: '96%', right: '0', left: '5px' } }" class="pointer-events-auto z-50"/>
         <p-confirmdialog class="pointer-events-auto z-50"/>
@@ -69,10 +66,6 @@ import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webr
       <!-- BOTTOM NAVIGATION BAR (Apenas Mobile) -->
       <div class="pb-[3.5rem] lg:hidden pointer-events-auto w-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-t border-slate-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
         <div class="flex justify-around items-center h-16">
-          <a routerLink="/mapa" routerLinkActive="text-emerald-500" [routerLinkActiveOptions]="{exact: true}" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
-            <i class="pi pi-map text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Mapa</span>
-          </a>
           <a routerLink="/friends" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="pi pi-users text-xl mb-1"></i>
             <span class="text-[10px] font-medium">Amigos</span>
@@ -84,6 +77,10 @@ import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webr
           <a routerLink="/rotinas" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="pi pi-directions text-xl mb-1"></i>
             <span class="text-[10px] font-medium">Rotinas</span>
+          </a>
+          <a routerLink="/mapa" routerLinkActive="text-emerald-500" [routerLinkActiveOptions]="{exact: true}" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
+            <i class="pi pi-map text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Mapa</span>
           </a>
         </div>
       </div>
@@ -114,10 +111,10 @@ export class AppLayout {
   ) {
 
     loadService.loadUpdate$.subscribe(data => {
-        var intervalo = setInterval(() => {
-          this.load = data;
-          clearInterval(intervalo);
-        }, 100);
+      var intervalo = setInterval(() => {
+        this.load = data;
+        clearInterval(intervalo);
+      }, 100);
 
     })
 

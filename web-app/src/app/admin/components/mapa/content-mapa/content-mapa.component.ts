@@ -17,6 +17,7 @@ import { Waypoint } from '@/shared/models/waypoint.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 import { environment } from 'src/environments/environment';
+import { MonitoredCardComponent } from '@/shared/components/monitored-card/monitored-card.component';
 
 @Component({
   selector: 'app-content-mapa',
@@ -25,7 +26,8 @@ import { environment } from 'src/environments/environment';
     CommonModule,
     RouterModule,
     WaypointFormDialogComponent,
-    CarouselModule
+    CarouselModule,
+    MonitoredCardComponent
   ],
   templateUrl: './content-mapa.component.html',
   styleUrls: ['./content-mapa.component.scss'],
@@ -57,7 +59,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private mqttIndicatorTimer: any;
   protected statusInstrucao = 'Toque no botão para iniciar';
   protected geoJSON?: any;
-  private caminhosLayer!: L.Polyline;
+  private caminhosLayer?: Leaflet.Polyline;
   private transicoesClusterGroup: any;
   private posicoesClusterGroup: any;
   private monitoredMarkerLayer: any;
@@ -161,9 +163,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (isConnected) {
           this.buscarTransicoes()
-          if (this.edicao) {
-            this.adicionarMarcadorEdicao();
-          } else {
+          if (!this.edicao) {
             this.iniciarRastreamentoMqtt();
             this.iniciarRastreamentoShared();
           }
@@ -264,12 +264,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.transicoesClusterGroup.clearLayers();
     }
     this.buscarTransicoesSubscription = this.recorderService.listaTransicoes({
-        device: '',
-        lastDay: true,
-        limit: 20
-      }).subscribe({
+      device: '',
+      lastDay: true,
+      limit: 20
+    }).subscribe({
       next: (geoJsonData: any) => {
-      //  this.ultimasTransicoes = [];
+        //  this.ultimasTransicoes = [];
         if (geoJsonData && geoJsonData.features) {
           const list: any[] = [];
           geoJsonData.features.forEach((feature: any) => {
@@ -359,58 +359,31 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private buscarPosicoes(color?: string): void {
+  private buscarPosicoes(user: string, device: string, color?: string): void {
     if (!this.route.url.startsWith('/mapa')) {
       return;
     }
     if (this.buscarPosicoesSubscription) {
       this.buscarPosicoesSubscription.unsubscribe();
     }
-    this.buscarPosicoesSubscription = this.recorderService.listaPosicoes().subscribe({
+    this.buscarPosicoesSubscription = this.recorderService.listaPosicoes(user, device, 20).subscribe({
       next: (geoJsonData: any) => {
-
         if (this.caminhosLayer) {
           this.mapa.removeLayer(this.caminhosLayer);
+          delete this.caminhosLayer;
         }
 
-        const listaDeLatLgns: L.LatLngExpression[] = [];
-
-        if (geoJsonData && geoJsonData.features) {
-          geoJsonData.features.forEach((feature: any) => {
-            if (feature.geometry && feature.geometry.type === 'Point') {
-
-              const lng = feature.geometry.coordinates[0];
-              const lat = feature.geometry.coordinates[1];
-
-              listaDeLatLgns.push([lat, lng]);
-
-              Leaflet.circleMarker([lat, lng], {
-                radius: 4,
-                fillColor: color ?? '#EF4444',
-                color: '#FFF',
-                weight: 2,
-                fillOpacity: 0.8
-              })
-                .bindPopup(`<b>Data:</b> ${feature?.properties?.isotst ?? 0}<br><b>Velocidade:</b> ${feature?.properties?.vel ?? 0} km/h`)
-                .addTo(this.mapa);
-            }
-          });
+        if (!geoJsonData || !geoJsonData.features || geoJsonData.features.length === 0) {
+          return;
         }
 
-        if (listaDeLatLgns.length > 1) {
-          this.caminhosLayer = Leaflet.polyline(listaDeLatLgns, {
-            color: color ?? '#3B82F6',   // Cor azul padrão do PrimeNG
-            weight: 5,          // Espessura da linha
-            opacity: 0.7,       // Opacidade da linha
-            smoothFactor: 1.0   // Suavização de curvas
-          }).addTo(this.mapa);
+        const coordinates = geoJsonData.features.map((feature: any) => {
+          const [lng, lat] = feature.geometry.coordinates;
+          return [lat, lng]; // Inverte para o padrão de desenho de mapas [Latitude, Longitude]
+        });
 
-          const bounds = Leaflet.latLngBounds(listaDeLatLgns);
-          //  this.mapa.fitBounds(bounds, { padding: [50, 50] });
-        } else if (listaDeLatLgns.length === 1) {
-          // Se só tiver um ponto isolado, apenas centraliza nele
-          // this.mapa.setView(listaDeLatLgns[0], 16);
-        }
+        const corLinha = color || '#3b82f6';
+        this.caminhosLayer = Leaflet.polyline(coordinates, { color: corLinha, weight: 5, opacity: 0.7 }).addTo(this.mapa);
       },
       error: (err) => {
         console.error('Erro ao processar posições do Recorder:', err);
@@ -666,8 +639,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (payload._type === 'location') {
           this.processarEventoLocalizacao(topic, payload);
-          if (payload.color)
-            this.buscarPosicoes(payload.color);
+          const partesTopico = topic.split('/');
+          const user = partesTopico[1];
+          const device = partesTopico[2];
+          if (user && device) {
+            this.buscarPosicoes(user, device, payload.color);
+          }
         } else if (payload._type === 'transition') {
           this.processarEventoTransicao(payload);
         }
@@ -721,6 +698,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, highlighted));
 
       marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload.color, highlighted));
+
+
 
       if (this.monitoredCardTid === tid) {
         this.centerMonitoredCard(latLng.lat, latLng.lng);
@@ -792,7 +771,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(this.ultimasTransicoes);
 
     // 3. Recarregar transições recentes no mapa
-  //  this.buscarTransicoes();
+    //  this.buscarTransicoes();
   }
 
   private criarMarcadorRastreamento(id: string, latLng: any, precisao: number, tid: string, iconName: string, user: string, deviceName: string, payload: any): void {
@@ -812,28 +791,35 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const marker = Leaflet.marker(latLng, { icon, zIndexOffset: highlighted ? 1000 : 0 })
       .bindPopup(popupHtml, { className: 'owntracks-popup', maxWidth: 250 });
 
-    marker.on('popupopen', (e: any) => {
-      const popupNode = e.popup._contentNode;
-      if (popupNode) {
-        const btn = popupNode.querySelector('.monitorar-btn-popup');
-        if (btn) {
-          // Remove listeners antigos para evitar duplicidade
-          const novoBtn = btn.cloneNode(true);
-          btn.parentNode.replaceChild(novoBtn, btn);
+    marker.on('click', () => {
+      this.monitorFromPopup(id);
+      marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, true));
+    });
 
-          novoBtn.addEventListener('click', () => {
-            const currentlyActive = this.monitoredCardTid === tid;
-            if (currentlyActive) {
-              this.monitoredCardService.clearMonitoredCard();
-              marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, false));
-            } else {
-              this.monitorFromPopup(id);
-              marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, true));
-            }
-            marker.openPopup();
-          });
+    marker.on('popupopen', (e: any) => {
+      const highlighted = this.monitoredCardTid === tid;
+      e.popup.setContent(this.criarPopupOwnTracks(user, deviceName, payload, highlighted));
+
+      const bindToggleListener = () => {
+        const popupNode = e.popup._contentNode;
+        if (popupNode) {
+          const btn = popupNode.querySelector('.monitorar-btn-popup');
+          if (btn) {
+            btn.addEventListener('click', () => {
+              const currentlyActive = this.monitoredCardTid === tid;
+              if (currentlyActive) {
+                this.monitoredCardService.clearMonitoredCard();
+                e.popup.setContent(this.criarPopupOwnTracks(user, deviceName, payload, false));
+              } else {
+                this.monitorFromPopup(id);
+                e.popup.setContent(this.criarPopupOwnTracks(user, deviceName, payload, true));
+              }
+              bindToggleListener();
+            });
+          }
         }
-      }
+      };
+      bindToggleListener();
     });
 
     this.circles.set(id, circle);
@@ -859,7 +845,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         tid: tid,
         name: deviceName,
         face: payload.icon || 'default',
-        color: payload.color || '#3b82f6'
+        color: payload.color || '#3b82f6',
+        nickname: payload.nickname
       },
       location: payload
     };
@@ -933,23 +920,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         <div style="margin-top: 10px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 4px;">
           Atualizado: ${dataHora}
         </div>
-
-        <button class="monitorar-btn-popup" data-user="${user}" data-device="${device}" style="margin-top: 8px; width: 100%; padding: 6px; background-color: #4f46e5; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">
-          ${ativo ? 'Parar Monitoramento' : 'Monitorar'}
-        </button>
       </div>`;
   }
-
-  private adicionarMarcadorEdicao(): void {
-    /*     const icon = Leaflet.icon({ iconUrl: 'assets/images/pin.png', iconSize: [60, 60], iconAnchor: [30, 60] });
-        const marker = Leaflet.marker(this.cordenadas, { draggable: true, icon }).addTo(this.mapa);
-        marker.bindTooltip('Arraste o pino', { permanent: false }).openTooltip();
-        marker.on('drag', (event: any) => {
-          this.cordenadas = event.target.getLatLng();
-        });
-        this.markers.set('edicao', marker); */
-  }
-
 
   private subscribeMonitoredCard(): void {
     if (this.monitoredCardSubscription || this.centerRequestSubscription) {
@@ -970,16 +942,24 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       if (!currentTid) {
+        if (this.caminhosLayer) {
+          this.mapa.removeLayer(this.caminhosLayer);
+          this.caminhosLayer = undefined;
+        }
         return;
       }
 
       const markerId = this.markerTidIndex.get(currentTid);
       const marker = markerId ? this.markers.get(markerId) : undefined;
-      const payload = markerId ? this.markerData.get(markerId)?.payload : undefined;
+      const markerDataObj = markerId ? this.markerData.get(markerId) : undefined;
+      const payload = markerDataObj?.payload;
 
-      if (marker) {
+      if (marker && markerDataObj) {
         marker.setIcon(this.obterIconeLeaflet(payload?.icon, currentTid, payload?.color, true));
         this.moveMarkerToMonitoredLayer(marker, currentTid);
+        if (markerDataObj.user && markerDataObj.deviceName) {
+          this.buscarPosicoes(markerDataObj.user, markerDataObj.deviceName, payload?.color);
+        }
       }
 
       if (card?.location?.lat && card?.location?.lon) {
@@ -992,7 +972,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
       if (card?.location?.lat && card?.location?.lon)
-      this.centerMonitoredCard(card.location.lat, card.location.lon, true);
+        this.centerMonitoredCard(card.location.lat, card.location.lon, true);
     });
   }
 
