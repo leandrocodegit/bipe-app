@@ -5,12 +5,14 @@
 
 .layout-topbar {
      position: fixed;
-    height: 4rem;
+    height: calc(4rem + env(safe-area-inset-top, 0px));
+    padding-top: calc(2rem + env(safe-area-inset-top, 0px));
     z-index: 997;
     left: 0;
     top: 0;
     width: 100%;
-    padding: 0 1rem;
+    padding-left: calc(1rem + env(safe-area-inset-left, 0px));
+    padding-right: calc(1rem + env(safe-area-inset-right, 0px));
     background-color: #0b1518;
     transition: left var(--layout-section-transition-duration);
     display: flex;
@@ -107,7 +109,8 @@
 
 @media (max-width: 991px) {
     .layout-topbar {
-        padding: 0 1rem;
+            padding-top: env(safe-area-inset-top, 0px);
+
 
         .layout-topbar-logo-container {
             width: auto;

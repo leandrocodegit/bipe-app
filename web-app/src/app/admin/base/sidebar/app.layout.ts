@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, Renderer2, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
@@ -9,7 +9,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TopBarComponent } from '../top-bar/top-bar.component';
 import { TabsModule } from 'primeng/tabs';
 import { ButtonModule } from 'primeng/button';
-import { MqttService } from 'ngx-mqtt';
 import { LayoutService } from '@/shared/services/layout.service';
 import { LoadService } from '@/shared/components/preload/load.service';
 import { PreloadComponent } from '@/shared/components/preload/preload.component';
@@ -34,16 +33,17 @@ import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webr
   ],
   template: `
 <div class="layout-wrapper" [ngClass]="containerClass">
-  <app-top-bar class="z-50 relative"></app-top-bar>
+  <app-top-bar class="block z-50 relative"></app-top-bar>
   <!-- Sidebar apenas para Desktop (hidden no Mobile, a menos que o menu mobile esteja ativo) -->
-  <app-sidebar [class.hidden]="!layoutService.layoutState().staticMenuMobileActive && layoutService.isMobile()" class="lg:block z-40 relative"></app-sidebar>
+  <app-sidebar [class.hidden]="!layoutService.layoutState().staticMenuMobileActive && layoutService.isMobile()" class="block z-40 relative"></app-sidebar>
 
-  <div class="layout-main-container p-0! h-[100dvh] absolute top-0 left-0 right-0 overflow-hidden"
+  <div class="layout-main-container p-0! absolute top-0 left-0 right-0 overflow-hidden"
        [ngClass]="{ 'bg-surface-50 dark:bg-surface-950': router.url.startsWith('/conta') }">
     <!-- MAPA GLOBAL NO FUNDO -->
 
     <!-- UI SOBREPOSTA (ROUTER + BOTTOM BAR) -->
-    <div class="absolute inset-0 z-10 pointer-events-none flex flex-col pt-16">
+    <div class="absolute inset-0 z-10 pointer-events-none flex flex-col"
+         [style.paddingTop]="'calc(4rem + env(safe-area-inset-top, 0px))'">
       <app-audio-webrtc class="pointer-events-auto z-50 w-full shrink-0"></app-audio-webrtc>
 
       <div class="flex-1 w-full min-h-0 relative overflow-hidden flex flex-col lg:flex-row pointer-events-none">
@@ -67,7 +67,7 @@ import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webr
       </div>
 
       <!-- BOTTOM NAVIGATION BAR (Apenas Mobile) -->
-      <div class="lg:hidden pointer-events-auto w-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-t border-slate-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
+      <div class="pb-[3.5rem] lg:hidden pointer-events-auto w-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-t border-slate-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
         <div class="flex justify-around items-center h-16">
           <a routerLink="/mapa" routerLinkActive="text-emerald-500" [routerLinkActiveOptions]="{exact: true}" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="pi pi-map text-xl mb-1"></i>
