@@ -1,5 +1,28 @@
 :root[class*='app-dark'] {
-    --surface-ground: var(--p-surface-950);
-    --code-background: var(--p-surface-800);
-    --code-color: var(--p-surface-100);
+    --surface-ground: #060b0d; /* Fundo principal profundo */
+    --code-background: #0d1e23;
+    --code-color: #e2f1f5;
+    
+    /* Variáveis do PrimeNG e Customizadas */
+    --p-surface-950: #060b0d; /* Fundo principal */
+    --p-surface-900: #091114; /* Sidebar, etc. */
+    --p-surface-800: #0c1518; /* Containers, popups, inputs */
+    --p-surface-700: #142b32; /* Hover / bordas */
+    --p-surface-600: #18333c;
+    --p-surface-500: #1d3f4a;
+    --p-surface-400: #295a69;
+    --p-surface-300: #468e9e;
+    --p-surface-200: #88c2cd;
+    --p-surface-100: #cbe6eb;
+    --p-surface-50: #ebf5f7;
+
+    --p-content-background: #0c1518;
+    --p-content-border-color: #142b32;
+    
+    --bg-dark: #091114; /* Alinhado ao sidebar */
+    --sidebar-border-dark: #142b32;
+    
+    /* Cores de texto */
+    --text-color: #e2f1f5;
+    --text-secondary-color: #8da4a8;
 }

@@ -11,10 +11,11 @@
 }
 
 :host-context(.dark), :root.dark {
+    --bg-dark: #091114;
     --menu-active-bg-dark: rgba(59, 130, 246, 0.15);
     --menu-active-border-dark: rgba(59, 130, 246, 0.6);
     --menu-active-glow-dark: 0 0 20px rgba(59, 130, 246, 0.5);
-    --sidebar-border-dark: #1e2736;
+    --sidebar-border-dark: #142b32;
 }
 
 .layout-sidebar {

@@ -36,8 +36,28 @@ export interface Routine {
   horaTermino: string;
   diasSemana: string[];
   /** IDs dos dispositivos aos quais esta rotina se aplica. */
-  devices: Device[];
+  devices: any[];
   tipo: RoutineEventType;
-  waypoint?: Waypoint;
+  waypoint?: any;
   ativo: boolean;
 }
+
+export interface StatusRoutine {
+  atendidas: {
+    id: string;
+    rotinaId: string;
+    rotinaNome: string;
+    deviceId: string;
+    deviceApelido: string;
+    dataHoraAtendimento: string;
+  }[];
+  naoAtendidas: {
+    id: string;
+    rotinaId: string;
+    rotinaNome: string;
+    deviceId: string;
+    deviceApelido: string;
+    dataOriginal: string;
+    dataHoraVerificacao: Date
+  }[]
+} 

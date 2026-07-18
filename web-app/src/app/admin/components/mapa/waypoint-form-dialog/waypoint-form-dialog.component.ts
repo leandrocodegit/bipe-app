@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -33,10 +33,11 @@ import { TagModule } from 'primeng/tag';
   ],
   templateUrl: './waypoint-form-dialog.component.html',
 })
-export class WaypointFormDialogComponent {
+export class WaypointFormDialogComponent implements OnChanges {
   @Input() visible = false;
   @Input() latLng: any; // Coordenada recebida do mapa
   @Input() devices: any[] = []; // Sua lista: protected devices: Device[] = [];
+  @Input() waypointToEdit: any = null;
 
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() salvar = new EventEmitter<any>();
@@ -50,6 +51,23 @@ export class WaypointFormDialogComponent {
 
   constructor(private readonly waypointService: WaypointService) { }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['visible'] && this.visible) {
+      if (this.waypointToEdit) {
+        this.formulario = {
+          desc: this.waypointToEdit.desc,
+          rad: this.waypointToEdit.rad,
+          deviceIds: [...(this.waypointToEdit.deviceIds || [])]
+        };
+        this.latLng = {
+          lat: this.waypointToEdit.lat,
+          lng: this.waypointToEdit.lon
+        };
+      } else {
+        this.resetFormulario();
+      }
+    }
+  }
 
   fechar(): void {
     this.visible = false;
@@ -58,13 +76,17 @@ export class WaypointFormDialogComponent {
 
   confirmar(): void {
     // Monta o payload final exato
-    const payloadFinal = {
+    const payloadFinal: any = {
       desc: this.formulario.desc,
       deviceIds: this.formulario.deviceIds,
-      lat: this.latLng.lat,
-      lon: this.latLng.lng,
+      lat: this.latLng ? this.latLng.lat : 0,
+      lon: this.latLng ? this.latLng.lng : 0,
       rad: this.formulario.rad
     };
+
+    if (this.waypointToEdit && this.waypointToEdit.id) {
+      payloadFinal.id = this.waypointToEdit.id;
+    }
 
     this.salvar.emit(payloadFinal);
     this.fechar();
@@ -75,14 +97,14 @@ export class WaypointFormDialogComponent {
 
   private resetFormulario(): void {
     this.formulario = {
-      desc: '', 
+      desc: '',
       rad: 50,
       deviceIds: [],
     };
   }
 
   getDeviceIcon(device: Device): string {
-    const key = device.os;
+    const key = device?.os ?? 'pi pi-microship';
     if (key.includes('iphone') || key.includes('ios')) {
       return 'pi pi-apple';
     }

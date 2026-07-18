@@ -64,7 +64,7 @@ import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webr
       </div>
 
       <!-- BOTTOM NAVIGATION BAR (Apenas Mobile) -->
-      <div class="pb-[3.5rem] lg:hidden pointer-events-auto w-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-t border-slate-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
+      <div class="pb-[3.5rem] lg:hidden pointer-events-auto w-full bg-white/90 dark:bg-[#0c1518]/90 backdrop-blur-md border-t border-slate-200 dark:border-[#142b32] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
         <div class="flex justify-around items-center h-16">
           <a routerLink="/friends" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="pi pi-users text-xl mb-1"></i>

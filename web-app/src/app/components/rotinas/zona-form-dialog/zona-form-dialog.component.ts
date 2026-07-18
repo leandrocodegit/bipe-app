@@ -109,7 +109,7 @@ export class ZonaFormDialogComponent implements OnInit {
     this.fechar();
     this.rotinaService.criarWayPoint({
       ...this.formulario,
-      devices: this.formulario.devices.map(device => device.id) , 
+      devices: this.formulario.devices.map(device => device.id),
   }).subscribe(() => this.resetFormulario());
   }
 
@@ -126,7 +126,7 @@ export class ZonaFormDialogComponent implements OnInit {
   }
 
   getDeviceIcon(device: Device): string {
-    const key = device.os;
+    const key = device?.os ?? 'pi pi-microship';
     if (key.includes('iphone') || key.includes('ios')) {
       return 'pi pi-apple';
     }

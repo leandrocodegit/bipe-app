@@ -447,41 +447,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true
     }).addTo(this.mapa);
-    this.posicoesClusterGroup = this.criarClusterGroup({
-      maxClusterRadius: 10,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true,
-      animate: true,
-      iconCreateFunction: (cluster: any) => {
-        const childCount = cluster.getChildCount(); // Quantidade de marcadores dentro
-
-        const html = `
-          <div style="
-            background-color: #8b5cf6; /* Roxo Tailwind */
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-family: system-ui;
-            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3); /* Efeito de borda translúcida */
-          ">
-            ${childCount}
-          </div>
-        `;
-
-        return Leaflet.divIcon({
-          html: html,
-          className: 'custom-cluster-transicao',
-          iconSize: [40, 40],
-          iconAnchor: [20, 20]
-        });
-      }
-    }).addTo(this.mapa);
+    this.posicoesClusterGroup = Leaflet.layerGroup().addTo(this.mapa);
 
     this.monitoredMarkerLayer = Leaflet.layerGroup().addTo(this.mapa);
 

@@ -14,6 +14,7 @@ import { ShareDeviceComponent } from '../share-device/share-device.component';
 import { DialogModule } from 'primeng/dialog';
 import { DeviceService } from '@/shared/services/device.service';
 import { AudioCallService } from '@/shared/services/audio-call.service';
+import { HistoricoRotinasComponent } from '@/components/rotinas/historico-rotinas/historico-rotinas.component';
 
 @Component({
   selector: 'app-lista-devices',
@@ -28,7 +29,8 @@ import { AudioCallService } from '@/shared/services/audio-call.service';
     TooltipModule,
     SkeletonModule,
     DialogModule,
-    ShareDeviceComponent
+    ShareDeviceComponent,
+    HistoricoRotinasComponent
   ],
   templateUrl: './lista-devices.component.html',
   styleUrl: './lista-devices.component.scss'

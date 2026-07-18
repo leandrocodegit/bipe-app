@@ -12,7 +12,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService } from 'primeng/api';
 import { Waypoint, WaypointDeviceInfo } from '@/shared/models/waypoint.model';
 import { WaypointService } from '@/shared/services/waypoint.service';
+import { DeviceService } from '@/shared/services/device.service';
 import { RouterModule } from '@angular/router';
+import { WaypointFormDialogComponent } from '../waypoint-form-dialog/waypoint-form-dialog.component';
 
 
 @Component({
@@ -29,6 +31,7 @@ import { RouterModule } from '@angular/router';
     InputTextModule,
     TagModule,
     TooltipModule,
+    WaypointFormDialogComponent
   ],
   templateUrl: './waypoint-list.component.html'
 })
@@ -44,6 +47,9 @@ export class WaypointListComponent implements OnInit {
   @Output() delete = new EventEmitter<Waypoint>();
   @Output() waypointSelected = new EventEmitter<Waypoint>();
 
+  protected devices: any[] = [];
+  protected mostrarDialogEdicao = false;
+  protected waypointToEdit: Waypoint | null = null;
   protected searchTerm = '';
   protected selected: Waypoint | null = null;
   protected copied = false;
@@ -53,10 +59,12 @@ export class WaypointListComponent implements OnInit {
   private readonly palette = ['#6366F1', '#0EA5E9', '#22C55E', '#F59E0B', '#EC4899', '#8B5CF6', '#14B8A6', '#EF4444'];
 
   constructor(private readonly waypointService: WaypointService,
-              private readonly confirmationService: ConfirmationService) { }
+              private readonly confirmationService: ConfirmationService,
+              private readonly deviceService: DeviceService) { }
 
   ngOnInit(): void {
     this.listarWaypoints();
+    this.deviceService.listDevices().subscribe(response => this.devices = response);
   }
 
 
@@ -116,7 +124,16 @@ export class WaypointListComponent implements OnInit {
 
   onEdit(waypoint: Waypoint, event?: Event): void {
     event?.stopPropagation();
+    this.waypointToEdit = waypoint;
+    this.mostrarDialogEdicao = true;
+    this.selected = null;
     this.edit.emit(waypoint);
+  }
+
+  onSalvarEdicao(payload: any): void {
+    setTimeout(() => {
+      this.listarWaypoints();
+    }, 500);
   }
 
   onDelete(waypoint: Waypoint, event?: Event): void {

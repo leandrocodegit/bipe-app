@@ -1,5 +1,5 @@
 
-export const environment =  
+export const environment =
 {
   production: true,
   portal: true,
@@ -25,8 +25,8 @@ export const environment =
     silentRefreshTimeout: 5000,
     silentRefreshRedirectUri: window.location.origin + '/assets/silent-refresh.html',
     useSilentRefresh: true,
-    decreaseExpirationBySec: 10000,
+    decreaseExpirationBySec: 30,
     clockSkewInSec: 0,
     requireHttps: true
-  } 
+  }
 }

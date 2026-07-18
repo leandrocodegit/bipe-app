@@ -16,9 +16,7 @@ import { Device } from '@/shared/models/device.model';
 import { ZonaFormDialogComponent } from '../zona-form-dialog/zona-form-dialog.component';
 import { RotinaService } from '@/shared/services/rotina.service';
 import { WaypointListComponent } from '@/admin/components/mapa/waypoint-list/waypoint-list.component';
-
-
-
+import { HistoricoRotinasComponent } from '../historico-rotinas/historico-rotinas.component';
 
 @Component({
   selector: 'app-routines',
@@ -35,7 +33,8 @@ import { WaypointListComponent } from '@/admin/components/mapa/waypoint-list/way
     TagModule,
     TooltipModule,
     ZonaFormDialogComponent,
-    WaypointListComponent
+    WaypointListComponent,
+    HistoricoRotinasComponent
   ],
   templateUrl: './routines.component.html',
   styleUrls: ['./routines.component.scss'],
@@ -125,6 +124,7 @@ export class RoutinesComponent {
   onSelectWaypoint(waypoint: Waypoint) {
     if (this.selected)
       this.selected.waypoint = waypoint;
+    this.selected.devices = this.selected.devices.map(device => device.id)
     this.rotinaService.criarWayPoint(this.selected).subscribe(() => this.viewWaipoints = false);
 
   }

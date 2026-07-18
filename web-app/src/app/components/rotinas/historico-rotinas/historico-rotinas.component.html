@@ -1,0 +1,122 @@
+<button pButton type="button" class="p-button-rounded p-button-text p-button-plain !h-11 !w-11"
+  pTooltip="Histórico de Rotinas" tooltipPosition="top" (click)="view = true; buscarHistorico()">
+  <span class="material-symbols-outlined text-[22px]">history</span>
+</button>
+
+<p-drawer [(visible)]="view" [modal]="true" [draggable]="false" position="bottom" [showCloseIcon]="false"
+  styleClass="p-0 overflow-hidden" [style]="{ width: '100vw', maxHeight: '100vh' }">
+
+  <div class="mx-auto max-w-2xl h-full flex flex-col">
+    <!-- Cabeçalho do Drawer -->
+    <div class="flex items-start justify-between pb-4 border-b border-slate-200/10 p-3">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <span class="material-symbols-outlined text-indigo-500">history</span>
+          Histórico de Execução das Rotinas
+        </h2>
+        <p class="text-xs text-slate-500">Acompanhe a atividade e cumprimento das cercas virtuais</p>
+      </div>
+      <div class="flex gap-2">
+        <button pButton type="button" icon="pi pi-refresh"
+          class="p-button-rounded p-button-text p-button-secondary h-9 w-9 !p-0" (click)=" buscarHistorico()"></button>
+        <button pButton type="button" icon="pi pi-times"
+          class="p-button-rounded p-button-text p-button-secondary h-9 w-9 !p-0" (click)="view = false"></button>
+      </div>
+    </div>
+
+    <p-tabs [scrollable]="true" (valueChange)="selectTab($event)" [value]="tab"
+      class="flex-1 flex flex-col overflow-hidden mt-4">
+      <p-tablist class="border-b border-slate-200/10">
+        <p-tab value="atendida" class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">task_alt</span>
+          Atendidas
+        </p-tab>
+        <p-tab value="naoAtendida" class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">error</span>
+          Não Atendidas
+        </p-tab>
+      </p-tablist>
+
+      <p-tabpanels class="flex-1 overflow-y-auto mt-4">
+        <!-- TAB PANEL: ATENDIDAS -->
+        <p-tabpanel value="atendida">
+          <div *ngIf="statusRotina?.atendidas?.length; else emptyAtendidas" class="flex flex-col gap-3 px-2">
+            <div *ngFor="let item of statusRotina?.atendidas"
+              class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-slate-100 bg-white dark:bg-neutral-950 dark:border-white/5 shadow-sm">
+              <div class="min-w-0 flex-1">
+                <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-200 truncate">{{ item.rotinaNome ||
+                  'Rotina Excluída' }}</h4>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                  <span class="material-symbols-outlined text-xs">phone_android</span>
+                  <span class="truncate">{{ item.deviceApelido }}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <div class="flex flex-col items-end gap-1">
+                  <span
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    Atendida
+                  </span>
+                  <span class="text-[10px] text-slate-400 dark:text-slate-500">{{ item.dataHoraAtendimento |
+                    date:'dd/MM/yyyy HH:mm:ss' }}</span>
+                </div>
+                <button pButton type="button" icon="pi pi-check"
+                  class="p-button-rounded p-button-text p-button-sm !h-8 !w-8 shrink-0 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 transition-colors"
+                  pTooltip="Marcar como lida" tooltipPosition="top" (click)="marcarAtendida(item.id, $event)">
+                </button>
+              </div>
+            </div>
+          </div>
+          <ng-template #emptyAtendidas>
+            <div class="flex flex-col items-center justify-center py-16 text-center text-slate-400">
+              <span
+                class="material-symbols-outlined text-4xl mb-2 text-slate-300 dark:text-slate-600">check_circle</span>
+              <p class="text-sm font-medium">Nenhuma rotina atendida recentemente</p>
+            </div>
+          </ng-template>
+        </p-tabpanel>
+
+        <!-- TAB PANEL: NÃO ATENDIDAS -->
+        <p-tabpanel value="naoAtendida">
+          <div *ngIf="statusRotina?.naoAtendidas?.length; else emptyNaoAtendidas" class="flex flex-col gap-3 px-2">
+            <div *ngFor="let item of statusRotina?.naoAtendidas"
+              class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-slate-100 bg-white dark:bg-neutral-950 dark:border-white/5 shadow-sm">
+              <div class="min-w-0 flex-1">
+                <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-200 truncate">{{ item.rotinaNome ||
+                  'Rotina Excluída' }}</h4>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                  <span class="material-symbols-outlined text-xs">phone_android</span>
+                  <span class="truncate">{{ item.deviceApelido }}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <div class="flex flex-col items-end gap-1 font-medium">
+                  <span
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                    Não Atendida
+                  </span>
+                  <span class="text-[10px] text-slate-400 dark:text-slate-500" title="Data original da rotina">Meta: {{
+                    item.dataOriginal | date:'dd/MM/yyyy' }}</span>
+                  <span class="text-[9px] text-slate-400 dark:text-slate-600">Verificado em {{ item.dataHoraVerificacao
+                    | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <button pButton type="button" icon="pi pi-check"
+                  class="p-button-rounded p-button-text p-button-sm !h-8 !w-8 shrink-0 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 transition-colors"
+                  pTooltip="Marcar como lida" tooltipPosition="top" (click)="marcarNaoAtendida(item.id, $event)">
+                </button>
+              </div>
+            </div>
+          </div>
+          <ng-template #emptyNaoAtendidas>
+            <div class="flex flex-col items-center justify-center py-16 text-center text-slate-400">
+              <span class="material-symbols-outlined text-4xl mb-2 text-slate-300 dark:text-slate-600">error</span>
+              <p class="text-sm font-medium">Nenhuma falha de rotina registrada</p>
+            </div>
+          </ng-template>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </div>
+</p-drawer>
