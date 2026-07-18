@@ -1,0 +1,169 @@
+<p-dialog [(visible)]="visible" (visibleChange)="!$event && close()" [modal]="true" [draggable]="false"
+  [resizable]="false" [dismissableMask]="true" [showHeader]="false"
+  styleClass="!m-0 !w-full !max-w-md !rounded-t-3xl sm:!max-w-lg sm:!rounded-3xl border border-slate-200/10 shadow-2xl bg-white dark:bg-[#0c1518]"
+  [breakpoints]="{ '640px': '100vw' }">
+
+  <div class="flex flex-col gap-4 p-4 select-none">
+
+    <!-- Top Drag Handle on Mobile -->
+    <div class="h-1 w-10 self-center rounded-full bg-slate-200 dark:bg-neutral-800 sm:hidden"></div>
+
+    <!-- Cabeçalho de Alerta -->
+    <div class="flex items-center gap-3 pb-3 border-b border-slate-200/10">
+      <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-pulse">
+        <span class="material-symbols-outlined text-2xl">warning</span>
+      </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="text-base font-bold text-rose-500 dark:text-rose-400 m-0">Alerta: Rotina Não Cumprida</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 m-0">
+          O dispositivo desviou da rota ou horário esperado.
+        </p>
+      </div>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="flex flex-col gap-3.5 max-h-[60vh] overflow-y-auto pr-1">
+
+      <!-- CARD 1: CONFIGURAÇÃO ESPERADA -->
+      <div class="p-3 rounded-2xl border border-slate-100 bg-slate-50/50 dark:bg-[#060b0d] dark:border-white/5 flex flex-col gap-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">schedule</span>
+          Rotina Esperada
+        </span>
+        <div class="min-w-0 flex-1">
+          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate m-0">
+            {{ alert?.rotinaNome }}
+          </h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-x-2 gap-y-1">
+            <span><strong>Dias:</strong> {{ routineDetails ? translateDays(routineDetails.diasSemana) : '—' }}</span>
+            <span>|</span>
+            <span><strong>Horário:</strong> {{ routineDetails ? routineDetails.horaInicio + ' - ' + routineDetails.horaTermino : '—' }}</span>
+          </p>
+          <div *ngIf="routineDetails?.waypoint" class="mt-2 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200/10 pt-2 flex flex-col gap-1">
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs text-indigo-400">near_me</span>
+              Região: <strong>{{ routineDetails.waypoint.desc }}</strong>
+            </span>
+            <span class="flex items-center gap-1 text-[11px] text-slate-400 pl-4">
+              Ação: <strong>{{ translateEventType(routineDetails.tipo) }}</strong> (Raio de {{ routineDetails.waypoint.rad }}m)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: STATUS DO DISPOSITIVO -->
+      <div class="p-3 rounded-2xl border border-slate-100 bg-slate-50/50 dark:bg-[#060b0d] dark:border-white/5 flex flex-col gap-2.5">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">phone_android</span>
+          Status do Dispositivo
+        </span>
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg"
+            [style.background]="deviceDetails?.color + '22'"
+            [style.border]="'2px solid ' + (deviceDetails?.color || '#94a3b8')">
+            <i [class]="deviceDetails?.icon ? 'pi pi-mobile' : 'pi pi-tablet'"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate m-0">
+                {{ alert?.deviceApelido }}
+              </h4>
+              <span class="h-2 w-2 shrink-0 rounded-full"
+                [class.bg-emerald-500]="deviceDetails?.conectado"
+                [class.bg-slate-300]="!deviceDetails?.conectado"></span>
+            </div>
+            <p class="text-[11px] text-slate-400 dark:text-slate-500 m-0">
+              Sistema Operacional: {{ deviceDetails?.os || '—' }}
+            </p>
+          </div>
+          <!-- Bateria -->
+          <div *ngIf="latestLocation?.battery !== undefined" class="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 text-xs text-slate-600 dark:text-slate-300">
+            <span class="material-symbols-outlined text-xs">battery_charging_full</span>
+            <span class="font-bold">{{ latestLocation?.battery }}%</span>
+          </div>
+        </div>
+
+        <!-- Última localização recebida -->
+        <div class="text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200/10 pt-2 flex flex-col gap-1.5">
+          <span class="flex items-center justify-between text-[11px]">
+            <span class="flex items-center gap-1 text-slate-400">
+              <span class="material-symbols-outlined text-xs">location_on</span>
+              Última Posição:
+            </span>
+            <span *ngIf="latestLocation" class="font-mono text-slate-600 dark:text-slate-300">
+              {{ latestLocation.lat.toFixed(5) }}, {{ latestLocation.lon.toFixed(5) }}
+            </span>
+            <span *ngIf="!latestLocation" class="text-slate-400">Sem coordenadas</span>
+          </span>
+          <span *ngIf="latestLocation?.timestamp" class="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 pl-4">
+            <span>Registrado em:</span>
+            <span>{{ latestLocation.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- CARD 3: ÚLTIMA ATIVIDADE (TRANSIÇÃO) -->
+      <div class="p-3 rounded-2xl border border-slate-100 bg-slate-50/50 dark:bg-[#060b0d] dark:border-white/5 flex flex-col gap-2">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">share_location</span>
+          Último Waypoint Cruzado
+        </span>
+        @if (lastTransition) {
+          <div class="flex flex-col gap-1 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-slate-700 dark:text-slate-300">{{ lastTransition.descricaoRegiao }}</span>
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-500/10 text-indigo-400">
+                {{ translateEventType(lastTransition.evento) }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+              <span>Cruzado em:</span>
+              <span>{{ lastTransition.dataHoraTransito | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+            </div>
+          </div>
+        } @else {
+          <p class="text-xs text-slate-400 m-0">Nenhum cruzamento de região recente registrado.</p>
+        }
+      </div>
+
+    </div>
+
+    <!-- Ações e Tomada de Decisão -->
+    <div class="flex flex-col gap-2 pt-3 border-t border-slate-200/10 mt-1">
+
+      <div class="flex gap-2">
+        <!-- Rastrear no mapa -->
+        <button pButton type="button" label="Rastrear no Mapa" icon="pi pi-map"
+          class="p-button-outlined flex-1 !rounded-xl"
+          (click)="verNoMapa()">
+        </button>
+        <!-- Ligar -->
+        <button pButton type="button" label="Ligar" icon="pi pi-phone"
+          class="p-button-outlined p-button-danger flex-1 !rounded-xl"
+          (click)="chamar()">
+        </button>
+      </div>
+
+      <div class="flex gap-2">
+        <!-- Rotear no Google Maps -->
+        <a *ngIf="routineDetails?.waypoint" [href]="mapsUrl()" target="_blank" rel="noopener noreferrer"
+          pButton icon="pi pi-external-link" label="Traçar Rota"
+          class="p-button-outlined p-button-secondary flex-1 !rounded-xl no-underline flex items-center justify-center">
+        </a>
+
+        <!-- Marcar como Resolvido / Lida -->
+        <button pButton type="button" label="Resolvido" icon="pi pi-check"
+          class="flex-1 !rounded-xl !bg-emerald-600 hover:!bg-emerald-700 !border-none !text-white"
+          (click)="marcarComoLida()">
+        </button>
+      </div>
+
+      <!-- Fechar Modal -->
+      <button pButton type="button" label="Fechar Alerta" icon="pi pi-times"
+        class="p-button-text !rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white"
+        (click)="close()">
+      </button>
+
+    </div>
+  </div>
+</p-dialog>

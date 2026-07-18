@@ -8,7 +8,7 @@
 
 <!-- O styleClass agora injeta classes que reagem a ambos os modos -->
 <p-dialog [(visible)]="view" #op
-  styleClass="lg:min-w-[50vw] min-w-[99vw] popover-clean p-0 !bg-white dark:!bg-[#0c1518] !border-gray-200 dark:!border-white/5 !rounded-xl shadow-2xl"
+  styleClass="lg:min-w-[50vw] min-w-[99vw] popover-clean p-0 !bg-white dark:!bg-[#0b1214] !border-gray-200 dark:!border-white/5 !rounded-xl shadow-2xl"
   [modal]="true" [dismissableMask]="true" [showHeader]="false">
 
 
@@ -16,7 +16,7 @@
   <div class="flex w-full flex-col gap-5 px-4 pb-8 pt-5 sm:px-6">
 
     <!-- Dispositivo sendo compartilhado -->
-    <div class="flex items-center gap-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0c1518] p-4 shadow-sm">
+    <div class="flex items-center gap-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0b1214] p-4 shadow-sm">
       <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#060b0d] text-lg text-slate-500">
         <i [class]="deviceIcon"></i>
       </div>
@@ -74,7 +74,7 @@
 
     <!-- Resultado: QR Code gerado -->
     <div *ngIf="qrDataUrl"
-      class="flex flex-col items-center gap-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0c1518] p-5 shadow-sm">
+      class="flex flex-col items-center gap-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0b1214] p-5 shadow-sm">
       <img [src]="qrDataUrl" alt="QR Code para acessar o dispositivo {{ device?.nome }}" class="h-56 w-56" />
       <p class="text-center text-xs text-slate-400">
         Peça para {{ emailControl.value || 'a pessoa' }} escanear este código com a câmera do celular.

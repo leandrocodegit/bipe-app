@@ -18,6 +18,16 @@
         <i
           [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
       </button>
+
+      @if (isLogin && unattendedCount > 0) {
+        <button type="button" class="layout-topbar-action relative" (click)="notifOp.toggle($event); buscarNaoAtendidas()">
+          <i class="pi pi-bell text-orange-600"></i>
+          <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm animate-pulse">
+            {{ unattendedCount }}
+          </span>
+        </button>
+      }
+
       <app-configurator />
       <div class="relative hidden lg:block">
         <button class="layout-topbar-action" (click)="op.toggle($event)">
@@ -36,6 +46,53 @@
   <p-popover #op>
     <ng-container *ngTemplateOutlet="barLogin" />
   </p-popover>
+
+  <p-popover #notifOp styleClass="popover-clean">
+    <div class="py-3 px-3 w-80 max-h-96 flex flex-col overflow-hidden bg-white dark:bg-[#0c1518]">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200/10 mb-2">
+        <span class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+          <i class="pi pi-bell text-rose-500"></i>
+          Alertas de Rotinas ({{ unattendedCount }})
+        </span>
+      </div>
+      <div class="overflow-y-auto flex-1 flex flex-col gap-2 pr-1">
+        @if (naoAtendidas.length) {
+          @for (item of naoAtendidas; track item.id) {
+            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060b0d] border border-slate-100 dark:border-white/5 hover:border-rose-400/50 transition-colors cursor-pointer"
+              (click)="abrirAlerta(item); notifOp.hide()">
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate m-0">
+                  {{ item.rotinaNome || 'Rotina Excluída' }}
+                </p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 m-0 truncate">
+                  Dispositivo: {{ item.deviceApelido }}
+                </p>
+                <p class="text-[9px] text-slate-400 dark:text-slate-600 m-0">
+                  Meta: {{ item.dataOriginal | date:'dd/MM/yyyy' }}
+                </p>
+              </div>
+              <button pButton type="button" icon="pi pi-check"
+                class="p-button-rounded p-button-text p-button-sm !h-7 !w-7 text-slate-400 hover:text-emerald-500 transition-colors shrink-0"
+                pTooltip="Marcar como lida" tooltipPosition="left"
+                (click)="marcarComoLida(item.id, $event)">
+              </button>
+            </div>
+          }
+        } @else {
+          <div class="flex flex-col items-center justify-center py-6 ">
+            <i class="pi pi-bell-slash text-2xl mb-1 text-orange-600"></i>
+            <p class="text-xs font-medium text-slate-400">Nenhum alerta pendente</p>
+          </div>
+        }
+      </div>
+    </div>
+  </p-popover>
+
+  <app-rotina-nao-atendida-detail
+    [(visible)]="mostrarAlertaDetalhe"
+    [alert]="alertaSelecionado"
+    (onMarkedAsRead)="buscarNaoAtendidas()">
+  </app-rotina-nao-atendida-detail>
 
   <ng-template #barLogin>
     <div class="py-4 px-2 w-full max-w-xs">

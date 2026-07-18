@@ -10,6 +10,9 @@ import { AuthService } from '@/core/auth/services/auth.service';
 import { PopoverModule } from 'primeng/popover';
 import { BrokerStatusComponent } from '@/shared/components/broker-status/broker-status.component';
 import { LayoutService } from '@/shared/services/layout.service';
+import { ButtonModule } from 'primeng/button';
+import { RotinaService } from '@/shared/services/rotina.service';
+import { RotinaNaoAtendidaDetailComponent } from '@/components/rotinas/rotina-nao-atendida-detail/rotina-nao-atendida-detail.component';
 
 @Component({
   selector: 'app-top-bar',
@@ -19,10 +22,11 @@ import { LayoutService } from '@/shared/services/layout.service';
     CommonModule,
     StyleClassModule,
     AppConfigurator,
-    RouterModule,
     SelectModule,
     PopoverModule,
-    BrokerStatusComponent
+    BrokerStatusComponent,
+    ButtonModule,
+    RotinaNaoAtendidaDetailComponent
   ],
   templateUrl: './top-bar.component.html'
 })
@@ -31,23 +35,58 @@ export class TopBarComponent implements OnInit {
   @Input() noToogle = false;
   protected items!: MenuItem[];
   protected isLogin = false;
+  protected unattendedCount = 0;
+  protected naoAtendidas: any[] = [];
+  protected mostrarAlertaDetalhe = false;
+  protected alertaSelecionado: any = null;
 
   constructor(
     public readonly layoutService: LayoutService,
     private readonly oauthService: OAuthService,
     private readonly authService: AuthService,
+    private readonly rotinaService: RotinaService
   ) {
     this.oauthService.events
       .pipe()
       .subscribe((e: any) => {
-        if (e.type == 'token_received' || e.type == 'token_refreshed')
+        if (e.type == 'token_received' || e.type == 'token_refreshed') {
           this.isLogin = oauthService.hasValidAccessToken() || authService.valid();
+          if (this.isLogin) this.buscarNaoAtendidas();
+        }
       });
   }
 
   ngOnInit(): void {
     this.isLogin = this.oauthService.hasValidAccessToken() || this.authService.valid();
+    if (this.isLogin) {
+      this.buscarNaoAtendidas();
+      setInterval(() => {
+        this.buscarNaoAtendidas();
+      }, 30000);
+    }
+  }
 
+  buscarNaoAtendidas() {
+    this.rotinaService.statusRotina().subscribe({
+      next: (res) => {
+        this.naoAtendidas = res?.naoAtendidas || [];
+        this.unattendedCount = this.naoAtendidas.length;
+      },
+      error: (err) => console.error('Erro ao buscar rotinas não atendidas:', err)
+    });
+  }
+
+  marcarComoLida(id: string, event: Event) {
+    event.stopPropagation();
+    this.rotinaService.marcarNaoAtendidaComoLida(id).subscribe({
+      next: () => this.buscarNaoAtendidas(),
+      error: (err) => console.error('Erro ao marcar não atendida como lida:', err)
+    });
+  }
+
+  abrirAlerta(alerta: any) {
+    this.alertaSelecionado = alerta;
+    this.mostrarAlertaDetalhe = true;
   }
 
   toggleDarkMode() {

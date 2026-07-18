@@ -32,6 +32,10 @@ export class RotinaService {
     return this.http.get<StatusRoutine>(`${environment.urlApi}/bipe/rotinas/status`);
   }
 
+  public getRotinaById(id: string): Observable<any> {
+    return this.http.get<any>(`${environment.urlApi}/bipe/rotinas/${id}`);
+  }
+
   public marcarAtendidaComoLida(id: string): Observable<any> {
     return this.http.patch<any>(`${environment.urlApi}/bipe/rotinas/status/atendidas/${id}/lida`, {});
   }

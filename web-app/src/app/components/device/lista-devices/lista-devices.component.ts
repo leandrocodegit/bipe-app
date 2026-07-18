@@ -15,6 +15,7 @@ import { DialogModule } from 'primeng/dialog';
 import { DeviceService } from '@/shared/services/device.service';
 import { AudioCallService } from '@/shared/services/audio-call.service';
 import { HistoricoRotinasComponent } from '@/components/rotinas/historico-rotinas/historico-rotinas.component';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-lista-devices',
@@ -30,6 +31,7 @@ import { HistoricoRotinasComponent } from '@/components/rotinas/historico-rotina
     SkeletonModule,
     DialogModule,
     ShareDeviceComponent,
+    CheckboxModule,
     HistoricoRotinasComponent
   ],
   templateUrl: './lista-devices.component.html',

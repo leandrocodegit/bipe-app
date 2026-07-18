@@ -43,7 +43,7 @@
     <!-- Lista de dispositivos -->
     <ul *ngIf="filteredDevices.length; else empty" class="flex flex-col gap-3">
       <li *ngFor="let device of filteredDevices; trackBy: trackByDevice"
-        class="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white dark:bg-[#0c1518] p-3 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md">
+        class="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white dark:bg-[#0b1214e6] p-3 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md">
         <!-- Ícone do dispositivo -->
         <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg" [ngClass]="{
           'bg-emerald-50 text-emerald-600 dark:bg-emerald-50/10': device.conectado,

@@ -1728,3 +1728,7 @@ p-togglebutton,
 .bg-transicoes .leaflet-control-attribution {
   bottom: 42px;
 }
+
+.app-dark .p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
+    background: rgb(21, 122, 148) !important;
+}

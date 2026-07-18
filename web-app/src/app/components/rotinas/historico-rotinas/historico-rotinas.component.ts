@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 import { TabsModule } from 'primeng/tabs';
 import { CommonModule } from '@angular/common';
+import { RotinaNaoAtendidaDetailComponent } from '../rotina-nao-atendida-detail/rotina-nao-atendida-detail.component';
 
 @Component({
   selector: 'app-historico-rotinas',
@@ -14,7 +15,8 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     TabsModule,
     DrawerModule,
-    ButtonModule
+    ButtonModule,
+    RotinaNaoAtendidaDetailComponent
   ],
   templateUrl: './historico-rotinas.component.html',
   styleUrl: './historico-rotinas.component.scss'
@@ -24,6 +26,8 @@ export class HistoricoRotinasComponent implements OnInit {
   protected tab = 'atendida';
   protected view = false;
   protected statusRotina?: StatusRoutine;
+  protected mostrarAlertaDetalhe = false;
+  protected alertaSelecionado: any = null;
 
   constructor(
     private readonly rotinaService: RotinaService,
@@ -61,6 +65,11 @@ export class HistoricoRotinasComponent implements OnInit {
       next: () => this.buscarHistorico(),
       error: (err) => console.error('Erro ao marcar não atendida como lida:', err)
     });
+  }
+
+  abrirAlerta(alerta: any): void {
+    this.alertaSelecionado = alerta;
+    this.mostrarAlertaDetalhe = true;
   }
 
 }

@@ -81,7 +81,8 @@
         <p-tabpanel value="naoAtendida">
           <div *ngIf="statusRotina?.naoAtendidas?.length; else emptyNaoAtendidas" class="flex flex-col gap-3 px-2">
             <div *ngFor="let item of statusRotina?.naoAtendidas"
-              class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-slate-100 bg-white dark:bg-neutral-950 dark:border-white/5 shadow-sm">
+              class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-slate-100 dark:border-white/5 hover:border-rose-400/50 transition-colors cursor-pointer shadow-sm"
+              (click)="abrirAlerta(item); view = false">
               <div class="min-w-0 flex-1">
                 <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-200 truncate">{{ item.rotinaNome ||
                   'Rotina Excluída' }}</h4>
@@ -120,3 +121,9 @@
     </p-tabs>
   </div>
 </p-drawer>
+
+<app-rotina-nao-atendida-detail
+  [(visible)]="mostrarAlertaDetalhe"
+  [alert]="alertaSelecionado"
+  (onMarkedAsRead)="buscarHistorico()">
+</app-rotina-nao-atendida-detail>
