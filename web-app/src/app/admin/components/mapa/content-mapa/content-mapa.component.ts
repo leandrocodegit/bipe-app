@@ -201,7 +201,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const marcadorRepresentativo = Leaflet.marker(latLng, {
         icon: iconeCentral,
-        interactive: false
+        interactive: false,
+        zIndexOffset: -500
       });
 
       marcadorRepresentativo.addTo(this.regioesLayer);
@@ -672,11 +673,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
       marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload.color, highlighted));
 
-
-
       if (this.monitoredCardTid === tid) {
+        marker.setZIndexOffset(99999);
         this.centerMonitoredCard(latLng.lat, latLng.lng);
         this.moveMarkerToMonitoredLayer(marker, tid);
+      } else {
+        marker.setZIndexOffset(100);
       }
     } else {
       this.criarMarcadorRastreamento(uniqueId, latLng, precisao, tid, iconName, user, deviceName, payload);
@@ -761,7 +763,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const icon = this.obterIconeLeaflet(iconName, tid, payload?.color, highlighted);
     const popupHtml = this.criarPopupOwnTracks(user, deviceName, payload, highlighted);
 
-    const marker = Leaflet.marker(latLng, { icon, zIndexOffset: highlighted ? 1000 : 0 })
+    const marker = Leaflet.marker(latLng, { icon, zIndexOffset: highlighted ? 99999 : 100 })
       .bindPopup(popupHtml, { className: 'owntracks-popup', maxWidth: 250 });
 
     marker.on('click', () => {
@@ -976,6 +978,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private moveMarkerToMonitoredLayer(marker: Leaflet.Marker, tid: string): void {
     if (!marker) return;
 
+    marker.setZIndexOffset(99999);
+
     if (this.posicoesClusterGroup?.hasLayer(marker)) {
       this.posicoesClusterGroup.removeLayer(marker);
     }
@@ -1001,6 +1005,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const marker = this.markers.get(markerId);
     if (!marker) return;
+
+    marker.setZIndexOffset(100);
 
     if (this.monitoredMarkerLayer?.hasLayer(marker)) {
       this.monitoredMarkerLayer.removeLayer(marker);

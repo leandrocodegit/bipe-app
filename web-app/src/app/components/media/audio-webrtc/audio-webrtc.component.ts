@@ -42,7 +42,9 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   private mqttCallSub?: Subscription;
 
   private durationTimer: any;
+  private callTimeoutTimer: any;
   private startTime: number = 0;
+  protected resposta?: string;
 
   private readonly configuration = {
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
@@ -157,10 +159,11 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   }
 
   private async initOutgoingCall(): Promise<void> {
-
-
     if (!this.callInfo) return;
     const callPublishTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/call`;
+
+    delete this.resposta;
+    this.startCallTimeout();
 
     this.mqttConnectionService.unsafePublish(
       callPublishTopic,
@@ -177,6 +180,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   }
 
   private stopCall(): void {
+    this.stopCallTimeout();
     this.stopDurationTimer();
     if (this.peerConnection) {
       this.peerConnection.close();
@@ -190,6 +194,28 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     }
   }
 
+  private startCallTimeout(): void {
+    this.stopCallTimeout();
+    this.callTimeoutTimer = setTimeout(() => {
+      if (this.callState === 'OUTGOING' || this.callState === 'RINGING') {
+        this.audioCallService.endCall();
+        this.resposta = 'Não houve resposta';
+        setTimeout(() => {
+          if (this.resposta === 'Não houve resposta') {
+            delete this.resposta;
+          }
+        }, 5000);
+      }
+    }, 15000);
+  }
+
+  private stopCallTimeout(): void {
+    if (this.callTimeoutTimer) {
+      clearTimeout(this.callTimeoutTimer);
+      this.callTimeoutTimer = null;
+    }
+  }
+
   private handleSignalingMessage(message: any): void {
     const payload = this.parseMqttPayload(message);
     if (!payload) return;
@@ -198,13 +224,8 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     if (payload._type === 'busy' || payload.subtype === 'busy') {
       if (this.callState === 'OUTGOING' || this.callState === 'RINGING') {
         this.audioCallService.endCall();
-        this.messageService.add({
-          severity: 'warn',
-          summary: 'Ocupado',
-          detail: 'O dispositivo já está em uma chamada no momento.',
-          life: 4000
-        });
-      }
+        this.resposta = 'O dispositivo já está em uma chamada no momento.';
+             }
       return;
     }
 
@@ -259,6 +280,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
 
     this.peerConnection.oniceconnectionstatechange = () => {
       if (this.peerConnection?.iceConnectionState === 'connected') {
+        this.stopCallTimeout();
         this.audioCallService.acceptCall();
         this.startDurationTimer();
       } else if (this.peerConnection?.iceConnectionState === 'disconnected' || this.peerConnection?.iceConnectionState === 'failed') {
