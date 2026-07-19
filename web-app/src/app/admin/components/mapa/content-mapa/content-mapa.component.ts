@@ -370,6 +370,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       {
         user: user,
         device: device,
+        format: 'geojson',
         limit: 20,
         noLoad: true
       }).subscribe({

@@ -16,6 +16,8 @@ import { DeviceService } from '@/shared/services/device.service';
 import { AudioCallService } from '@/shared/services/audio-call.service';
 import { HistoricoRotinasComponent } from '@/components/rotinas/historico-rotinas/historico-rotinas.component';
 import { CheckboxModule } from 'primeng/checkbox';
+import { FriendDetailComponent } from '@/shared/components/friend-detail/friend-detail.component';
+import { FriendPresence } from '@/shared/models/friends.model';
 
 @Component({
   selector: 'app-lista-devices',
@@ -32,7 +34,8 @@ import { CheckboxModule } from 'primeng/checkbox';
     DialogModule,
     ShareDeviceComponent,
     CheckboxModule,
-    HistoricoRotinasComponent
+    HistoricoRotinasComponent,
+    FriendDetailComponent
   ],
   templateUrl: './lista-devices.component.html',
   styleUrl: './lista-devices.component.scss'
@@ -50,6 +53,8 @@ export class ListaDevicesComponent {
   protected view = false;
   protected selected?: Device;
   protected apelido = '';
+  protected mostrarDetalhe = false;
+  protected deviceDetailToShow?: FriendPresence;
 
   constructor(
     private audioCallService: AudioCallService,
@@ -57,6 +62,25 @@ export class ListaDevicesComponent {
 
   chamar(device: Device){
     this.audioCallService.startOutgoingCall( device.id, device.username)
+  }
+
+  verDetalhes(device: Device): void {
+    this.deviceDetailToShow = {
+      id: device.id,
+      topic: `owntracks/${device.username}/${device.clientId}`,
+      card: {
+        _type: 'card',
+        qos: 0,
+        retained: false,
+        _id: device.id,
+        tid: device.clientId,
+        nickname: device.apelido || device.nome,
+        name: device.nome,
+        color: device.color || '#6366F1',
+        face: device.icon || 'cat'
+      }
+    };
+    this.mostrarDetalhe = true;
   }
 
   salvarApelido() {

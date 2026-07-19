@@ -105,7 +105,7 @@
     [resizable]="false"
     position="bottom"
     [showHeader]="false"
-    styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm sm:!rounded-3xl"
+    styleClass="!m-0 !w-full !max-w-none rounded-none sm:!max-w-sm"
     [breakpoints]="{ '640px': '100vw' }"
   >
     <div *ngIf="selected as waypoint" class="flex flex-col gap-4 px-2 pb-2 pt-3 mb-12">
@@ -121,7 +121,7 @@
           <i class="pi pi-map-marker"></i>
         </div>
         <div class="min-w-0 flex-1">
-          <p class="truncate text-lg font-semibold text-slate-900 dark:text-slate-200">{{ waypoint.desc }}</p>
+          <p class="truncate text-lg font-semibold text-slate-900 dark:text-slate-200 mb-1">{{ waypoint.desc }}</p>
           <p class="text-xs text-slate-400">Raio de {{ radiusLabel(waypoint) }}</p>
         </div>
       </div>

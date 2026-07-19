@@ -103,6 +103,7 @@ export class RotinaNaoAtendidaDetailComponent implements OnChanges {
       {
         user: device.username,
         device: device.id,
+        format: 'geojson',
         limit: 1,
         noLoad: true
       }).subscribe({

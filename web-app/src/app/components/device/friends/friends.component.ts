@@ -24,10 +24,11 @@ import { Subscription } from 'rxjs';
 import { FriendCard, FriendPresence, OwnTracksLocation, Region } from '@/shared/models/friends.model';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
-import { Transition, TransitionTimelineComponent } from '@/shared/components/transition-timeline/transition-timeline.component';
+import { Transition } from '@/shared/components/transition-timeline/transition-timeline.component';
 import { RecorderService } from '@/shared/services/recorder.service';
 import { AudioCallService } from '@/shared/services/audio-call.service';
 import { WaypointService } from '@/shared/services/waypoint.service';
+import { FriendDetailComponent } from '@/shared/components/friend-detail/friend-detail.component';
 
 
 @Component({
@@ -42,7 +43,7 @@ import { WaypointService } from '@/shared/services/waypoint.service';
     InputIconModule,
     InputTextModule,
     TooltipModule,
-    TransitionTimelineComponent
+    FriendDetailComponent
   ],
   templateUrl: './friends.component.html',
   styleUrls: ['./friends.component.scss'],
@@ -258,7 +259,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
     console.log(this.selectedFriend);
 
     const parts = this.selectedFriend.topic.split('/');
-    if (parts.length <= 3) return;
+    if (parts.length < 3) return;
 
     this.waypointService.getProximidade(parts[2]).subscribe({
       next: (data) => {

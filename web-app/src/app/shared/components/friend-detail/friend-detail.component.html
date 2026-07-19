@@ -1,0 +1,139 @@
+<div class="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+
+  <div class="flex items-center justify-between gap-3 py-2 px-3 border-b border-slate-100 dark:border-white/5">
+
+    <!-- Avatar e identificação alinhados na horizontal -->
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm"
+        [style.background]="friend.card.color + '22'" [style.border]="'1.5px solid ' + friend.card.color">
+        <img src="assets/drawable/{{friend.card.face}}.png" alt="" class="h-7 w-7 object-contain">
+      </div>
+
+      <div class="min-w-0">
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium leading-none mb-0.5">{{ friend.card.tid }}</p>
+        <p class="text-sm font-bold text-slate-900 dark:text-slate-200 truncate leading-tight">
+          {{ friend.card?.nickname ?? friend.card.tid }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Ações e Timeline agrupadas à direita -->
+    <div class="flex items-center gap-1.5 shrink-0">
+      <!-- Botão de Ligar (Call) -->
+      <button (click)="callFriend()"
+        class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors hover:bg-blue-200 active:scale-95 dark:bg-blue-950/40 dark:text-blue-400"
+        pTooltip="Escutar Áudio" tooltipPosition="top">
+        <i class="pi pi-phone text-sm"></i>
+      </button>
+
+      <!-- Botão de Monitorar (Play) compactado -->
+      <button (click)="monitorFriend()"
+        class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 transition-colors hover:bg-emerald-200 active:scale-95 dark:bg-emerald-950/40 dark:text-emerald-400"
+        pTooltip="Monitorar Mapa" tooltipPosition="top">
+        <i class="pi pi-map-marker text-sm"></i>
+      </button>
+
+      <!-- Componente de Timeline integrado na mesma linha -->
+      <app-transition-timeline [transitions]="minhaListaDeTransicoes" (onSelect)="listaTransicoes()" />
+
+      <!-- Botão de Fechar compacto -->
+      <button (click)="close()"
+        class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 active:scale-95 dark:bg-slate-800 dark:text-slate-400">
+        <i class="pi pi-times text-xs"></i>
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="friend.location; else semLocalizacao">
+    <!-- Bateria e movimento -->
+    <div class="grid grid-cols-2 gap-2">
+      <div class="flex flex-col items-center gap-0.5 rounded-2xl border border-slate-100 px-2 py-1 shadow-sm text-[11px]">
+        <div class="flex items-center gap-1">
+          <span class="material-symbols-outlined text-emerald-500 animate-pulse" *ngIf="battery()?.isCharging">
+            battery_android_frame_bolt
+          </span>
+          <span class="material-symbols-outlined" *ngIf="!battery()?.isCharging">
+            battery_android_4
+          </span>
+          <span class="font-semibold" [ngClass]="battery()?.colorClass">{{ battery()?.percent }}%</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center gap-0.5 rounded-2xl border border-slate-100 px-2 py-1 shadow-sm text-[11px]">
+        <ng-container *ngIf="motion() as m; else semMovimento">
+          <div class="flex items-center gap-1">
+            <span class="text-base">{{ m.emoji }}</span>
+            <span class="font-semibold text-slate-700">{{ m.label }}</span>
+          </div>
+        </ng-container>
+        <ng-template #semMovimento>
+          <div class="flex items-center gap-1">
+            <span class="text-base">❓</span>
+            <span class="text-slate-400 dark:text-slate-200">Sem dado</span>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <div class="mt-2.5 p-2 rounded-xl bg-slate-50 dark:bg-[#060b0d] border border-slate-100 dark:border-white/5">
+      <!-- Header do mini-card (Rótulo + Última atualização) -->
+      <div class="flex items-center justify-between gap-2 mb-1.5 px-0.5">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          📍 Localização Atual
+        </span>
+        <span class="text-[9px] font-medium text-slate-400 dark:text-slate-500 flex items-center gap-0.5">
+          {{ lastUpdate() }}
+        </span>
+      </div>
+
+      <!-- Lat/lon + endereço -->
+      <div class="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50 dark:bg-[#060b0d] px-2.5 py-2">
+        <div class="flex items-center justify-between gap-2 text-[11px]">
+          <p class="font-mono text-xs text-slate-600 dark:text-slate-200">
+            {{ friend.location.lat.toFixed(5) }}, {{ friend.location.lon.toFixed(5) }}
+          </p>
+          <span class="shrink-0 text-[10px] text-slate-400 dark:text-slate-200">{{ lastUpdate() }}</span>
+        </div>
+
+        <p *ngIf="hasAddress()" class="text-[11px] text-slate-700">
+          {{ addressText }}
+        </p>
+        <button *ngIf="!hasAddress()" pButton type="button" label="Buscar endereço" icon="pi pi-map-marker"
+          class="p-button-text p-button-sm self-start !px-0 !text-[11px]" (click)="requestAddress()"></button>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #semLocalizacao>
+    <div class="rounded-xl border border-dashed border-slate-200 px-2.5 py-3 text-center text-[11px] text-slate-400 dark:text-slate-200">
+      Ainda não recebemos a localização deste amigo.
+    </div>
+  </ng-template>
+
+  <!-- PROXIMIDADE DAS GEOCERCAS -->
+  <div class="mt-2.5 p-2 rounded-xl bg-slate-50 dark:bg-[#060b0d] border border-slate-100 dark:border-white/5 flex flex-col gap-2">
+    <div class="flex items-center justify-between gap-2 px-0.5">
+      <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+        🧭 Proximidade das Regiões
+      </span>
+    </div>
+
+    <div *ngIf="proximityWaypoints.length > 0; else semProximidades" class="flex flex-col gap-1.5 max-h-[{{maxHeight}}] overflow-y-auto pr-1">
+      <div *ngFor="let wp of proximityWaypoints" class="flex items-center justify-between text-xs py-1 border-b border-slate-100/50 dark:border-white/5 last:border-0">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span class="material-symbols-outlined text-[13px] text-teal-400 shrink-0">pin_drop</span>
+          <span class="font-semibold text-slate-700 dark:text-slate-300 truncate">{{ wp.desc }}</span>
+        </div>
+        <span class="font-bold text-slate-500 dark:text-slate-400 shrink-0">
+          {{ wp.distanciaMetros < 1000 ? (wp.distanciaMetros.toFixed(0) + ' m') : ((wp.distanciaMetros / 1000).toFixed(2) + ' km') }}
+        </span>
+      </div>
+    </div>
+    <ng-template #semProximidades>
+      <p class="text-[11px] text-slate-400 dark:text-slate-500 m-0">Nenhuma região monitorada ou localização disponível.</p>
+    </ng-template>
+  </div>
+
+  <!-- Espaço para não encostar os botões no fundo ao dar scroll -->
+  <div class="pb-16 lg:pb-0"></div>
+</div>

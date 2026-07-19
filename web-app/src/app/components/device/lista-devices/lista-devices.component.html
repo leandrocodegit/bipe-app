@@ -42,8 +42,8 @@
   <ng-template #content>
     <!-- Lista de dispositivos -->
     <ul *ngIf="filteredDevices.length; else empty" class="flex flex-col gap-3">
-      <li *ngFor="let device of filteredDevices; trackBy: trackByDevice"
-        class="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white dark:bg-[#0b1214e6] p-3 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md">
+      <li *ngFor="let device of filteredDevices; trackBy: trackByDevice" (click)="verDetalhes(device)"
+        class="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white dark:bg-[#0b1214e6] p-3 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md cursor-pointer">
         <!-- Ícone do dispositivo -->
         <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg" [ngClass]="{
           'bg-emerald-50 text-emerald-600 dark:bg-emerald-50/10': device.conectado,
@@ -68,7 +68,7 @@
         </div>
 
         <!-- Status + ações -->
-        <div *ngIf="!shareMode" class="flex shrink-0 items-center gap-1">
+        <div *ngIf="!shareMode" (click)="$event.stopPropagation()" class="flex shrink-0 items-center gap-1">
           <button pButton type="button" class="p-button-rounded p-button-text p-button-plain !h-11 !w-11"
             pTooltip="Ligar" tooltipPosition="top" (click)="chamar(device)">
             <span class="material-symbols-outlined text-[22px]">call</span>
@@ -119,5 +119,13 @@
       <button pButton type="button" label="Salvar" icon="pi pi-trash"
         class="p-button-outlined p-button-success flex-1 !rounded-xl" (click)="salvarApelido()"></button>
     </div>
+  </div>
+</p-dialog>
+
+<p-dialog [(visible)]="mostrarDetalhe" [modal]="true" [draggable]="false" [resizable]="false"
+  [showHeader]="false" styleClass="!m-0 p-0 !w-full !max-w-md !rounded-t-3xl sm:!max-w-lg sm:!rounded-3xl border border-slate-200/10 shadow-2xl bg-white dark:bg-[#0c1518]"
+  [dismissableMask]="true">
+  <div class="p-4" *ngIf="deviceDetailToShow">
+    <app-friend-detail [maxHeight]="'250px'" [friend]="deviceDetailToShow" [isModal]="true" (onClose)="mostrarDetalhe = false" />
   </div>
 </p-dialog>
