@@ -14,6 +14,7 @@ import { KeycloakUserProfileComponent } from './core/minha-conta/keycloak/keyclo
 import { KeycloakSessionsComponent } from './core/minha-conta/keycloak/keycloak-sessions/keycloak-sessions.component';
 import { PainelUsuarioLogadoComponent } from './core/minha-conta/painel-usuario-logado/painel-usuario-logado.component';
 import { PainelRouteBaseComponent } from './shared/components/painel-route-base/painel-route-base.component';
+import { RotinaNaoAtendidaDetailComponent } from './components/rotinas/rotina-nao-atendida-detail/rotina-nao-atendida-detail.component';
 
 const painelRoutes: Routes = [
 
@@ -23,6 +24,7 @@ const painelRoutes: Routes = [
       { path: 'mapa', component: PainelMapaComponent },
       { path: 'mapa/waypoint', component: PainelMapaComponent },
       { path: 'rotinas', component: RoutinesComponent },
+      { path: 'rotina/nao-atendida/:rotinaId/:deviceId', component: RotinaNaoAtendidaDetailComponent },
       { path: 'waypoint', component: WaypointListComponent },
       { path: 'devices', component: PainelDevicesComponent },
       { path: 'share/accept', component: AcceptShareComponent }

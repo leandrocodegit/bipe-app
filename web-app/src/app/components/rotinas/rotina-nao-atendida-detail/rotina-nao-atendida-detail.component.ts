@@ -1,9 +1,9 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { RotinaService } from '@/shared/services/rotina.service';
 import { DeviceService } from '@/shared/services/device.service';
@@ -24,13 +24,14 @@ import { FriendPresence } from '@/shared/models/friends.model';
   ],
   templateUrl: './rotina-nao-atendida-detail.component.html'
 })
-export class RotinaNaoAtendidaDetailComponent implements OnChanges {
+export class RotinaNaoAtendidaDetailComponent implements OnInit, OnChanges {
 
   @Input() visible = false;
   @Input() alert: any = null; // RotinaNaoAtendidaResponseDto
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() onMarkedAsRead = new EventEmitter<void>();
 
+  protected container = false;
   protected loading = false;
   protected routineDetails: any = null;
   protected deviceDetails: any = null;
@@ -45,8 +46,21 @@ export class RotinaNaoAtendidaDetailComponent implements OnChanges {
     private readonly audioCallService: AudioCallService,
     private readonly monitoredCardService: MonitoredCardService,
     private readonly waypointService: WaypointService,
+    private readonly activedRoute: ActivatedRoute,
     private readonly router: Router
   ) { }
+
+  ngOnInit(): void {
+    this.activedRoute.params.subscribe(param => {
+      console.log(param);
+
+      this.alert = { rotinaId: param['rotinaId'], deviceId: param['deviceId'] };
+      if (!this.alert?.rotinaId) return;
+      this.carregarDados();
+      this.container = true;
+
+    })
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible'] && this.visible && this.alert) {
@@ -59,7 +73,7 @@ export class RotinaNaoAtendidaDetailComponent implements OnChanges {
   }
 
   private carregarDados(): void {
-    if (!this.alert) return;
+    if (!this.alert?.rotinaId) return;
     this.loading = true;
 
     // 1. Buscar a configuração completa da rotina
