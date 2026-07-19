@@ -67,7 +67,7 @@ export class ListaDevicesComponent {
   verDetalhes(device: Device): void {
     this.deviceDetailToShow = {
       id: device.id,
-      topic: `owntracks/${device.username}/${device.clientId}`,
+      topic: `owntracks/${device.username}/${device.id}`,
       card: {
         _type: 'card',
         qos: 0,

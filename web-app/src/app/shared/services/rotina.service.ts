@@ -29,7 +29,7 @@ export class RotinaService {
   }
 
   public statusRotina(): Observable<StatusRoutine> {
-    return this.http.get<StatusRoutine>(`${environment.urlApi}/bipe/rotinas/status`);
+    return this.http.get<StatusRoutine>(`${environment.urlApi}/bipe/rotinas/status?noLoad=true`);
   }
 
   public getRotinaById(id: string): Observable<any> {

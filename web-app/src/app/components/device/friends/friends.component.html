@@ -90,6 +90,13 @@
   </div>
 
   <!-- Detalhe do amigo (Bottom Sheet mobile / Floating Panel desktop) -->
-  <app-friend-detail *ngIf="selectedFriend" [friend]="selectedFriend" (onClose)="closeDetails()" />
+  <div *ngIf="selectedFriend" class="pointer-events-auto relative w-full lg:w-[350px] shrink-0
+              border-t lg:border border-slate-200/50 dark:border-white/5
+              shadow-[0_-15px_30px_-5px_rgba(0,0,0,0.15)] lg:shadow-2xl
+              z-40 flex flex-col transition-transform duration-300
+              bg-white/95 dark:bg-[#0b1214]/90 backdrop-blur-xl mt-auto lg:m-0">
+    <div class="h-1 w-10 self-center rounded-full bg-slate-200 lg:hidden mt-3 mb-1"></div>
+    <app-friend-detail [friend]="selectedFriend" (onClose)="closeDetails()" />
+  </div>
 
 </div>

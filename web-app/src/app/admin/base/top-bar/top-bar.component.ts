@@ -60,8 +60,10 @@ export class TopBarComponent implements OnInit {
     this.isLogin = this.oauthService.hasValidAccessToken() || this.authService.valid();
     if (this.isLogin) {
       this.buscarNaoAtendidas();
-      setInterval(() => {
-        this.buscarNaoAtendidas();
+      const interval = setInterval(() => {
+        if (this.unattendedCount == 0)
+          this.buscarNaoAtendidas();
+        else clearInterval(interval)
       }, 30000);
     }
   }
