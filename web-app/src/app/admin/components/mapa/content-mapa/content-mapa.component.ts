@@ -366,29 +366,35 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.buscarPosicoesSubscription) {
       this.buscarPosicoesSubscription.unsubscribe();
     }
-    this.buscarPosicoesSubscription = this.recorderService.listaPosicoes(user, device, 20).subscribe({
-      next: (geoJsonData: any) => {
-        if (this.caminhosLayer) {
-          this.mapa.removeLayer(this.caminhosLayer);
-          delete this.caminhosLayer;
+    this.buscarPosicoesSubscription = this.recorderService.listaPosicoes(
+      {
+        user: user,
+        device: device,
+        limit: 20,
+        noLoad: true
+      }).subscribe({
+        next: (geoJsonData: any) => {
+          if (this.caminhosLayer) {
+            this.mapa.removeLayer(this.caminhosLayer);
+            delete this.caminhosLayer;
+          }
+
+          if (!geoJsonData || !geoJsonData.features || geoJsonData.features.length === 0) {
+            return;
+          }
+
+          const coordinates = geoJsonData.features.map((feature: any) => {
+            const [lng, lat] = feature.geometry.coordinates;
+            return [lat, lng]; // Inverte para o padrão de desenho de mapas [Latitude, Longitude]
+          });
+
+          const corLinha = color || '#3b82f6';
+          this.caminhosLayer = Leaflet.polyline(coordinates, { color: corLinha, weight: 5, opacity: 0.7 }).addTo(this.mapa);
+        },
+        error: (err) => {
+          console.error('Erro ao processar posições do Recorder:', err);
         }
-
-        if (!geoJsonData || !geoJsonData.features || geoJsonData.features.length === 0) {
-          return;
-        }
-
-        const coordinates = geoJsonData.features.map((feature: any) => {
-          const [lng, lat] = feature.geometry.coordinates;
-          return [lat, lng]; // Inverte para o padrão de desenho de mapas [Latitude, Longitude]
-        });
-
-        const corLinha = color || '#3b82f6';
-        this.caminhosLayer = Leaflet.polyline(coordinates, { color: corLinha, weight: 5, opacity: 0.7 }).addTo(this.mapa);
-      },
-      error: (err) => {
-        console.error('Erro ao processar posições do Recorder:', err);
-      }
-    });
+      });
   }
 
 

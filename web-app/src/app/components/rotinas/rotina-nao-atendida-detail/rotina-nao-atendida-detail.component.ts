@@ -10,6 +10,7 @@ import { DeviceService } from '@/shared/services/device.service';
 import { RecorderService } from '@/shared/services/recorder.service';
 import { AudioCallService } from '@/shared/services/audio-call.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
+import { WaypointService } from '@/shared/services/waypoint.service';
 import { FriendPresence } from '@/shared/models/friends.model';
 
 @Component({
@@ -35,6 +36,7 @@ export class RotinaNaoAtendidaDetailComponent implements OnChanges {
   protected deviceDetails: any = null;
   protected lastTransition: any = null;
   protected latestLocation: any = null;
+  protected closestWaypoints: any[] = [];
 
   constructor(
     private readonly rotinaService: RotinaService,
@@ -42,6 +44,7 @@ export class RotinaNaoAtendidaDetailComponent implements OnChanges {
     private readonly recorderService: RecorderService,
     private readonly audioCallService: AudioCallService,
     private readonly monitoredCardService: MonitoredCardService,
+    private readonly waypointService: WaypointService,
     private readonly router: Router
   ) { }
 
@@ -82,25 +85,42 @@ export class RotinaNaoAtendidaDetailComponent implements OnChanges {
         this.loading = false;
       }
     });
+
+    // 3. Buscar os 3 waypoints mais próximos do dispositivo
+    this.waypointService.getProximidade(this.alert.deviceId).subscribe({
+      next: (data) => {
+        this.closestWaypoints = data ? data.slice(0, 3) : [];
+      },
+      error: (err) => {
+        console.error('Erro ao buscar waypoints mais próximos:', err);
+        this.closestWaypoints = [];
+      }
+    });
   }
 
   private buscarUltimaLocalizacao(device: any): void {
-    this.recorderService.listaPosicoes(device.username, device.clientId, 1).subscribe({
-      next: (geojson) => {
-        if (geojson && geojson.features && geojson.features.length > 0) {
-          const feature = geojson.features[0];
-          this.latestLocation = {
-            lat: feature.geometry.coordinates[1],
-            lon: feature.geometry.coordinates[0],
-            battery: feature.properties?.batt,
-            timestamp: feature.properties?.tst ? new Date(feature.properties.tst * 1000) : null
-          };
-        } else {
-          this.latestLocation = null;
-        }
-      },
-      error: (err) => console.error('Erro ao obter última localização:', err)
-    });
+    this.recorderService.listaPosicoes(
+      {
+        user: device.username,
+        device: device.id,
+        limit: 1,
+        noLoad: true
+      }).subscribe({
+        next: (geojson) => {
+          if (geojson && geojson.features && geojson.features.length > 0) {
+            const feature = geojson.features[0];
+            this.latestLocation = {
+              lat: feature.geometry.coordinates[1],
+              lon: feature.geometry.coordinates[0],
+              battery: feature.properties?.batt,
+              timestamp: feature.properties?.tst ? new Date(feature.properties.tst * 1000) : null
+            };
+          } else {
+            this.latestLocation = null;
+          }
+        },
+        error: (err) => console.error('Erro ao obter última localização:', err)
+      });
   }
 
   private buscarUltimasTransicoes(device: any): void {

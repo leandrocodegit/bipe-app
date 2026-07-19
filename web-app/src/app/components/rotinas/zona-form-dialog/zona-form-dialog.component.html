@@ -1,7 +1,7 @@
 <p-dialog header="Nova Região de Controle" [(visible)]="visible" [modal]="true" [draggable]="false" [resizable]="false" appendTo="body"
-  (onHide)="fechar()"
-  styleClass="region-dialog !m-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none rounded-none sm:!m-4 sm:!h-auto sm:!max-h-[85vh] sm:!w-full sm:!max-w-lg sm:!rounded-2xl">
-  <div *ngIf="visible" class="flex flex-col gap-5 pb-2 pt-1 mt-4">
+  (onHide)="fechar()"  [style]="{'border-radius': '0'}"
+  styleClass="region-dialog !m-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none rounded-none sm:!m-4 sm:!h-auto sm:!max-h-[85vh] sm:!w-full sm:!max-w-lg">
+  <div *ngIf="visible" class="flex flex-col gap-5 pb-2 pt-1 mt-2">
     <!-- Nome e Raio -->
     <div class="flex gap-3">
       <div class="flex flex-1 flex-col gap-1">
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Dispositivos (MultiSelect) -->
-    <div class="overflow-hidden rounded-xl border border-slate-200">
+    <div class="overflow-y-auto rounded-xl border border-slate-200 max-h-96">
       <p-table [value]="filteredDevicesTable" [scrollable]="true" scrollHeight="280px" styleClass="device-picker-table">
         <ng-template pTemplate="header">
           <tr>

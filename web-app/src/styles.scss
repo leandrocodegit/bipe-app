@@ -1097,7 +1097,8 @@ iframe {
 }
 
 .app-dark .p-tab-active {
-  background: rgb(24,24,27) !important;
+  background: #0b1113 !important;
+  color: #2a9ec5 !important;
 }
 
 .p-select {
@@ -1635,6 +1636,10 @@ p-togglebutton,
 .p-0 .p-dialog-content {
   padding: 0 !important;
   border-radius: 7px;
+}
+
+.rounded-none .p-dialog, .rounded-none .p-dialog-content {
+  border-radius: 0 !important;
 }
 
 .p-password,

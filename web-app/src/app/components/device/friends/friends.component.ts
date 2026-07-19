@@ -27,6 +27,7 @@ import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 import { Transition, TransitionTimelineComponent } from '@/shared/components/transition-timeline/transition-timeline.component';
 import { RecorderService } from '@/shared/services/recorder.service';
 import { AudioCallService } from '@/shared/services/audio-call.service';
+import { WaypointService } from '@/shared/services/waypoint.service';
 
 
 @Component({
@@ -61,6 +62,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
   copied = false;
   loading = true;
   justArrivedIds = new Set<string>();
+  protected proximityWaypoints: any[] = [];
 
 
   private mqttSubscription?: Subscription;
@@ -80,7 +82,8 @@ export class FriendsComponent implements OnInit, OnDestroy {
     private readonly monitoredCardService: MonitoredCardService,
     private readonly recorderService: RecorderService,
     private readonly router: Router,
-    private readonly audioCallService: AudioCallService
+    private readonly audioCallService: AudioCallService,
+    private readonly waypointService: WaypointService
   ) {
 
   }
@@ -246,6 +249,26 @@ export class FriendsComponent implements OnInit, OnDestroy {
     sessionStorage.setItem('rastreador_selected_friend_id', friend.id);
     this.monitoredCardService.monitorCard(friend);
     this.friendSelected.emit(friend);
+    this.carregarProximidades();
+  }
+
+  protected carregarProximidades(): void {
+    this.proximityWaypoints = [];
+    if (!this.selectedFriend) return;
+    console.log(this.selectedFriend);
+
+    const parts = this.selectedFriend.topic.split('/');
+    if (parts.length <= 3) return;
+
+    this.waypointService.getProximidade(parts[2]).subscribe({
+      next: (data) => {
+        this.proximityWaypoints = data || [];
+      },
+      error: (err) => {
+        console.error('Erro ao buscar proximidades:', err);
+        this.proximityWaypoints = [];
+      }
+    });
   }
 
   monitorFriend(friend: FriendPresence): void {
@@ -314,7 +337,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
     };
     this.presenceByTid.set(card.tid, presence);
     this.tidByTopic.set(topic, card.tid);
-  //  this.rebuildFriends();
+    //  this.rebuildFriends();
 
     if (isNewTid && !this.isInitialBurst) {
       this.markAsJustArrived(presence.id);
@@ -336,6 +359,9 @@ export class FriendsComponent implements OnInit, OnDestroy {
       }
       this.presenceByTid.set(location.tid, { ...existing, location });
       this.rebuildFriends();
+      if (this.selectedFriend?.id === location.tid) {
+        this.carregarProximidades();
+      }
       return;
     }
 
@@ -389,6 +415,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
           this.selectedFriend = found;
           this.monitoredCardService.monitorCard(found);
           this.friendSelected.emit(found);
+          this.carregarProximidades();
         }
       }
     }

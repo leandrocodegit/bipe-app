@@ -24,4 +24,8 @@ export class WaypointService {
     return this.http.delete<any>(`${environment.urlApi}/bipe/waypoints/${id}`);
   }
 
+  public getProximidade(deviceId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.urlApi}/bipe/waypoints/proximidade/${deviceId}`);
+  }
+
 }

@@ -5,13 +5,14 @@ import { environment } from 'src/environments/environment';
 import { trasnformParams } from '../models/OpcoesFiltro';
 
 
-export interface FiltroTransicao {
+export interface FiltroGps {
   user?: string;
   device: string;
   format?: 'json' | 'geojson';
   group?: boolean;
   lastDay?: boolean;
   limit?: number;
+  noLoad?: boolean
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,11 +23,11 @@ export class RecorderService {
   ) { }
 
 
-  public listaPosicoes(user: string, device: string, limit: number = 20): Observable<any> {
-    return this.http.get<any>(`${environment.urlApi}/bipe/devices/locations?user=${user}&device=${device}&format=geojson&limit=${limit}&noLoad=true`);
+  public listaPosicoes(filtro: FiltroGps): Observable<any> {
+    return this.http.get<any>(`${environment.urlApi}/bipe/devices/locations?${trasnformParams(filtro)}`);
   }
 
-  public listaTransicoes(filtro: FiltroTransicao): Observable<any> {
+  public listaTransicoes(filtro: FiltroGps): Observable<any> {
     let url = `${environment.urlApi}/bipe/devices/transitions?${trasnformParams(filtro)}`;
     return this.http.get<any>(url);
   }
