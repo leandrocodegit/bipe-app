@@ -33,7 +33,7 @@
 
     <!-- Grade de amigos -->
     <ul *ngIf="filteredFriends.length; else empty"
-      class="grid grid-cols-3 gap-4 xs:grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      class="grid grid-cols-3 gap-4 xs:grid-cols-3 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5">
       <li *ngFor="let friend of filteredFriends; let i = index; trackBy: trackByFriend"
         class="friend-pop flex flex-col items-center gap-1.5" [style.animation-delay]="entranceDelay(i)">
         <button type="button"
@@ -52,12 +52,12 @@
 
           <!-- Indicador de região cadastrada -->
           <span *ngIf="regionDotColor(friend) as regionColor"
-            class="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 rounded-full border-2 border-white shadow"
-            [style.background]="regionColor" [pTooltip]="regionsOf(friend).join(', ')" tooltipPosition="bottom"></span>
+            class="absolute -bottom-0.5 -left-0.5 h-5 w-5 rounded-full border-2 border-white shadow"
+            [style.background]="friend.card.color + '22'" [pTooltip]="regionsOf(friend).join(', ')" tooltipPosition="bottom"></span>
 
           <!-- Indicador de bateria baixa -->
           <span *ngIf="battery(friend) as batt"
-            class="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white text-[9px] shadow">
+            class="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white text-[9px] shadow">
             <i class="pi"
               [ngClass]="batt.isCharging ? 'pi-bolt text-emerald-500' : (batt.level === 'critical' ? 'pi-circle-fill text-red-500' : 'pi-circle-fill text-transparent')"></i>
           </span>
