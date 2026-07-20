@@ -483,7 +483,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         cursor: 'pointer',
         border: 'none',
         marginTop: '10px',
-        width: '40px'
+        width: '35px'
       });
 
       el.onclick = () => {
@@ -518,7 +518,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         cursor: 'pointer',
         border: 'none',
         marginTop: '8px',
-        width: '41px'
+        width: '36px'
       });
 
       el.onclick = () => {
@@ -552,7 +552,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         cursor: 'pointer',
         border: 'none',
         marginTop: '10px',
-        width: '37px'
+        width: '32px'
       });
 
       el.onclick = () => {

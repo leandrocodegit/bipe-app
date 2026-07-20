@@ -52,12 +52,12 @@
 
           <!-- Indicador de região cadastrada -->
           <span *ngIf="regionDotColor(friend) as regionColor"
-            class="absolute -bottom-0.5 -left-0.5 h-5 w-5 rounded-full border-2 border-white shadow"
+            class="absolute -bottom-0.5 -left-0.5 h-5 w-5 rounded-full shadow"
             [style.background]="friend.card.color + '22'" [pTooltip]="regionsOf(friend).join(', ')" tooltipPosition="bottom"></span>
 
           <!-- Indicador de bateria baixa -->
           <span *ngIf="battery(friend) as batt"
-            class="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white text-[9px] shadow">
+            class="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full text-[9px] shadow">
             <i class="pi"
               [ngClass]="batt.isCharging ? 'pi-bolt text-emerald-500' : (batt.level === 'critical' ? 'pi-circle-fill text-red-500' : 'pi-circle-fill text-transparent')"></i>
           </span>

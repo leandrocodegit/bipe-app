@@ -13,6 +13,7 @@ import { LayoutService } from '@/shared/services/layout.service';
 import { ButtonModule } from 'primeng/button';
 import { RotinaService } from '@/shared/services/rotina.service';
 import { RotinaNaoAtendidaDetailComponent } from '@/components/rotinas/rotina-nao-atendida-detail/rotina-nao-atendida-detail.component';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 @Component({
   selector: 'app-top-bar',
@@ -26,6 +27,7 @@ import { RotinaNaoAtendidaDetailComponent } from '@/components/rotinas/rotina-na
     PopoverModule,
     BrokerStatusComponent,
     ButtonModule,
+    ProgressBarModule,
     RotinaNaoAtendidaDetailComponent
   ],
   templateUrl: './top-bar.component.html'

@@ -1,5 +1,6 @@
- 
 @if(load) {
-<app-preload [text]="'Carregando mapa'"/>
+<div class="flex justify-center items-center w-full h-full">
+    <p-progress-spinner ariaLabel="loading" />
+</div>
 }
-<app-content-mapa *ngIf="tabSelect == 0"></app-content-mapa> 
+<app-content-mapa *ngIf="tabSelect == 0"></app-content-mapa>

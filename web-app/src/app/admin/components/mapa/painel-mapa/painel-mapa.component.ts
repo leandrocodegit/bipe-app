@@ -4,9 +4,7 @@ import { ContentMapaComponent } from '../content-mapa/content-mapa.component';
 import { NgIf } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { PreloadComponent } from '@/shared/components/preload/preload.component';
-import { MqttAppModule } from '@/mqtt-app.module';
-
+ 
 
 @Component({
   selector: 'app-painel-mapa',
@@ -16,8 +14,7 @@ import { MqttAppModule } from '@/mqtt-app.module';
     ContentMapaComponent,
     MatProgressSpinnerModule,
     NgIf,
-    ProgressSpinnerModule,
-    PreloadComponent
+    ProgressSpinnerModule
   ],
   templateUrl: './painel-mapa.component.html',
   styleUrl: './painel-mapa.component.scss'

@@ -6,7 +6,7 @@
       <i class="pi pi-bars"></i>
     </button>
     }
-     <a class="layout-topbar-logo">
+    <a class="layout-topbar-logo">
       BIPE
     </a>
   </div>
@@ -20,12 +20,14 @@
       </button>
 
       @if (isLogin && unattendedCount > 0) {
-        <button type="button" class="layout-topbar-action relative" (click)="notifOp.toggle($event); buscarNaoAtendidas()">
-          <i class="pi pi-bell text-orange-600 animate-pulse"></i>
-          <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm animate-pulse">
-            {{ unattendedCount }}
-          </span>
-        </button>
+      <button type="button" class="layout-topbar-action relative"
+        (click)="notifOp.toggle($event); buscarNaoAtendidas()">
+        <i class="pi pi-bell text-orange-600 animate-pulse"></i>
+        <span
+          class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm animate-pulse">
+          {{ unattendedCount }}
+        </span>
+      </button>
       }
 
       <app-configurator />
@@ -43,85 +45,85 @@
       <i class="pi pi-ellipsis-v"></i>
     </button>
   </div>
-  <p-popover #op>
-    <ng-container *ngTemplateOutlet="barLogin" />
-  </p-popover>
-
-  <p-popover #notifOp styleClass="popover-clean">
-    <div class="py-3 px-3 w-80 max-h-96 flex flex-col overflow-hidden bg-white dark:bg-[#0c1518]">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-200/10 mb-2">
-        <span class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
-          <i class="pi pi-bell text-rose-500"></i>
-          Alertas de Rotinas ({{ unattendedCount }})
-        </span>
-      </div>
-      <div class="overflow-y-auto flex-1 flex flex-col gap-2 pr-1">
-        @if (naoAtendidas.length) {
-          @for (item of naoAtendidas; track item.id) {
-            <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060b0d] border border-slate-100 dark:border-white/5 hover:border-rose-400/50 transition-colors cursor-pointer"
-              (click)="abrirAlerta(item); notifOp.hide()">
-              <div class="min-w-0 flex-1">
-                <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate m-0">
-                  {{ item.rotinaNome || 'Rotina Excluída' }}
-                </p>
-                <p class="text-[10px] text-slate-500 dark:text-slate-400 m-0 truncate">
-                  Dispositivo: {{ item.deviceApelido }}
-                </p>
-                <p class="text-[9px] text-slate-400 dark:text-slate-600 m-0">
-                  Meta: {{ item.dataOriginal | date:'dd/MM/yyyy' }}
-                </p>
-              </div>
-              <button pButton type="button" icon="pi pi-check"
-                class="p-button-rounded p-button-text p-button-sm !h-7 !w-7 text-slate-400 hover:text-emerald-500 transition-colors shrink-0"
-                pTooltip="Marcar como lida" tooltipPosition="left"
-                (click)="marcarComoLida(item.id, $event)">
-              </button>
-            </div>
-          }
-        } @else {
-          <div class="flex flex-col items-center justify-center py-6 ">
-            <i class="pi pi-bell-slash text-2xl mb-1 text-orange-600"></i>
-            <p class="text-xs font-medium text-slate-400">Nenhum alerta pendente</p>
-          </div>
-        }
-      </div>
-    </div>
-  </p-popover>
-
-  <app-rotina-nao-atendida-detail
-    [(visible)]="mostrarAlertaDetalhe"
-    [alert]="alertaSelecionado"
+  <app-rotina-nao-atendida-detail [(visible)]="mostrarAlertaDetalhe" [alert]="alertaSelecionado"
     (onMarkedAsRead)="buscarNaoAtendidas()">
   </app-rotina-nao-atendida-detail>
+  <p-progressbar mode="indeterminate" [style]="{ height: '6px' }" />
+</div>
 
-  <ng-template #barLogin>
-    <div class="py-4 px-2 w-full max-w-xs">
-      <ul class="list-none p-0 m-0 flex flex-col gap-1">
-        @if (!isLogin) {
-        <li>
-          <button (click)="login()" type="button"
-            class="flex items-center w-full p-3 rounded-md text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors duration-200">
-            <i class="pi pi-sign-in text-lg mr-3"></i>
-            <span class="font-medium">Login</span>
-          </button>
-        </li>
-        } @else {
-        <li>
-          <a routerLink="/conta"
-            class="flex items-center w-full p-3 rounded-md text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors duration-200 no-underline">
-            <i class="pi pi-user-edit text-lg mr-3 text-primary-500"></i>
-            <span class="font-medium">Meu Perfil</span>
-          </a>
-        </li>
-        <li class="border-t border-surface-200 dark:border-surface-700 my-2"></li>
-        <li>
-          <button (click)="logout()" type="button"
-            class="flex items-center w-full p-3 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200">
-            <i class="pi pi-sign-out text-lg mr-3"></i>
-            <span class="font-medium">Sair</span>
-          </button>
-        </li>
-        }
-      </ul>
+<ng-template #barLogin>
+  <div class="py-4 px-2 w-full max-w-xs">
+    <ul class="list-none p-0 m-0 flex flex-col gap-1">
+      @if (!isLogin) {
+      <li>
+        <button (click)="login()" type="button"
+          class="flex items-center w-full p-3 rounded-md text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors duration-200">
+          <i class="pi pi-sign-in text-lg mr-3"></i>
+          <span class="font-medium">Login</span>
+        </button>
+      </li>
+      } @else {
+      <li>
+        <a routerLink="/conta"
+          class="flex items-center w-full p-3 rounded-md text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors duration-200 no-underline">
+          <i class="pi pi-user-edit text-lg mr-3 text-primary-500"></i>
+          <span class="font-medium">Meu Perfil</span>
+        </a>
+      </li>
+      <li class="border-t border-surface-200 dark:border-surface-700 my-2"></li>
+      <li>
+        <button (click)="logout()" type="button"
+          class="flex items-center w-full p-3 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200">
+          <i class="pi pi-sign-out text-lg mr-3"></i>
+          <span class="font-medium">Sair</span>
+        </button>
+      </li>
+      }
+    </ul>
+  </div>
+</ng-template>
+
+<p-popover #op>
+  <ng-container *ngTemplateOutlet="barLogin" />
+</p-popover>
+
+<p-popover #notifOp styleClass="popover-clean">
+  <div class="py-3 px-3 w-80 max-h-96 flex flex-col overflow-hidden bg-white dark:bg-[#0c1518]">
+    <div class="flex items-center justify-between pb-2 border-b border-slate-200/10 mb-2">
+      <span class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+        <i class="pi pi-bell text-rose-500"></i>
+        Alertas de Rotinas ({{ unattendedCount }})
+      </span>
     </div>
-  </ng-template>
+    <div class="overflow-y-auto flex-1 flex flex-col gap-2 pr-1">
+      @if (naoAtendidas.length) {
+      @for (item of naoAtendidas; track item.id) {
+      <div
+        class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060b0d] border border-slate-100 dark:border-white/5 hover:border-rose-400/50 transition-colors cursor-pointer"
+        (click)="abrirAlerta(item); notifOp.hide()">
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate m-0">
+            {{ item.rotinaNome || 'Rotina Excluída' }}
+          </p>
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 m-0 truncate">
+            Dispositivo: {{ item.deviceApelido }}
+          </p>
+          <p class="text-[9px] text-slate-400 dark:text-slate-600 m-0">
+            Meta: {{ item.dataOriginal | date:'dd/MM/yyyy' }}
+          </p>
+        </div>
+        <button pButton type="button" icon="pi pi-check"
+          class="p-button-rounded p-button-text p-button-sm !h-7 !w-7 text-slate-400 hover:text-emerald-500 transition-colors shrink-0"
+          pTooltip="Marcar como lida" tooltipPosition="left" (click)="marcarComoLida(item.id, $event)">
+        </button>
+      </div>
+      }
+      } @else {
+      <div class="flex flex-col items-center justify-center py-6 ">
+        <i class="pi pi-bell-slash text-2xl mb-1 text-orange-600"></i>
+        <p class="text-xs font-medium text-slate-400">Nenhum alerta pendente</p>
+      </div>
+      }
+    </div>
+  </div>
+</p-popover>
