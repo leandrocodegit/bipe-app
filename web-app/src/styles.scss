@@ -6,12 +6,15 @@
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px) !important;
 }
+
 .pt-safe {
   padding-top: env(safe-area-inset-top, 0px) !important;
 }
+
 .pl-safe {
   padding-left: env(safe-area-inset-left, 0px) !important;
 }
+
 .pr-safe {
   padding-right: env(safe-area-inset-right, 0px) !important;
 }
@@ -1638,7 +1641,8 @@ p-togglebutton,
   border-radius: 7px;
 }
 
-.rounded-none .p-dialog, .rounded-none .p-dialog-content {
+.rounded-none .p-dialog,
+.rounded-none .p-dialog-content {
   border-radius: 0 !important;
 }
 
@@ -1734,16 +1738,21 @@ p-togglebutton,
   bottom: 42px;
 }
 
+.leaflet-control-attribution {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
 .app-dark .p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
-    background: rgb(21, 122, 148) !important;
+  background: rgb(21, 122, 148) !important;
 }
 
-.p-progressbar-value { 
-    background: #84fdcb !important;
+.p-progressbar-value {
+  background: #84fdcb !important;
 }
 
-.p-progressbar { 
-    background: transparent !important;
+.p-progressbar {
+  background: transparent !important;
 }
 
 .p-speeddial .p-button {
