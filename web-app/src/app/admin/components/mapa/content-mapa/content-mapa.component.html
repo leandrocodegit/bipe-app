@@ -2,7 +2,7 @@
   <app-monitored-card />
 
 
-  <div *ngIf="getFriends().length" class="z-[1001]">
+  <div class="z-[1001]">
     <p-speeddial [model]="getFriends()" [radius]="120" [style]="{ position: 'absolute', left: '10px', bottom: '10px' }" classStyle="bg-color">
       <ng-template let-friend pTemplate="item">
         <button type="button" (click)="friend.onClick()"
