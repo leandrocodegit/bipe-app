@@ -18,6 +18,10 @@ import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 import { environment } from 'src/environments/environment';
 import { MonitoredCardComponent } from '@/shared/components/monitored-card/monitored-card.component';
+import { SpeedDialModule } from 'primeng/speeddial';
+import { OwnTracksLocation } from '@/shared/models/friends.model';
+
+
 
 @Component({
   selector: 'app-content-mapa',
@@ -27,6 +31,7 @@ import { MonitoredCardComponent } from '@/shared/components/monitored-card/monit
     RouterModule,
     WaypointFormDialogComponent,
     CarouselModule,
+    SpeedDialModule,
     MonitoredCardComponent
   ],
   templateUrl: './content-mapa.component.html',
@@ -48,6 +53,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   // Controladores de estado do Leaflet
   private markers: Map<string, Leaflet.Marker> = new Map();
   private circles: Map<string, Leaflet.Circle> = new Map();
+  private friends: Map<string, OwnTracksLocation> = new Map();
   private mapa: any;
   private mqttSubscription?: Subscription;
   private mqttSharedSubscription?: Subscription;
@@ -68,7 +74,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private aliadeSmooth!: Leaflet.TileLayer;
   private aliadeSmoothDark!: Leaflet.TileLayer;
   private tileType: 'GOOGLE' | 'SATELITE' | 'NONE' = 'NONE';
-  private markerTidIndex = new Map<string, string>(); // tid -> uniqueId
+  private markerTidIndex = new Map<string, string>();
+
 
   // Guarda os dados brutos para recriar o FriendPresence ao clicar em "Monitorar" no popup
   private markerData = new Map<string, { user: string; deviceName: string; payload: any; tid: string }>();
@@ -646,6 +653,23 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  getFriends(): any {
+
+    return Array.from(this.friends.values()).map(friend => {
+
+      return {
+        color: friend.color,
+        image: friend.icon,
+        tid: friend.tid,
+        uniqueId: friend.uniqueId,
+        onClick: () => {
+          if (friend.uniqueId)
+            this.monitorFromPopup(friend.uniqueId)
+        }
+      }
+    })
+  }
+
   private processarEventoLocalizacao(topic: string, payload: any): void {
     if (!this.mapa) return;
 
@@ -660,6 +684,14 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    console.log(payload);
+
+
+    this.friends.set(payload.tid, { ...payload, uniqueId: uniqueId });
+
+    console.log(this.friends.values());
+
+
     const tid = payload.tid || deviceName.substring(0, 2).toUpperCase();
     this.markerTidIndex.set(tid, uniqueId);
     this.markerData.set(uniqueId, { user, deviceName, payload, tid });
@@ -667,6 +699,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const latLng = { lat: payload.lat, lng: payload.lon };
     const precisao = payload.acc || 10;
     const iconName = payload.icon;
+
+
 
     if (this.markers.has(uniqueId)) {
       const marker = this.markers.get(uniqueId)!;

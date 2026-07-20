@@ -32,6 +32,9 @@ export interface OwnTracksLocation {
   /** IDs das regiões do OwnTracks em que o dispositivo está. */
   inrids?: string[];
   apelido?: string;
+  icon?: string;
+  color?: string;
+  uniqueId?: string;
   /**
    * ⚠️ Suposição: `motionactivities` NÃO é um campo padrão do payload de localização do OwnTracks.
    * Assumimos esse formato (lista de atividades com confiança de 0-100, no padrão da
