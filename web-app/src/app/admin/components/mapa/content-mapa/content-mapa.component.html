@@ -3,7 +3,8 @@
 
 
   <div class="z-[1001]">
-    <p-speeddial [model]="getFriends()" [radius]="120" [style]="{ position: 'absolute', left: '10px', bottom: '10px' }" classStyle="bg-color">
+    <p-speeddial [model]="getFriends()" showIcon="pi pi-microchip" hideIcon="pi pi-times" [radius]="120" [style]="{ position: 'absolute', left: '10px', bottom: '10px' }" classStyle="bg-color">
+    
       <ng-template let-friend pTemplate="item">
         <button type="button" (click)="friend.onClick()"
           class="friend-bubble relative flex h-[30px] w-[30px] items-center justify-center rounded-full text-3xl shadow-sm transition-transform active:scale-90 sm:hover:-translate-y-0.5 sm:hover:shadow-md"
