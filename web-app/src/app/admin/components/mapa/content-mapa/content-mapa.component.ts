@@ -653,6 +653,13 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const user = partesTopico[1] || 'Desconhecido';
     const deviceName = partesTopico[2] || 'Dispositivo';
     const uniqueId = `${user}-${deviceName}`;
+
+    // Se o dispositivo estiver em modo ROTINA ou RESTRITO (modo 2 ou 3), removemos/não mostramos o marcador
+    if (payload.opMode === 2 || payload.opMode === 3) {
+      this.removerMarcadorDispositivo(uniqueId);
+      return;
+    }
+
     const tid = payload.tid || deviceName.substring(0, 2).toUpperCase();
     this.markerTidIndex.set(tid, uniqueId);
     this.markerData.set(uniqueId, { user, deviceName, payload, tid });
@@ -1019,6 +1026,25 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     const markerInfo = this.markerData.get(markerId);
     const payload = markerInfo?.payload;
     marker.setIcon(this.obterIconeLeaflet(payload?.icon, tid, payload?.color, false));
+  }
+
+  private removerMarcadorDispositivo(uniqueId: string): void {
+    const marker = this.markers.get(uniqueId);
+    const circle = this.circles.get(uniqueId);
+    if (marker) {
+      if (this.posicoesClusterGroup?.hasLayer(marker)) {
+        this.posicoesClusterGroup.removeLayer(marker);
+      }
+      if (this.monitoredMarkerLayer?.hasLayer(marker)) {
+        this.monitoredMarkerLayer.removeLayer(marker);
+      }
+      this.mapa.removeLayer(marker);
+      this.markers.delete(uniqueId);
+    }
+    if (circle) {
+      this.mapa.removeLayer(circle);
+      this.circles.delete(uniqueId);
+    }
   }
 
   limpar(): void {

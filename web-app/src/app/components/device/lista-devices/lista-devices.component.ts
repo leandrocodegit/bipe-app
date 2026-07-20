@@ -55,6 +55,9 @@ export class ListaDevicesComponent {
   protected apelido = '';
   protected mostrarDetalhe = false;
   protected deviceDetailToShow?: FriendPresence;
+  protected mostrarPermissoes = false;
+  protected selectedDeviceForPerms?: Device;
+  protected selectedOpMode: number = 1;
 
   constructor(
     private audioCallService: AudioCallService,
@@ -99,6 +102,25 @@ export class ListaDevicesComponent {
   editApelido(device: Device) {
     this.view = true;
     this.selected = device;
+  }
+
+  abrirPermissoes(device: Device): void {
+    this.selectedDeviceForPerms = device;
+    this.selectedOpMode = device.opMode || 1;
+    this.mostrarPermissoes = true;
+  }
+
+  salvarPermissoes(): void {
+    if (!this.selectedDeviceForPerms) return;
+    this.deviceService.updateOpMode(this.selectedDeviceForPerms.id, this.selectedOpMode).subscribe({
+      next: () => {
+        this.selectedDeviceForPerms!.opMode = this.selectedOpMode;
+        this.mostrarPermissoes = false;
+        delete this.selectedDeviceForPerms;
+        this.refresh.emit();
+      },
+      error: (err) => console.error('Erro ao atualizar permissões do dispositivo:', err)
+    });
   }
 
   get filteredDevices(): Device[] {

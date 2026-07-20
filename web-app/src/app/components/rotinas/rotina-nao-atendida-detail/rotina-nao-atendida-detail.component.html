@@ -184,7 +184,7 @@
           class="p-button-outlined flex-1 !rounded-xl" (click)="verNoMapa()">
         </button>
         <!-- Ligar -->
-        <button pButton type="button" label="Ligar" icon="pi pi-phone"
+        <button *ngIf="deviceDetails?.opMode !== 3" pButton type="button" label="Ligar" icon="pi pi-phone"
           class="p-button-outlined p-button-danger flex-1 !rounded-xl" (click)="chamar()">
         </button>
       </div>

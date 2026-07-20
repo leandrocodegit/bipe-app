@@ -122,9 +122,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
         const jsonString = new TextDecoder().decode(message.payload);
         const payload = JSON.parse(jsonString);
 
-        if (payload._type === 'card') {
-          this.upsertCard(payload as FriendCard, message.topic);
-        } else if (payload._type === 'location') {
+        if (payload._type === 'location') {
           this.upsertLocation(payload as OwnTracksLocation, message.topic);
         } else if (payload._type === 'lwt') {
           this.removeByTopic(message.topic);
@@ -317,70 +315,53 @@ export class FriendsComponent implements OnInit, OnDestroy {
     this.refresh.emit();
   }
 
-  private upsertCard(card: FriendCard, topic: string): void {
-    if (this.currentUserId && card.name === this.currentUserId) {
-      return;
-    }
-    if (!card.tid) {
-      console.warn('Card recebido sem "tid", ignorando (não há como cruzar com a localização):', card);
-      return;
-    }
-
-    const isNewTid = !this.presenceByTid.has(card.tid);
-    const existing = this.presenceByTid.get(card.tid);
-
-    const presence: FriendPresence = {
-      id: card.tid,
-      topic,
-      card,
-      location: existing?.location,
-      address: existing?.address ?? null,
-    };
-    this.presenceByTid.set(card.tid, presence);
-    this.tidByTopic.set(topic, card.tid);
-    //  this.rebuildFriends();
-
-    if (isNewTid && !this.isInitialBurst) {
-      this.markAsJustArrived(presence.id);
-    }
-  }
-
   private upsertLocation(location: OwnTracksLocation, topic: string): void {
     if (!location.tid) {
-      console.warn('Location recebida sem "tid", ignorando (não há como cruzar com o card):', location);
+      console.warn('Location recebida sem "tid", ignorando:', location);
       return;
     }
 
+    const parts = topic.split('/');
+    const userFromTopic = parts[1] || location.userName || location.tid;
+
+    if (this.currentUserId && (userFromTopic === this.currentUserId || location.userName === this.currentUserId)) {
+      return;
+    }
+
+    const isNewTid = !this.presenceByTid.has(location.tid);
     const existing = this.presenceByTid.get(location.tid);
     this.tidByTopic.set(topic, location.tid);
 
-    if (existing) {
-      if (this.currentUserId && existing.card.name === this.currentUserId) {
-        return;
-      }
-      this.presenceByTid.set(location.tid, { ...existing, location });
-      this.rebuildFriends();
-      if (this.selectedFriend?.id === location.tid) {
-        this.carregarProximidades();
-      }
-      return;
-    }
-
-    const placeholderCard: FriendCard = {
+    const friendCard: FriendCard = {
       _type: 'card',
       qos: 0,
       retained: false,
       _id: location.tid,
-      name: location.tid,
-      face: 'jelly',
-      color: '#abd451',
+      name: location.userName || userFromTopic,
+      nickname: location.apelido || location.userName || userFromTopic,
+      face: (location as any).icon || (location as any).face || existing?.card?.face || 'jelly',
+      color: (location as any).color || existing?.card?.color || '#6366F1',
       tid: location.tid,
+      opMode: location.opMode ?? existing?.card?.opMode
     };
-    const presence: FriendPresence = { id: location.tid, topic, card: placeholderCard, location };
+
+    const presence: FriendPresence = {
+      id: location.tid,
+      topic,
+      card: friendCard,
+      location,
+      address: existing?.address ?? null
+    };
+
     this.presenceByTid.set(location.tid, presence);
     this.rebuildFriends();
 
-    if (!this.isInitialBurst) {
+    if (this.selectedFriend?.id === location.tid) {
+      this.selectedFriend = presence;
+      this.carregarProximidades();
+    }
+
+    if (isNewTid && !this.isInitialBurst) {
       this.markAsJustArrived(presence.id);
     }
   }

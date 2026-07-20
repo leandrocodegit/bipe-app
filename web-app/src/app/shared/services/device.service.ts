@@ -17,4 +17,8 @@ export class DeviceService {
   public salvarApelido(request: { id: string, apelido: string }): Observable<any> {
     return this.http.patch<any>(`${environment.urlApi}/bipe/devices/apelido`, request);
   }
+
+  public updateOpMode(id: string, opMode: number): Observable<any> {
+    return this.http.patch<any>(`${environment.urlApi}/bipe/devices/${id}/op-mode`, { opMode });
+  }
 }

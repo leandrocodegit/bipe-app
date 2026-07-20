@@ -8,6 +8,7 @@ export interface FriendCard {
   color: string;
   tid: string;
   nickname?: string;
+  opMode?: number;
 }
 
 export interface OwnTracksLocation {
@@ -41,6 +42,7 @@ export interface OwnTracksLocation {
   topic?: string;
   userName?: string;
   clienteId?: string;
+  opMode?: number;
 }
 
 export interface MotionActivity {
