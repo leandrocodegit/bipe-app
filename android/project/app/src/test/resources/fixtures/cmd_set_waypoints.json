@@ -1,8 +1,0 @@
-{
-  "_type": "cmd",
-  "action": "setWaypoints",
-  "waypoints": {
-    "_type": "waypoints",
-    "waypoints": []
-  }
-}
