@@ -1,9 +1,6 @@
-<button pButton type="button"
-  class="p-button-rounded p-button-text p-button-danger !h-8 !w-8" pTooltip="Compartilhar" tooltipPosition="left"
-  (click)="view = true">
-  <span class="material-symbols-outlined">
-    share
-  </span>
+<button pButton type="button" class="p-button-rounded p-button-text p-button-danger !h-11 !w-11"
+  pTooltip="Histórico de Rotinas" tooltipPosition="top" (click)="$event.stopPropagation(); view = true;">
+  <span class="material-symbols-outlined text-[22px]">share</span>
 </button>
 
 <!-- O styleClass agora injeta classes que reagem a ambos os modos -->

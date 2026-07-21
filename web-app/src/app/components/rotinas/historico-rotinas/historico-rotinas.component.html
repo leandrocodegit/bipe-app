@@ -1,5 +1,5 @@
 <button pButton type="button" class="p-button-rounded p-button-text p-button-plain !h-11 !w-11"
-  pTooltip="Histórico de Rotinas" tooltipPosition="top" (click)="view = true; buscarHistorico()">
+  pTooltip="Histórico de Rotinas" tooltipPosition="top" (click)="$event.stopPropagation(); view = true; buscarHistorico()">
   <span class="material-symbols-outlined text-[22px]">history</span>
 </button>
 

@@ -65,33 +65,34 @@ export class ListaDevicesComponent {
   protected selectedDeviceForPerms?: Device;
   protected selectedOpMode: number = 1;
 
-  getMenuItems(device: any): MenuItem[] {
-    return [
-      {
-        label: 'Editar apelido',
-        icon: 'call',
-        command: () => this.chamar(device)
-      },
-      {
-        label: 'Editar apelido',
-        icon: 'edit_square',
-        command: () => this.editApelido(device)
-      },
-      {
-        label: 'Permissões',
-        icon: 'shield',
-        command: () => this.abrirPermissoes(device)
-      },
-      {
-        label: 'Compartilhar', 
-        icon: 'share',
-      },
-      {
-        label: 'Histórico', 
-        icon: 'history',
-      }
-    ];
-  }
+  protected items: MenuItem[] = [
+    {
+      label: 'Editar apelido',
+      icon: 'call',
+      class: 'text-blue-500',
+      command: (device: any) => this.chamar(device)
+    },
+    {
+      label: 'Editar apelido',
+      icon: 'edit_square',
+      command: (device: any) => this.editApelido(device)
+    },
+    {
+      label: 'Permissões',
+      icon: 'shield',
+      command: (device: any) => this.abrirPermissoes(device)
+    },
+    {
+      label: 'Compartilhar',
+      share: true,
+      icon: 'share',
+    },
+    {
+      label: 'Histórico',
+      historico: true,
+      icon: 'history',
+    }
+  ]
 
   constructor(
     private audioCallService: AudioCallService,

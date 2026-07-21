@@ -88,41 +88,38 @@
 
           <app-share-device [device]="device" />
         </div> -->
-<div *ngIf="!shareMode" (click)="$event.stopPropagation()" class="flex shrink-0 items-center gap-2">
+        <div *ngIf="!shareMode" (click)="$event.stopPropagation()" class="flex shrink-0 items-center gap-2">
 
-  <!-- Botão principal do menu -->
-  <div class="inline-flex">
-    <button pButton 
-      type="button"
-      (click)="toggleMenu($event, menu)" 
-      class="p-button-rounded p-button-text p-button-plain !h-11 !w-11" 
-      pTooltip="Opções"
-      tooltipPosition="top">
-      <span class="material-symbols-outlined text-[22px]">drag_indicator</span>
-    </button>
-  </div>
+          <!-- Botão principal do menu -->
+          <div class="inline-flex">
+            <button pButton type="button" (click)="toggleMenu($event, menu)"
+              class="p-button-rounded p-button-text p-button-plain !h-11 !w-11" pTooltip="Opções" tooltipPosition="top">
+              <span class="material-symbols-outlined text-[22px]">drag_indicator</span>
+            </button>
+          </div>
 
-  <!-- Menu Flutuante -->
-  <p-menu #menu [model]="getMenuItems(device)" [popup]="true" appendTo="body">
-    <ng-template #item let-item>
-      
-      <!-- Se for componente customizado -->
-      @if (item.share) {
-           <app-share-device [device]="device" /> 
-      } @else if (item.historico) { 
-          <app-historico-rotinas /> 
-      } 
-      <!-- Se for um item de ação padrão do menu -->
-      @else {
-        <a pRipple class="p-menu-item-link flex items-center gap-3 px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200">
-          <span class="material-symbols-outlined text-[20px]">{{ item.icon }}</span>
-        </a>
-      }
+          <!-- Menu Flutuante -->
+          <p-menu #menu [model]="items" [popup]="true" appendTo="body">
+            <ng-template #item let-item>
 
-    </ng-template>
-  </p-menu>
+              <!-- Se for componente customizado -->
+              @if (item.share) {
+              <app-share-device [device]="device" />
+              } @else if (item.historico) {
+              <app-historico-rotinas />
+              }
+              <!-- Se for um item de ação padrão do menu -->
+              @else {
+              <a pRipple
+                class="p-menu-item-link flex items-center gap-3 px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200">
+                <span class="material-symbols-outlined text-[20px]" [ngClass]="item.class">{{ item.icon }}</span>
+              </a>
+              }
 
-</div>
+            </ng-template>
+          </p-menu>
+
+        </div>
       </li>
     </ul>
 
@@ -141,9 +138,13 @@
 
 
 <p-dialog [visible]="!!selected" [modal]="true" [draggable]="false" [resizable]="false" position="bottom"
-  [showHeader]="false" styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm p-0"
+  class="rounded-none" [showHeader]="false" styleClass="!m-0 !w-full !max-w-none !rounded-none sm:!max-w-sm p-0"
   [breakpoints]="{ '640px': '100vw' }">
-  <div *ngIf="selected as device" class="flex flex-col gap-4 p-2 my-8">
+      <div class="h-1 w-10 self-center rounded-full bg-slate-200 lg:hidden mt-3 mb-1 mr-auto ml-auto"></div>
+
+  <div *ngIf="selected as device" class="flex flex-col gap-4 p-4 my-8">
+
+
 
     <div class="flex gap-3">
       <div class="flex flex-1 flex-col gap-1">

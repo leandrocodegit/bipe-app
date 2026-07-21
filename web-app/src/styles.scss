@@ -1638,7 +1638,6 @@ p-togglebutton,
 
 .p-0 .p-dialog-content {
   padding: 0 !important;
-  border-radius: 7px;
 }
 
 .rounded-none .p-dialog,
@@ -1767,4 +1766,13 @@ p-togglebutton,
 .p-speeddial-button {
   width: 45px !important;
   height: 45px !important;
+}
+
+.p-menu-list { 
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.p-menu { 
+    border-radius: 10px !important;
 }
