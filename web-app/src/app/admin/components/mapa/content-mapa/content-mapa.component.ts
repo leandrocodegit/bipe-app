@@ -380,12 +380,15 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         user: user,
         device: device,
         format: 'geojson',
-        limit: 20,
+        limit: 200,
+        repeat: false,
         noLoad: true
       }).subscribe({
         next: (geoJsonData: any) => {
           if (this.caminhosLayer) {
             this.mapa.removeLayer(this.caminhosLayer);
+            console.log('Size', geoJsonData.features.length);
+            
             delete this.caminhosLayer;
           }
 

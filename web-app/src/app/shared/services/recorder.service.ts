@@ -12,7 +12,8 @@ export interface FiltroGps {
   group?: boolean;
   lastDay?: boolean;
   limit?: number;
-  noLoad?: boolean
+  repeat?: boolean;
+  noLoad?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

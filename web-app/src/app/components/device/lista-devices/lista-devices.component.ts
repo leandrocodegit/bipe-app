@@ -18,6 +18,10 @@ import { HistoricoRotinasComponent } from '@/components/rotinas/historico-rotina
 import { CheckboxModule } from 'primeng/checkbox';
 import { FriendDetailComponent } from '@/shared/components/friend-detail/friend-detail.component';
 import { FriendPresence } from '@/shared/models/friends.model';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { MenuItem } from 'primeng/api';
+import { Menu, MenuModule } from 'primeng/menu';
+
 
 @Component({
   selector: 'app-lista-devices',
@@ -35,6 +39,8 @@ import { FriendPresence } from '@/shared/models/friends.model';
     ShareDeviceComponent,
     CheckboxModule,
     HistoricoRotinasComponent,
+    SplitButtonModule,
+    MenuModule,
     FriendDetailComponent
   ],
   templateUrl: './lista-devices.component.html',
@@ -59,12 +65,40 @@ export class ListaDevicesComponent {
   protected selectedDeviceForPerms?: Device;
   protected selectedOpMode: number = 1;
 
+  getMenuItems(device: any): MenuItem[] {
+    return [
+      {
+        label: 'Editar apelido',
+        icon: 'call',
+        command: () => this.chamar(device)
+      },
+      {
+        label: 'Editar apelido',
+        icon: 'edit_square',
+        command: () => this.editApelido(device)
+      },
+      {
+        label: 'Permissões',
+        icon: 'shield',
+        command: () => this.abrirPermissoes(device)
+      },
+      {
+        label: 'Compartilhar', 
+        icon: 'share',
+      },
+      {
+        label: 'Histórico', 
+        icon: 'history',
+      }
+    ];
+  }
+
   constructor(
     private audioCallService: AudioCallService,
     private readonly deviceService: DeviceService) { }
 
-  chamar(device: Device){
-    this.audioCallService.startOutgoingCall( device.id, device.username)
+  chamar(device: Device) {
+    this.audioCallService.startOutgoingCall(device.id, device.username)
   }
 
   verDetalhes(device: Device): void {
@@ -169,6 +203,11 @@ export class ListaDevicesComponent {
   onDisconnect(device: Device, event: Event): void {
     event.stopPropagation();
     this.disconnect.emit(device);
+  }
+
+  toggleMenu(event: Event, menu: Menu) {
+    event.stopPropagation();
+    menu.toggle(event);
   }
 
   onRefresh(): void {

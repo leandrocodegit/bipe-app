@@ -68,7 +68,7 @@
         </div>
 
         <!-- Status + ações -->
-        <div *ngIf="!shareMode" (click)="$event.stopPropagation()" class="flex shrink-0 items-center gap-1">
+        <!--         <div *ngIf="!shareMode" (click)="$event.stopPropagation()" class="flex shrink-0 items-center gap-1">
           <button *ngIf="device.opMode !== 3" pButton type="button" class="p-button-rounded p-button-text p-button-plain !h-11 !w-11"
             pTooltip="Ligar" tooltipPosition="top" (click)="chamar(device)">
             <span class="material-symbols-outlined text-[22px]">call</span>
@@ -87,7 +87,42 @@
           </button>
 
           <app-share-device [device]="device" />
-        </div>
+        </div> -->
+<div *ngIf="!shareMode" (click)="$event.stopPropagation()" class="flex shrink-0 items-center gap-2">
+
+  <!-- Botão principal do menu -->
+  <div class="inline-flex">
+    <button pButton 
+      type="button"
+      (click)="toggleMenu($event, menu)" 
+      class="p-button-rounded p-button-text p-button-plain !h-11 !w-11" 
+      pTooltip="Opções"
+      tooltipPosition="top">
+      <span class="material-symbols-outlined text-[22px]">drag_indicator</span>
+    </button>
+  </div>
+
+  <!-- Menu Flutuante -->
+  <p-menu #menu [model]="getMenuItems(device)" [popup]="true" appendTo="body">
+    <ng-template #item let-item>
+      
+      <!-- Se for componente customizado -->
+      @if (item.share) {
+           <app-share-device [device]="device" /> 
+      } @else if (item.historico) { 
+          <app-historico-rotinas /> 
+      } 
+      <!-- Se for um item de ação padrão do menu -->
+      @else {
+        <a pRipple class="p-menu-item-link flex items-center gap-3 px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200">
+          <span class="material-symbols-outlined text-[20px]">{{ item.icon }}</span>
+        </a>
+      }
+
+    </ng-template>
+  </p-menu>
+
+</div>
       </li>
     </ul>
 
@@ -106,7 +141,7 @@
 
 
 <p-dialog [visible]="!!selected" [modal]="true" [draggable]="false" [resizable]="false" position="bottom"
-  [showHeader]="false" styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm"
+  [showHeader]="false" styleClass="!m-0 !w-full !max-w-none !rounded-t-3xl sm:!max-w-sm p-0"
   [breakpoints]="{ '640px': '100vw' }">
   <div *ngIf="selected as device" class="flex flex-col gap-4 p-2 my-8">
 
@@ -127,70 +162,74 @@
   </div>
 </p-dialog>
 
-<p-dialog [(visible)]="mostrarDetalhe" [modal]="true" [draggable]="false" [resizable]="false"
-  [showHeader]="false" styleClass="!m-0 p-0 !w-full !max-w-md !rounded-t-3xl sm:!max-w-lg sm:!rounded-3xl border border-slate-200/10 shadow-2xl bg-white dark:bg-[#0c1518]"
+<p-dialog [(visible)]="mostrarDetalhe" [modal]="true" [draggable]="false" [resizable]="false" [showHeader]="false"
+  styleClass="!m-0 p-0 !w-full !max-w-md !rounded-t-3xl sm:!max-w-lg sm:!rounded-3xl border border-slate-200/10 shadow-2xl bg-white dark:bg-[#0c1518]"
   [dismissableMask]="true">
   <div class="p-4" *ngIf="deviceDetailToShow">
-    <app-friend-detail [maxHeight]="'250px'" [friend]="deviceDetailToShow" [isModal]="true" (onClose)="mostrarDetalhe = false" />
+    <app-friend-detail [maxHeight]="'250px'" [friend]="deviceDetailToShow" [isModal]="true"
+      (onClose)="mostrarDetalhe = false" />
   </div>
 </p-dialog>
 
-<p-dialog [(visible)]="mostrarPermissoes" [modal]="true" [draggable]="false" [resizable]="false"
-  [showHeader]="false" styleClass="!m-0 !w-full !max-w-md !rounded-t-3xl sm:!max-w-md sm:!rounded-3xl border border-slate-200/10 shadow-2xl bg-white dark:bg-[#0c1518]"
+<p-dialog [(visible)]="mostrarPermissoes" [modal]="true" [draggable]="false" [resizable]="false" class="p-0"
+  [showHeader]="false"
+  styleClass="!m-0 !w-full !max-w-md !rounded-t-3xl sm:!max-w-md sm:!rounded-3xl border border-slate-200/10 shadow-2xl bg-white dark:bg-[#0c1518]"
   [dismissableMask]="true">
   <div *ngIf="selectedDeviceForPerms" class="flex flex-col gap-4 p-5">
     <div class="flex items-center gap-3 border-b border-slate-100 dark:border-white/5 pb-3">
-      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+      <div
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
         <span class="material-symbols-outlined">shield</span>
       </div>
       <div>
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-white">Permissões de Privacidade</h3>
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-1">Permissões de Privacidade</h3>
         <p class="text-xs text-slate-400">Modo de operação do dispositivo</p>
       </div>
     </div>
 
-    <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-1">
-      Ajuste como o dispositivo <strong>{{ selectedDeviceForPerms.apelido || selectedDeviceForPerms.nome }}</strong> deve se comportar em relação ao rastreamento e chamadas.
-    </div>
-
     <div class="flex flex-col gap-3">
       <!-- Opção 1: Monitoramento Completo -->
-      <label class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-[#060b0d]/50 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#060b0d] transition-colors"
+      <label
+        class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-[#060b0d]/50 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#060b0d] transition-colors"
         [class.!border-indigo-500]="selectedOpMode === 1">
-        <input type="radio" name="opMode" [value]="1" [(ngModel)]="selectedOpMode" class="mt-0.5" />
+        <input [disabled]="true" type="radio" name="opMode" [value]="1" [(ngModel)]="selectedOpMode" class="mt-0.5" />
         <div class="flex flex-col">
           <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">Monitoramento Completo</span>
-          <span class="text-[10px] text-slate-400 leading-normal mt-0.5">Envia a posição em tempo real, notifica eventos de entrada/saída e permite receber chamadas de áudio.</span>
+          <span class="text-[10px] text-slate-400 leading-normal mt-0.5">Envia a posição em tempo real, notifica eventos
+            de entrada/saída e permite receber chamadas de áudio.</span>
         </div>
       </label>
 
       <!-- Opção 2: Rotina -->
-      <label class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-[#060b0d]/50 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#060b0d] transition-colors"
+      <label
+        class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-[#060b0d]/50 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#060b0d] transition-colors"
         [class.!border-indigo-500]="selectedOpMode === 2">
-        <input type="radio" name="opMode" [value]="2" [(ngModel)]="selectedOpMode" class="mt-0.5" />
+        <input [disabled]="true" type="radio" name="opMode" [value]="2" [(ngModel)]="selectedOpMode" class="mt-0.5" />
         <div class="flex flex-col">
           <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">Rotina</span>
-          <span class="text-[10px] text-slate-400 leading-normal mt-0.5">Não envia posição em tempo real (mais privacidade), apenas notifica eventos e permite receber chamadas de áudio.</span>
+          <span class="text-[10px] text-slate-400 leading-normal mt-0.5">Não envia posição em tempo real (mais
+            privacidade), apenas notifica eventos e permite receber chamadas de áudio.</span>
         </div>
       </label>
 
       <!-- Opção 3: Restrito -->
-      <label class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-[#060b0d]/50 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#060b0d] transition-colors"
+      <label
+        class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-[#060b0d]/50 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#060b0d] transition-colors"
         [class.!border-indigo-500]="selectedOpMode === 3">
-        <input type="radio" name="opMode" [value]="3" [(ngModel)]="selectedOpMode" class="mt-0.5" />
+        <input [disabled]="true" type="radio" name="opMode" [value]="3" [(ngModel)]="selectedOpMode" class="mt-0.5" />
         <div class="flex flex-col">
           <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">Restrito</span>
-          <span class="text-[10px] text-slate-400 leading-normal mt-0.5">Só envia eventos (geocercas). Não envia localização em tempo real e não pode receber chamadas de áudio.</span>
+          <span class="text-[10px] text-slate-400 leading-normal mt-0.5">Só envia eventos (geocercas). Não envia
+            localização em tempo real e não pode receber chamadas de áudio.</span>
         </div>
       </label>
     </div>
 
     <!-- Ações -->
     <div class="flex gap-2 pt-3">
-      <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-outlined flex-1 !rounded-xl"
+      <button pButton type="button" label="Fechar" icon="pi pi-times" class="p-button-outlined flex-1 !rounded-xl"
         (click)="mostrarPermissoes = false"></button>
-      <button pButton type="button" label="Salvar" icon="pi pi-check"
-        class="p-button-outlined p-button-success flex-1 !rounded-xl" (click)="salvarPermissoes()"></button>
+
     </div>
   </div>
 </p-dialog>
