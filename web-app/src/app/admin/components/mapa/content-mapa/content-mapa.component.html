@@ -7,7 +7,7 @@
 
       <ng-template let-friend pTemplate="item">
         <button type="button" (click)="friend.onClick()"
-          class="friend-bubble relative flex h-[45px] w-[45px] items-center justify-center rounded-full text-3xl shadow-sm transition-transform active:scale-90 sm:hover:-translate-y-0.5 sm:hover:shadow-md"
+          class="friend-bubble relative flex h-[50px] w-[50px] items-center justify-center rounded-full text-3xl shadow-sm transition-transform active:scale-90 sm:hover:-translate-y-0.5 sm:hover:shadow-md"
           [class.friend-bubble--new]="true" [style.background]="friend?.color ? friend.color + 'd0' : '#3862b2d0'"
           [style.border]="'2px solid ' + friend?.color ? friend.color + 'd0' : '#3862b2d0'">
 
