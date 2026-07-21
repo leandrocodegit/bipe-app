@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-export type CallState = 'IDLE' | 'RINGING' | 'IN_CALL' | 'OUTGOING';
+export type CallState = 'IDLE' | 'RINGING' | 'IN_CALL' | 'OUTGOING' | 'BIPE' | 'BIPE_WAITE';
 
 export interface CallInfo {
   deviceId: string;
@@ -14,19 +14,33 @@ export interface CallInfo {
 })
 export class AudioCallService {
   private callStateSubject = new BehaviorSubject<CallState>('IDLE');
+
   public callState$: Observable<CallState> = this.callStateSubject.asObservable();
+
+  private bipeSubject = new BehaviorSubject<CallState>('BIPE');
+  public bipeState$: Observable<CallState> = this.bipeSubject.asObservable();
 
   private callInfoSubject = new BehaviorSubject<CallInfo | null>(null);
   public callInfo$: Observable<CallInfo | null> = this.callInfoSubject.asObservable();
 
-  constructor() {}
+  constructor() { }
 
   public get currentState(): CallState {
     return this.callStateSubject.value;
   }
 
+  public get currentStateBipe(): CallState {
+    return this.bipeSubject.value;
+  }
+
   public get currentCallInfo(): CallInfo | null {
     return this.callInfoSubject.value;
+  }
+
+  public sendBipe(deviceId: string, userName?: string): void {
+    if (this.currentStateBipe !== 'BIPE') return;
+    this.callInfoSubject.next({ deviceId, userName, direction: 'outgoing' });
+    this.bipeSubject.next('BIPE');
   }
 
   public startOutgoingCall(deviceId: string, userName?: string): void {

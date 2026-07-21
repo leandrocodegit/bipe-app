@@ -13,6 +13,7 @@ import { LayoutService } from '@/shared/services/layout.service';
 import { LoadService } from '@/shared/components/preload/load.service';
 import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webrtc.component';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/notificacao-bipe.component';
 
 @Component({
   selector: 'app-layout',
@@ -27,7 +28,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
     TabsModule,
     ButtonModule,
     ProgressBarModule,
-    AudioWebrtcComponent
+    AudioWebrtcComponent,
+    NotificacaoBipeComponent
   ],
   template: `
 <div class="layout-wrapper" [ngClass]="containerClass">
@@ -46,6 +48,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
  
 
       <app-audio-webrtc class="pointer-events-auto z-50 w-full shrink-0"></app-audio-webrtc>
+      <app-notificacao-bipe class="pointer-events-auto z-50 w-full shrink-0"/>
 
       <div class="flex-1 w-full min-h-0 relative overflow-hidden flex flex-col lg:flex-row pointer-events-none">
 

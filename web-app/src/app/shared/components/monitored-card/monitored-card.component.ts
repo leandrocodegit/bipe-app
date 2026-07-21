@@ -63,8 +63,7 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
   }
 
   callFriend(): void {
-
-    console.log(this.monitoredCard);
+ 
 
     if(!this.monitoredCard) return;
 
@@ -73,6 +72,19 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
       const userName = parts[1];
       const deviceId = parts[2];
       this.audioCallService.startOutgoingCall(deviceId, userName);
+    }
+  }
+
+  sendBipe(): void {
+ 
+    console.log('Bipe enviado', this.monitoredCard);
+    if(!this.monitoredCard) return;
+
+    const parts = this.monitoredCard.id.split('/');
+    if (parts.length >= 3) {
+      const userName = parts[1];
+      const deviceId = parts[2];
+      this.audioCallService.sendBipe(deviceId, userName);
     }
   }
 
