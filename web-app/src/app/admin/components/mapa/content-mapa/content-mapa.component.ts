@@ -621,12 +621,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (payload._type === 'location') {
           this.processarEventoLocalizacao(topic, payload);
-          const partesTopico = topic.split('/');
-          const user = partesTopico[1];
-          const device = partesTopico[2];
-          if (user && device) {
-            this.buscarPosicoes(user, device, payload.color);
-          }
         } else if (payload._type === 'transition') {
           this.processarEventoTransicao(payload);
         }
@@ -724,6 +718,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         marker.setZIndexOffset(99999);
         this.centerMonitoredCard(latLng.lat, latLng.lng);
         this.moveMarkerToMonitoredLayer(marker, tid);
+
+        if (this.caminhosLayer) {
+          this.caminhosLayer.addLatLng([latLng.lat, latLng.lng]);
+        } else {
+          this.buscarPosicoes(user, deviceName, payload?.color);
+        }
       } else {
         marker.setZIndexOffset(100);
       }
@@ -956,6 +956,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (previousTid && previousTid !== currentTid) {
         this.resetMarkerToCluster(previousTid);
+        if (this.caminhosLayer) {
+          this.mapa.removeLayer(this.caminhosLayer);
+          this.caminhosLayer = undefined;
+        }
       }
 
       this.monitoredCardTid = currentTid;
