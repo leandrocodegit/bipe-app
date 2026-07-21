@@ -68,12 +68,6 @@ export class ListaDevicesComponent {
   protected items: MenuItem[] = [
     {
       label: 'Editar apelido',
-      icon: 'call',
-      class: 'text-blue-500',
-      command: (device: any) => this.chamar(device)
-    },
-    {
-      label: 'Editar apelido',
       icon: 'edit_square',
       command: (device: any) => this.editApelido(device)
     },
