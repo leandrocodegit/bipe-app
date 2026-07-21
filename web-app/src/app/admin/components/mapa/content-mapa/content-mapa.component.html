@@ -3,11 +3,11 @@
 
 
   <div class="z-[1001]">
-    <p-speeddial [model]="getFriends()" showIcon="pi pi-microchip" hideIcon="pi pi-times" [radius]="120" [style]="{ position: 'absolute', left: '10px', bottom: '10px' }" classStyle="bg-color">
-    
+    <p-speeddial [model]="getFriends()" showIcon="pi pi-users" hideIcon="pi pi-times" [radius]="120" [style]="{ position: 'absolute', left: '15px', bottom: '15px' }" classStyle="bg-color">
+
       <ng-template let-friend pTemplate="item">
         <button type="button" (click)="friend.onClick()"
-          class="friend-bubble relative flex h-[30px] w-[30px] items-center justify-center rounded-full text-3xl shadow-sm transition-transform active:scale-90 sm:hover:-translate-y-0.5 sm:hover:shadow-md"
+          class="friend-bubble relative flex h-[45px] w-[45px] items-center justify-center rounded-full text-3xl shadow-sm transition-transform active:scale-90 sm:hover:-translate-y-0.5 sm:hover:shadow-md"
           [class.friend-bubble--new]="true" [style.background]="friend?.color ? friend.color + 'd0' : '#3862b2d0'"
           [style.border]="'2px solid ' + friend?.color ? friend.color + 'd0' : '#3862b2d0'">
 
@@ -16,7 +16,7 @@
 
           <img src="assets/drawable/{{friend?.image}}.png" alt="">
           }@else {
-          <h5 class="text-white text-sm align-middle m-auto" style="line-height: 2.5;">{{friend.tid}}</h5>
+          <h5 class="text-white text-sm align-middle m-auto" style="line-height: 3;">{{friend.tid}}</h5>
           }
 
         </button>
@@ -36,7 +36,7 @@
 
           <img src="assets/drawable/urso.png" alt="">
 
-         
+
         </button>
 
   </div> -->
@@ -45,7 +45,7 @@
     <div class="mqtt-message-indicator" [class.active]="mqttMessageActive" title="Recebendo mensagens MQTT"></div>
   </div>
 
-  <div *ngIf="ultimasTransicoes.length"
+<!--   <div *ngIf="ultimasTransicoes.length"
     class="flex items-center gap-3 px-4 h-12 w-full bg-neutral-600/50 backdrop-blur z-[9999] absolute bottom-0 text-slate-300 text-xs shrink-0 select-none">
     <div class="flex-1 flex gap-4 overflow-x-auto whitespace-nowrap scrollbar-none py-1">
       @for (trans of ultimasTransicoes; track trans) {
@@ -64,7 +64,7 @@
       </div>
       }
     </div>
-  </div>
+  </div> -->
 </div>
 
 <app-waypoint-form-dialog [(visible)]="mostrarDialogZona" [latLng]="coordenadasAlvoClicado" [devices]="devices"

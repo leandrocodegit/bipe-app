@@ -60,7 +60,8 @@ export class FriendDetailComponent implements OnChanges {
     this.recorderService.listaTransicoes({
       device: this.friend.card.name,
       lastDay: true,
-      limit: 20
+      limit: 20,
+      noLoad: true
     }).subscribe({
       next: (res) => this.minhaListaDeTransicoes = res,
       error: (err) => console.error('Erro ao buscar transições:', err)
@@ -68,10 +69,7 @@ export class FriendDetailComponent implements OnChanges {
   }
 
   protected carregarProximidades(): void {
-
-    console.log(this.friend);
-
-    this.proximityWaypoints = [];
+ 
     if (!this.friend?.id) return;
 
     const parts = this.friend.topic.split('/');

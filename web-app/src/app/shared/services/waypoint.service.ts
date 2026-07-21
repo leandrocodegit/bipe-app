@@ -25,7 +25,7 @@ export class WaypointService {
   }
 
   public getProximidade(deviceId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.urlApi}/bipe/waypoints/proximidade/${deviceId}`);
+    return this.http.get<any[]>(`${environment.urlApi}/bipe/waypoints/proximidade/${deviceId}?noLoad=true`);
   }
 
 }

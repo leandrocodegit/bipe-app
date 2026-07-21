@@ -63,7 +63,12 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
   }
 
   callFriend(): void {
-    const parts = this.monitoredCard.topic.split('/');
+
+    console.log(this.monitoredCard);
+
+    if(!this.monitoredCard) return;
+
+    const parts = this.monitoredCard.id.split('/');
     if (parts.length >= 3) {
       const userName = parts[1];
       const deviceId = parts[2];

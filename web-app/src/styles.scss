@@ -1760,6 +1760,11 @@ p-togglebutton,
 }
 
 .app-dark .p-speeddial .p-button {
-  background: #84fdcbd0 !important;
+  background: #fdba84e0 !important;
   color: white;
+}
+
+.p-speeddial-button {
+  width: 45px !important;
+  height: 45px !important;
 }

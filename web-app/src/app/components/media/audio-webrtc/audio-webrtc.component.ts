@@ -6,6 +6,7 @@ import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { ButtonModule } from 'primeng/button';
 import { AudioCallService, CallState, CallInfo } from '@/shared/services/audio-call.service';
 import { MessageService } from 'primeng/api';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 interface RtcSignal {
   _type: 'rtc';
@@ -61,7 +62,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   constructor(
     private readonly mqttConnectionService: MqttConnectionService,
     private readonly audioCallService: AudioCallService,
-    private readonly messageService: MessageService
+    private readonly oauthService: OAuthService
   ) { }
 
   ngOnInit(): void {
@@ -170,6 +171,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
       JSON.stringify(
         {
           _type: 'call',
+          token: this.oauthService.getAccessToken(),
           senderId: this.clientId,
           userName: this.userName,
           clienteId: this.clientId,
@@ -263,7 +265,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     };
 
     this.peerConnection.ontrack = (event) => {
-      
+
       const stream = event.streams && event.streams.length > 0 ? event.streams[0] : new MediaStream([event.track]);
 
       if (this.remoteAudio?.nativeElement) {
