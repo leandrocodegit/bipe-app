@@ -43,12 +43,16 @@ class MascotManager @Inject constructor(
             "lobo" to "Lobo", "porco" to "Porco", "gato" to "Gato", "cachorro" to "Cão",
             "panda" to "Panda", "macaco" to "Macaco", "elefante" to "Elefante", "caranguejo" to "Caranguejo ",
             "girafa" to "Girafa", "pinguim" to "Pinguim", "sapo" to "Sapo", "rato" to "Rato", "polvo" to "Polvo", "aguia" to "Águia",
-            "tubarao" to "Tubarão", "vaca" to "Vaca", "alien" to "Alien", "cavalo" to "Cavalo"
+            "tubarao" to "Tubarão", "vaca" to "Vaca", "alien" to "Alien", "cavalo" to "Cavalo", "bebe" to "Bêbê", "menina" to "Menina",
+            "menino" to "Menino", "morango" to "Morango", "hamburger" to "Hamburger", "boneco_neve" to "Boneco de Neve", "onibus" to "Ônibus",
+            "mala" to "Mala", "fogo" to "Fogo", "star" to "Estrela", "sol" to "Sol", "arco_iris" to "Arco Iris", "melancia" to "Melancia",
+            "abacaxi" to "Abacaxi", "apple" to "Maça", "orange" to "Laranja"
+
+
         )
 
         return animals.map { (id, name) ->
-            val resourceName = "animal_$id"
-            val resId = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+            val resId = context.resources.getIdentifier(id, "drawable", context.packageName)
             Mascot(id, name, if (resId != 0) resId else R.drawable.ic_owntracks_80)
         }
     }
@@ -57,9 +61,10 @@ class MascotManager @Inject constructor(
         val animalIds = listOf(
             "leao", "tigre", "urso", "coelho", "lobo", "porco", "gato", "cachorro",
             "panda", "macaco", "elefante", "caranguejo", "girafa", "pinguim",
-            "sapo", "rato", "polvo", "aguia", "tubarao", "vaca", "alien", "cavalo"
+            "sapo", "rato", "polvo", "aguia", "tubarao", "vaca", "alien", "cavalo", "bebe","menina","menino","morango","hamburger",
+            "boneco_neve","onibus", "mala", "fogo", "star", "sol", "arco_iris", "melancia", "abacaxi", "apple", "orange"
         )
-        return "animal_${animalIds[java.util.Random().nextInt(animalIds.size)]}"
+        return "${animalIds[java.util.Random().nextInt(animalIds.size)]}"
     }
 
     fun getRandomMascot(context: Context): Mascot {

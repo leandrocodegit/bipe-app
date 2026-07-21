@@ -38,7 +38,10 @@ open class PreferencesActivity :
     get() = PreferencesFragment()
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    enableEdgeToEdge()
+    enableEdgeToEdge(
+        statusBarStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+        navigationBarStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+    )
     super.onCreate(savedInstanceState)
 
     if (!authManager.isAuthorized()) {

@@ -62,6 +62,7 @@ constructor(
           userId = authManager.getUserId()
           userName = preferences.username
           clienteId = preferences.clientId
+          nickname = preferences.nickname
           trackerId = preferences.tid.toString()
         }
     )
@@ -90,31 +91,22 @@ constructor(
     if (!locationIsWithAccuracyThreshold(location))
         return Result.failure(Exception("location accuracy too low"))
 
-    // If this location has come from the network *and* the most recent location was both recent and
-    // high-accuracy, then it's probably not usefully accurate. Drop it.
     locationRepo.currentPublishedLocation.value?.let { lastLocation ->
       if (highAccuracyProviders.contains(location.provider) &&
           lastLocation.provider == "network" &&
           location.time - lastLocation.time <
               preferences.discardNetworkLocationThresholdSeconds * 1000) {
-        Timber.d(
-            "Ignoring location from ${location.provider}, last was from gps, and time difference is less than 1s")
         return Result.failure(
             Exception("Ignoring location from ${location.provider}, last was recent and from gps"))
       }
     }
 
     val loadedWaypoints = withContext(ioDispatcher) { waypointsRepo.getAll() }
-    Timber.d("publishLocationMessage for $location triggered by $trigger")
-
-    // Check if publish would trigger a region if fusedRegionDetection is enabled
-    Timber.d(
-        "Checking if location triggers waypoint transitions. waypoints: $loadedWaypoints, trigger=$trigger, fusedRegionDetection: ${preferences.fusedRegionDetection}")
+    
     if (loadedWaypoints.isNotEmpty() &&
         preferences.fusedRegionDetection &&
         trigger != MessageLocation.ReportType.CIRCULAR) {
       loadedWaypoints.forEach { waypoint ->
-        Timber.d("onWaypointTransition triggered by location waypoint intersection event")
         onWaypointTransition(
             waypoint,
             location,
@@ -127,22 +119,15 @@ constructor(
             MessageTransition.TRIGGER_LOCATION)
       }
     }
+    
     if (preferences.monitoring === MonitoringMode.Quiet &&
         MessageLocation.ReportType.USER != trigger) {
-      Timber.d("message suppressed by monitoring settings: quiet")
       return Result.failure(Exception("message suppressed by monitoring settings: quiet"))
     }
-    if (preferences.monitoring === MonitoringMode.Manual &&
-        MessageLocation.ReportType.USER != trigger &&
-        MessageLocation.ReportType.CIRCULAR != trigger) {
-      Timber.d("message suppressed by monitoring settings: manual")
-      return Result.failure(Exception("message suppressed by monitoring settings: manual"))
-    }
-
+    
     if (preferences.notifyOnlyEvents &&
         trigger != MessageLocation.ReportType.CIRCULAR &&
         trigger != MessageLocation.ReportType.USER) {
-      Timber.d("message suppressed by notifyOnlyEvents setting")
       return Result.failure(Exception("message suppressed by notifyOnlyEvents setting"))
     }
 
@@ -164,11 +149,12 @@ constructor(
               trackerId = preferences.tid.toString()
               icon = preferences.face
               this.color = preferences.markerColor
-              userName = preferences.username
-              clienteId = preferences.clientId
+              this.userName = preferences.username
+              this.clienteId = preferences.clientId
+              this.nickname = preferences.nickname
               inregions = calculateInRegions(loadedWaypoints)
             }
-    Timber.v("Actually publishing location $location triggered by $trigger as message=$message")
+    
     messageProcessor.queueMessageForSending(message)
     if (responseMessageTypes.contains(trigger)) {
       publishResponseMessageIdlingResource.setIdleState(true)
@@ -188,29 +174,14 @@ constructor(
           .map { it.description }
           .toList()
 
-  /**
-   * Called when a new location is received from the device, or directly from the user via the map
-   *
-   * @param location received from the device
-   * @param reportType type of report that
-   */
   suspend fun onLocationChanged(location: Location, reportType: MessageLocation.ReportType) {
-    Timber.v("OnLocationChanged $location $reportType")
     if (location.time > locationRepo.currentLocationTime ||
         reportType != MessageLocation.ReportType.DEFAULT) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || location.isMock) {
-        Timber.v("Idling location")
-        mockLocationIdlingResource.setIdleState(true)
-      }
       publishLocationMessage(reportType, location).run {
         if (isSuccess) {
           locationRepo.setCurrentPublishedLocation(location)
-        } else {
-          Timber.d("Not publishing location: ${exceptionOrNull()?.message}")
         }
       }
-    } else {
-      Timber.v("Not re-sending message with same timestamp as last")
     }
   }
 
@@ -220,14 +191,9 @@ constructor(
       transition: Int,
       trigger: String
   ) {
-    if (!locationIsWithAccuracyThreshold(location)) {
-      Timber.d(
-          "ignoring transition for $location, transition=$transition, trigger=$trigger: low accuracy")
-      return
-    }
-    Timber.d("OnWaypointTransition $waypointModel $location $transition $trigger")
+    if (!locationIsWithAccuracyThreshold(location)) return
+    
     scope.launch {
-      // If the transition hasn't changed, or has moved from unknown to exit, don't notify.
       if (transition == waypointModel.lastTransition ||
           (waypointModel.isUnknown() && transition == Geofence.GEOFENCE_TRANSITION_EXIT)) {
         waypointModel.lastTransition = transition
@@ -236,9 +202,7 @@ constructor(
         waypointModel.lastTransition = transition
         waypointModel.lastTriggered = Instant.now()
         waypointsRepo.update(waypointModel, false)
-        if (preferences.monitoring === MonitoringMode.Quiet) {
-          Timber.d("message suppressed by monitoring settings: ${preferences.monitoring}")
-        } else {
+        if (preferences.monitoring !== MonitoringMode.Quiet) {
           publishTransitionMessage(waypointModel, location, transition, trigger)
           if (trigger == MessageTransition.TRIGGER_CIRCULAR) {
             publishLocationMessage(MessageLocation.ReportType.CIRCULAR, location)
@@ -265,6 +229,7 @@ constructor(
           trackerId = preferences.tid.toString()
           userName = preferences.username
           clienteId = preferences.clientId
+          nickname = preferences.nickname
           latitude = triggeringLocation.latitude
           longitude = triggeringLocation.longitude
           accuracy = triggeringLocation.accuracy.roundToInt()
@@ -297,7 +262,6 @@ constructor(
   }
 
   fun publishStatusMessage() {
-    // Getting appHibernation takes a while, so lets not block the main thread
     scope.launch(ioDispatcher) {
       messageProcessor.queueMessageForSending(
           MessageStatus().apply {

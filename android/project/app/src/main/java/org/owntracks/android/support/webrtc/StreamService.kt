@@ -64,7 +64,7 @@ class StreamService : Service() {
 
     private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Sincroled Rastreador")
+            .setContentTitle("BIPE")
             .setContentText("Transmissão de áudio ativa em segundo plano")
             .setSmallIcon(R.drawable.ic_baseline_mic_24)
             .setOngoing(true)

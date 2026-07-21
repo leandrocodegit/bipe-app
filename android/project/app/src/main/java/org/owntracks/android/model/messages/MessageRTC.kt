@@ -18,7 +18,6 @@ class MessageRTC(@Transient private val messageWithId: MessageWithId = MessageWi
   var candidate: String? = null
   var sdpMid: String? = null
   var sdpMLineIndex: Int? = null
-  var senderId: String? = null
   var sessaoid: String? = null
   var userName: String? = null
   var clienteId: String? = null

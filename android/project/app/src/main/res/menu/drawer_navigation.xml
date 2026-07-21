@@ -15,20 +15,11 @@
 
     <group
         android:id="@+id/bottom_menu_group"
-        android:layout_width="match_parent"
         android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_status"
-            android:icon="@drawable/ic_baseline_beenhere_24"
-            android:title="@string/title_activity_status" />
         <item
             android:id="@+id/nav_preferences"
             android:icon="@drawable/ic_baseline_settings_24"
             android:title="@string/title_activity_preferences" />
-        <item
-            android:id="@+id/nav_about"
-            android:icon="@drawable/ic_baseline_info_24"
-            android:title="@string/title_activity_about" />
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_baseline_power_settings_new_24"

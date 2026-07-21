@@ -54,6 +54,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private markers: Map<string, Leaflet.Marker> = new Map();
   private circles: Map<string, Leaflet.Circle> = new Map();
   private friends: Map<string, OwnTracksLocation> = new Map();
+  protected speedDialItems: any[] = [];
   private mapa: any;
   private mqttSubscription?: Subscription;
   private mqttSharedSubscription?: Subscription;
@@ -654,20 +655,26 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getFriends(): any {
+    return this.speedDialItems;
+  }
 
-    return Array.from(this.friends.values()).map(friend => {
-
-      return {
-        color: friend.color,
-        image: friend.icon,
-        tid: friend.tid,
-        uniqueId: friend.uniqueId,
-        onClick: () => {
-          if (friend.uniqueId)
-            this.monitorFromPopup(friend.uniqueId)
+  private updateSpeedDialItems(): void {
+    this.speedDialItems = Array.from(this.friends.values()).map(friend => ({
+      color: friend.color,
+      image: friend.icon,
+      tid: friend.tid,
+      uniqueId: friend.uniqueId,
+      command: () => {
+        if (friend.uniqueId) {
+          this.monitorFromPopup(friend.uniqueId);
+        }
+      },
+      onClick: () => {
+        if (friend.uniqueId) {
+          this.monitorFromPopup(friend.uniqueId);
         }
       }
-    })
+    }));
   }
 
   private processarEventoLocalizacao(topic: string, payload: any): void {
@@ -688,8 +695,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
     this.friends.set(payload.tid, { ...payload, uniqueId: uniqueId });
-
-    console.log(this.friends.values());
+    this.updateSpeedDialItems();
 
 
     const tid = payload.tid || deviceName.substring(0, 2).toUpperCase();
@@ -1078,6 +1084,16 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (circle) {
       this.mapa.removeLayer(circle);
       this.circles.delete(uniqueId);
+    }
+    let removed = false;
+    for (const [key, value] of this.friends.entries()) {
+      if (value.uniqueId === uniqueId) {
+        this.friends.delete(key);
+        removed = true;
+      }
+    }
+    if (removed) {
+      this.updateSpeedDialItems();
     }
   }
 

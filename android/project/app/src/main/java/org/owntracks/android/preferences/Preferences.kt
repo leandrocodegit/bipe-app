@@ -278,6 +278,8 @@ constructor(
 
   @Preference var mqttProtocolLevel: MqttProtocolLevel by preferencesStore
 
+  @Preference var nickname: String by preferencesStore
+
   @Preference var notificationEvents: Boolean by preferencesStore
 
   @Preference var notificationGeocoderErrors: Boolean by preferencesStore

@@ -120,6 +120,8 @@ open class MessageLocation(
 
   @SerialName("clienteId") var clienteId: String? = null
 
+  @SerialName("nickname") var nickname: String? = null
+
   override fun isValidMessage(): Boolean {
     // The deserializer validates that required fields are present in JSON
     // Constraints: timestamp > 0 and (trackerId is not empty OR visibleTopic is not empty)

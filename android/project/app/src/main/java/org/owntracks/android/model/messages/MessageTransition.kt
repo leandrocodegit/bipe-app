@@ -60,6 +60,8 @@ class MessageTransition(
 
   @SerialName("clienteId") var clienteId: String? = null
 
+  @SerialName("nickname") var nickname: String? = null
+
   override fun annotateFromPreferences(preferences: Preferences) {
     topic = preferences.pubTopicEvents
     qos = preferences.pubQosEvents.value

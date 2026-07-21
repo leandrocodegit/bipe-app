@@ -62,7 +62,7 @@ class AdvancedFragment @Inject constructor() :
 
     findPreference<SwitchPreferenceCompat>(
             Preferences::useGNSSInSignificantMonitoringMode.name)
-        ?.isVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+        ?.isVisible = Build.VERSION.SDK_INT >= 36
 
     findPreference<ListPreference>(Preferences::reverseGeocodeProvider.name)
         ?.onPreferenceChangeListener =

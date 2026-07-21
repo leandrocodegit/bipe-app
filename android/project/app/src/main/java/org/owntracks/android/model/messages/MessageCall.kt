@@ -13,7 +13,6 @@ class MessageCall(@Transient private val messageWithId: MessageWithId = MessageW
   @SerialName("_id")
   override var messageId: MessageId = messageWithId.messageId
 
-  var senderId: String? = null
   var sessaoid: String? = null
   var userName: String? = null
   var clienteId: String? = null

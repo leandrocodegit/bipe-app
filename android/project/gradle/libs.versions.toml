@@ -116,7 +116,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
 widgets-materialdrawer = { module = "com.mikepenz:materialdrawer", version.ref = "materialdrawer" }
 widgets-materialize = { module = "com.mikepenz:materialize", version.ref = "materialize" }
-webrtc = { module = "com.dafruits:webrtc", version = "113.0.0" }
+webrtc = { module = "com.dafruits:webrtc", version = "123.0.0" }
 
 # Testing
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }

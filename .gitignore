@@ -43,3 +43,4 @@ Thumbs.db
  
 src/environments/environment.dev.ts
 web-app/src/environments/environment.dev.ts
+android/*

@@ -63,7 +63,7 @@
                                 android:layout_height="40dp"
                                 android:src="@drawable/ic_baseline_my_location_24"
                                 android:contentDescription="Localização"
-                                app:tint="#1f2023" />
+                                app:tint="#0b1518" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -93,7 +93,7 @@
                             android:layout_gravity="end"
                             android:layout_marginTop="8dp"
                             android:text="@string/permission_btn_grant"
-                            android:textColor="#1f2023" />
+                            android:textColor="#0b1518" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -125,7 +125,7 @@
                                 android:layout_height="40dp"
                                 android:src="@drawable/ic_baseline_autorenew_24"
                                 android:contentDescription="Segundo Plano"
-                                app:tint="#1f2023" />
+                                app:tint="#0b1518" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -155,7 +155,7 @@
                             android:layout_gravity="end"
                             android:layout_marginTop="8dp"
                             android:text="@string/permission_btn_grant"
-                            android:textColor="#1f2023" />
+                            android:textColor="#0b1518" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -172,7 +172,7 @@
                     app:strokeWidth="1dp">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="365dp"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="16dp">
@@ -185,9 +185,9 @@
                                 android:id="@+id/iconNotifications"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:src="@drawable/ic_baseline_notifications_24"
                                 android:contentDescription="Notificações"
-                                app:tint="#1f2023" />
+                                android:src="@drawable/ic_baseline_notifications_24"
+                                app:tint="#0b1518" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -217,7 +217,7 @@
                             android:layout_gravity="end"
                             android:layout_marginTop="8dp"
                             android:text="@string/permission_btn_grant"
-                            android:textColor="#1f2023" />
+                            android:textColor="#0b1518" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -249,7 +249,7 @@
                                 android:layout_height="40dp"
                                 android:src="@drawable/ic_baseline_mic_24"
                                 android:contentDescription="Microfone"
-                                app:tint="#1f2023" />
+                                app:tint="#0b1518" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -279,7 +279,7 @@
                             android:layout_gravity="end"
                             android:layout_marginTop="8dp"
                             android:text="@string/permission_btn_grant"
-                            android:textColor="#1f2023" />
+                            android:textColor="#0b1518" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -299,10 +299,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:layout_margin="16dp"
-                android:backgroundTint="#1f2023"
+                android:backgroundTint="#0b1518"
                 android:text="@string/permission_btn_continue"
-                android:textSize="16sp"
                 android:textColor="#FFFFFF"
+                android:textSize="16sp"
                 app:cornerRadius="12dp" />
         </com.google.android.material.card.MaterialCardView>
 

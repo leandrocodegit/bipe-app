@@ -2,7 +2,7 @@
 <resources>
     <string name="aboutFeedbackCategoryTitle">"Feedback"</string>
     <string name="aboutIssuesSummary">"Reportar ao suporte"</string>
-    <string name="aboutIssuesTitle">"Suporte Sincroled"</string>
+    <string name="aboutIssuesTitle">"Suporte BIPE"</string>
     <string name="aboutLicense">"Termos de Uso"</string>
     <string name="aboutSourceCodeSummary">"Versão corporativa"</string>
     <string name="aboutTranslations">"Ajuda a traduzir esta aplicação"</string>

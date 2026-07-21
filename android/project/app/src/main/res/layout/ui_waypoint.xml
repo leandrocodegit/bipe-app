@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:title="Editar Ponto"
-                app:titleTextColor="#1f2023" />
+                app:titleTextColor="#0b1518" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <ScrollView
@@ -91,7 +91,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="64dp"
                     android:layout_marginTop="32dp"
-                    android:backgroundTint="#1f2023"
+                    android:backgroundTint="#0b1518"
                     android:text="Salvar"
                     android:textColor="#FFFFFF"
                     app:cornerRadius="12dp" />

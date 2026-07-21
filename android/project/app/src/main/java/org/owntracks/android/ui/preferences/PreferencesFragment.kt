@@ -62,12 +62,36 @@ class PreferencesFragment : AbstractPreferenceFragment(), Preferences.OnPreferen
         // Validators
         mapOf(
             Preferences::deviceId.name to { input: String -> input.isNotBlank() },
-            Preferences::tid.name to { input: String -> input.isNotBlank() && input.length <= 2 }
+            Preferences::tid.name to { input: String -> input.isNotBlank() && input.length <= 2 },
+            Preferences::nickname.name to { _: String -> true } // Optional, so any input is valid
         ).forEach { (preferenceName, validator) ->
             findPreference<ValidatingEditTextPreference>(preferenceName)?.apply {
                 validationFunction = validator
             }
         }
+        
+        updateGpsStatus()
+    }
+
+    private fun updateGpsStatus() {
+        val pref = findPreference<Preference>("gpsStatus") ?: return
+        val isEnabled = requirementsChecker.isLocationServiceEnabled()
+        
+        if (isEnabled) {
+            pref.summary = "O GPS está ATIVADO e funcionando corretamente."
+            pref.setOnPreferenceClickListener { false }
+        } else {
+            pref.summary = "O GPS está DESATIVADO. Clique aqui para ativar nas configurações do Android."
+            pref.setOnPreferenceClickListener {
+                startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                true
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateGpsStatus()
     }
 
     private fun showMascotSelectionDialog() {

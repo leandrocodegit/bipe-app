@@ -20,6 +20,7 @@ import android.os.PowerManager
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
+import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -377,6 +378,11 @@ class BackgroundService : LifecycleService(), Preferences.OnPreferenceChangeList
     scheduler.scheduleLocationPing()
     significantMotionSensor.setup()
     messageProcessor.initialize()
+    
+    // Publish card on service start if setup is done
+    if (preferences.setupCompleted) {
+        locationProcessor.publishCardMessage()
+    }
   }
 
   private fun notifyUserOfBackgroundLocationRestriction() {
@@ -530,6 +536,7 @@ class BackgroundService : LifecycleService(), Preferences.OnPreferenceChangeList
     }
   }
 
+  @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
   private fun setupLocationRequest(): Result<Unit> {
     Timber.v("setupLocationRequest")
     if (requirementsChecker.hasLocationPermissions()) {
@@ -548,18 +555,8 @@ class BackgroundService : LifecycleService(), Preferences.OnPreferenceChangeList
         MonitoringMode.Significant -> {
           interval = Duration.ofSeconds(preferences.locatorInterval.toLong())
           smallestDisplacement = preferences.locatorDisplacement.toFloat()
-          // QPR1 (where balanced-accuracy stopped using GNSS, per #2155) isn't separately
-          // detectable from the Android 16 GA release, so we gate on Android 16+ generally.
-          val useGnss =
-              Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
-                  preferences.useGNSSInSignificantMonitoringMode
-          priority =
-              preferences.locatorPriority
-                  ?: if (useGnss) {
-                    LocatorPriority.HighAccuracy
-                  } else {
-                    LocatorPriority.BalancedPowerAccuracy
-                  }
+          // Force High Accuracy on emulators to prevent sensor sleep
+          priority = LocatorPriority.HighAccuracy
         }
 
         MonitoringMode.Move -> {
@@ -656,8 +653,12 @@ class BackgroundService : LifecycleService(), Preferences.OnPreferenceChangeList
       setupLocationRequest()
       ongoingNotification.setMonitoringMode(preferences.monitoring)
     }
-    if (properties.contains(Preferences::face.name)) {
+    if (properties.contains(Preferences::face.name) || properties.contains(Preferences::nickname.name)) {
       ongoingNotification.refresh()
+      locationProcessor.publishCardMessage()
+    }
+    if (properties.contains(Preferences::setupCompleted.name) && preferences.setupCompleted) {
+      locationProcessor.publishCardMessage()
     }
     if (properties.intersect(PREFERENCES_THAT_WIPE_QUEUE_AND_CONTACTS).isNotEmpty()) {
       lifecycleScope.launch { contactsRepo.clearAll() }

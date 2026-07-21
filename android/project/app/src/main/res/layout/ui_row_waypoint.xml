@@ -28,7 +28,7 @@
                 android:layout_height="40dp"
                 android:src="@drawable/ic_baseline_adjust_24"
                 android:contentDescription="Ícone"
-                app:tint="#1f2023" />
+                app:tint="#0b1518" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 app:lastTransition="@{waypoint.lastTransition}"
-                android:textColor="#1f2023"
+                android:textColor="#0b1518"
                 android:textSize="12sp"
                 android:textStyle="italic" />
 

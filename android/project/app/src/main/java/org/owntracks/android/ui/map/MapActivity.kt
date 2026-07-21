@@ -20,6 +20,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import org.owntracks.android.preferences.types.MonitoringMode
 import dagger.hilt.android.AndroidEntryPoint
 import org.owntracks.android.R
 import org.owntracks.android.databinding.UiMapBinding
@@ -64,7 +65,10 @@ class MapActivity :
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        )
         super.onCreate(savedInstanceState)
 
         if (!preferences.setupCompleted || !authManager.isAuthorized()) {
@@ -75,14 +79,14 @@ class MapActivity :
 
         binding = DataBindingUtil.setContentView<UiMapBinding>(this, R.layout.ui_map).apply {
             lifecycleOwner = this@MapActivity
-            
+
             appbar.toolbar.run {
                 setSupportActionBar(this)
                 supportActionBar?.setDisplayShowTitleEnabled(false)
-                
+
                 // Remove navigation icon (sandwich/settings)
                 navigationIcon = null
-                
+
                 // Keep it slim as a spacer for status bar
                 layoutParams.height = 0
             }
@@ -167,12 +171,16 @@ class MapActivity :
                 useWideViewPort = true
             }
             
-            loadUrl("https://bipe.simodapp.com/mapa")
+            loadUrl("http://192.168.15.171:5500")
         }
     }
 
     override fun onResume() {
         super.onResume()
+        
+        // Auto-switch to MOVE mode when in foreground
+        preferences.monitoring = MonitoringMode.Move
+
         if (!authManager.isAuthorized()) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -189,6 +197,12 @@ class MapActivity :
             finish()
             return
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Auto-switch to SIGNIFICANT mode when in background
+        preferences.monitoring = MonitoringMode.Significant
     }
 
     override fun onStart() {

@@ -7,6 +7,8 @@ import android.media.AudioManager
 import android.media.MediaRecorder
 import android.media.MediaPlayer
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,6 +47,13 @@ class WebRTCManager @Inject constructor(
     private var currentClienteId: String? = null
     
     private val processedMessageIds = Collections.synchronizedSet(HashSet<String>())
+    private val handler = Handler(Looper.getMainLooper())
+    private val connectionTimeoutRunnable = Runnable { 
+        if (_isCallInProgress.value) {
+            Timber.w("WebRTC: Negotiation timeout reached. Resetting.")
+            stopCall()
+        }
+    }
 
     init {
         initPeerConnectionFactory()
@@ -71,23 +80,27 @@ class WebRTCManager @Inject constructor(
         audioDeviceModule.release()
     }
 
-    fun startCall(sessionId: String? = null, userName: String? = null, clienteId: String? = null) {
+    fun startCall(messageId: String? = null, sessionId: String? = null, userName: String? = null, clienteId: String? = null) {
+        if (messageId != null && processedMessageIds.contains(messageId)) return
+        messageId?.let { processedMessageIds.add(it) }
+
         if (_isCallInProgress.value) {
-            Timber.d("WebRTC: Chamada já em andamento. Enviando sinal de OCUPADO.")
+            Timber.d("WebRTC: Already in progress. Sending busy.")
             sendBusyMessage(sessionId, userName, clienteId)
             return
         }
         
         if (!requestAudioFocus()) return
         acquireWakeLock()
-        
-        // Toca o bipe personalizado
         playCustomBeep()
         
         _isCallInProgress.value = true
         currentSessionId = sessionId
         currentUserName = userName
         currentClienteId = clienteId
+
+        handler.removeCallbacks(connectionTimeoutRunnable)
+        handler.postDelayed(connectionTimeoutRunnable, 30000)
 
         setupAudioMode(true)
         createPeerConnection()
@@ -97,10 +110,10 @@ class WebRTCManager @Inject constructor(
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"))
         }
 
-        peerConnection?.createOffer(object : SimpleSdpObserver() {
+        peerConnection?.createOffer(object : SimpleSdpObserver(this) {
             override fun onCreateSuccess(p0: SessionDescription?) {
                 p0?.let { sdp ->
-                    peerConnection?.setLocalDescription(object : SimpleSdpObserver() {
+                    peerConnection?.setLocalDescription(object : SimpleSdpObserver(this@WebRTCManager) {
                         override fun onSetSuccess() {
                             sendSignalingMessage("offer", sdp.description)
                         }
@@ -112,34 +125,25 @@ class WebRTCManager @Inject constructor(
 
     private fun playCustomBeep() {
         try {
-            // Busca o recurso bipe_digital na pasta res/raw
             val resId = context.resources.getIdentifier("bipe_digital", "raw", context.packageName)
+            val streamType = AudioManager.STREAM_ALARM
+            audioManager.setStreamVolume(streamType, audioManager.getStreamMaxVolume(streamType), 0)
+            
             if (resId != 0) {
                 val mp = MediaPlayer.create(context, resId)
-                mp.setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build()
-                )
+                mp.setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build())
+                mp.setVolume(1.0f, 1.0f)
                 mp.setOnCompletionListener { it.release() }
                 mp.start()
-                Timber.d("WebRTC: Tocando bipe_digital.mp3")
-            } else {
-                Timber.w("WebRTC: Arquivo bipe_digital não encontrado, usando fallback PTT")
-                val tg = android.media.ToneGenerator(AudioManager.STREAM_MUSIC, 100)
-                tg.startTone(android.media.ToneGenerator.TONE_SUP_PIP, 150)
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ tg.release() }, 200)
             }
-        } catch (e: Exception) {
-            Timber.e(e, "Falha ao tocar bipe")
-        }
+        } catch (e: Exception) { Timber.e(e) }
     }
 
     private fun setupAudioMode(on: Boolean) {
         if (on) {
             audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
             audioManager.isMicrophoneMute = false
+            audioManager.isSpeakerphoneOn = true
         } else {
             audioManager.mode = AudioManager.MODE_NORMAL
             abandonAudioFocus()
@@ -148,14 +152,8 @@ class WebRTCManager @Inject constructor(
 
     private fun requestAudioFocus(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val playbackAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build()
             audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(playbackAttributes)
-                .setAcceptsDelayedFocusGain(true)
-                .setOnAudioFocusChangeListener { }
+                .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION).build())
                 .build()
             audioManager.requestAudioFocus(audioFocusRequest!!) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
         } else {
@@ -174,12 +172,8 @@ class WebRTCManager @Inject constructor(
     }
 
     private fun acquireWakeLock() {
-        if (wakeLock == null) {
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sincroled:WebRTCCall")
-        }
-        if (!wakeLock!!.isHeld) {
-            wakeLock!!.acquire(10 * 60 * 1000L)
-        }
+        if (wakeLock == null) wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sincroled:WebRTCCall")
+        if (!wakeLock!!.isHeld) wakeLock!!.acquire(10 * 60 * 1000L)
     }
 
     private fun releaseWakeLock() {
@@ -189,9 +183,7 @@ class WebRTCManager @Inject constructor(
     }
 
     private fun createPeerConnection() {
-        if (peerConnection != null) {
-            peerConnection?.dispose()
-        }
+        if (peerConnection != null) peerConnection?.dispose()
 
         val iceServers = listOf(
             PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
@@ -202,16 +194,15 @@ class WebRTCManager @Inject constructor(
         }
 
         peerConnection = peerConnectionFactory?.createPeerConnection(rtcConfig, object : PeerConnection.Observer {
-            override fun onIceCandidate(candidate: IceCandidate) {
-                sendIceCandidate(candidate)
-            }
+            override fun onIceCandidate(candidate: IceCandidate) { sendIceCandidate(candidate) }
             override fun onIceConnectionChange(state: PeerConnection.IceConnectionState?) {
+                if (state == PeerConnection.IceConnectionState.CONNECTED) {
+                    handler.removeCallbacks(connectionTimeoutRunnable)
+                }
                 if (state == PeerConnection.IceConnectionState.DISCONNECTED || 
                     state == PeerConnection.IceConnectionState.FAILED ||
                     state == PeerConnection.IceConnectionState.CLOSED) {
-                    if (_isCallInProgress.value) {
-                        stopCall()
-                    }
+                    if (_isCallInProgress.value) stopCall()
                 }
             }
             override fun onIceCandidatesRemoved(p0: Array<out IceCandidate>?) {}
@@ -224,7 +215,6 @@ class WebRTCManager @Inject constructor(
             override fun onRenegotiationNeeded() {}
             override fun onAddTrack(p0: RtpReceiver?, p1: Array<out MediaStream>?) {}
         })
-
         addAudioTrack()
     }
 
@@ -258,7 +248,6 @@ class WebRTCManager @Inject constructor(
             sendBusyMessage(sessionId, userName, clienteId)
             return
         }
-        
         if (!requestAudioFocus()) return
         acquireWakeLock()
         playCustomBeep()
@@ -267,7 +256,6 @@ class WebRTCManager @Inject constructor(
         currentSessionId = sessionId
         currentUserName = userName
         currentClienteId = clienteId
-        
         setupAudioMode(true)
         createPeerConnection()
         
@@ -276,12 +264,12 @@ class WebRTCManager @Inject constructor(
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"))
         }
 
-        peerConnection?.setRemoteDescription(object : SimpleSdpObserver() {
+        peerConnection?.setRemoteDescription(object : SimpleSdpObserver(this) {
             override fun onSetSuccess() {
-                peerConnection?.createAnswer(object : SimpleSdpObserver() {
+                peerConnection?.createAnswer(object : SimpleSdpObserver(this@WebRTCManager) {
                     override fun onCreateSuccess(answerSdp: SessionDescription?) {
                         answerSdp?.let {
-                            peerConnection?.setLocalDescription(SimpleSdpObserver(), it)
+                            peerConnection?.setLocalDescription(SimpleSdpObserver(this@WebRTCManager), it)
                             sendSignalingMessage("answer", it.description)
                         }
                     }
@@ -291,7 +279,7 @@ class WebRTCManager @Inject constructor(
     }
 
     private fun handleAnswer(sdp: String) {
-        peerConnection?.setRemoteDescription(SimpleSdpObserver(), SessionDescription(SessionDescription.Type.ANSWER, sdp))
+        peerConnection?.setRemoteDescription(SimpleSdpObserver(this), SessionDescription(SessionDescription.Type.ANSWER, sdp))
     }
 
     private fun handleCandidate(message: MessageRTC) {
@@ -303,14 +291,11 @@ class WebRTCManager @Inject constructor(
     private fun sendBusyMessage(sessionId: String?, userName: String?, clienteId: String?) {
         val msg = MessageRTC().apply {
             subtype = "busy"
-            senderId = preferences.deviceId
             sessaoid = sessionId
             this.userName = userName
             this.clienteId = clienteId
         }
-        val customTopic = if (userName != null && clienteId != null) {
-            "owntracks/${userName}/${clienteId}/rtc/send"
-        } else null
+        val customTopic = if (userName != null && clienteId != null) "owntracks/${userName}/${clienteId}/rtc/send" else null
         messageProcessor.queueMessageForSending(msg, customTopic)
     }
 
@@ -318,16 +303,11 @@ class WebRTCManager @Inject constructor(
         val msg = MessageRTC().apply {
             this.subtype = subtype
             this.sdp = sdp
-            this.senderId = preferences.deviceId
             this.sessaoid = currentSessionId
             this.userName = currentUserName
             this.clienteId = currentClienteId
         }
-        
-        val customTopic = if (currentUserName != null && currentClienteId != null) {
-            "owntracks/${currentUserName}/${currentClienteId}/rtc/send"
-        } else null
-
+        val customTopic = if (currentUserName != null && currentClienteId != null) "owntracks/${currentUserName}/${currentClienteId}/rtc/send" else null
         messageProcessor.queueMessageForSending(msg, customTopic)
     }
 
@@ -337,27 +317,24 @@ class WebRTCManager @Inject constructor(
             this.candidate = candidate.sdp
             sdpMid = candidate.sdpMid
             sdpMLineIndex = candidate.sdpMLineIndex
-            this.senderId = preferences.deviceId
             this.sessaoid = currentSessionId
             this.userName = currentUserName
             this.clienteId = currentClienteId
         }
-
-        val customTopic = if (currentUserName != null && currentClienteId != null) {
-            "owntracks/${currentUserName}/${currentClienteId}/rtc/send"
-        } else null
-
+        val customTopic = if (currentUserName != null && currentClienteId != null) "owntracks/${currentUserName}/${currentClienteId}/rtc/send" else null
         messageProcessor.queueMessageForSending(msg, customTopic)
     }
 
     fun stopCall() {
+        Timber.d("WebRTC: Stopping call and resetting states.")
+        handler.removeCallbacks(connectionTimeoutRunnable)
         _isCallInProgress.value = false
         currentSessionId = null
         currentUserName = null
         currentClienteId = null
+        processedMessageIds.clear() 
         setupAudioMode(false)
         releaseWakeLock()
-
         peerConnection?.dispose()
         peerConnection = null
         localAudioSource?.dispose()
@@ -366,10 +343,16 @@ class WebRTCManager @Inject constructor(
         localAudioTrack = null
     }
 
-    open class SimpleSdpObserver : SdpObserver {
+    open class SimpleSdpObserver(private val manager: WebRTCManager) : SdpObserver {
         override fun onCreateSuccess(p0: SessionDescription?) {}
         override fun onSetSuccess() {}
-        override fun onCreateFailure(p0: String?) { Timber.e("WebRTC Erro: $p0") }
-        override fun onSetFailure(p0: String?) { Timber.e("WebRTC Erro Set: $p0") }
+        override fun onCreateFailure(p0: String?) { 
+            Timber.e("WebRTC Error: $p0")
+            manager.stopCall() 
+        }
+        override fun onSetFailure(p0: String?) { 
+            Timber.e("WebRTC Set Error: $p0")
+            manager.stopCall()
+        }
     }
 }

@@ -19,8 +19,6 @@ import org.owntracks.android.support.AuthManager
 import org.owntracks.android.ui.auth.LoginActivity
 import org.owntracks.android.ui.map.MapActivity
 import org.owntracks.android.ui.preferences.PreferencesActivity
-import org.owntracks.android.ui.preferences.about.AboutActivity
-import org.owntracks.android.ui.status.StatusActivity
 import org.owntracks.android.ui.waypoints.WaypointsActivity
 
 @ActivityScoped
@@ -70,12 +68,6 @@ constructor(
       is MapActivity -> {
         itemId = R.id.nav_map
       }
-      is StatusActivity -> {
-        itemId = R.id.nav_status
-      }
-      is AboutActivity -> {
-        itemId = R.id.nav_about
-      }
       is PreferencesActivity -> {
         itemId = R.id.nav_preferences
       }
@@ -96,17 +88,11 @@ constructor(
       R.id.nav_map -> {
         navigateToActivity(MapActivity::class.java)
       }
-      R.id.nav_status -> {
-        navigateToActivity(StatusActivity::class.java)
-      }
       R.id.nav_preferences -> {
         navigateToActivity(PreferencesActivity::class.java)
       }
       R.id.nav_waypoints -> {
         navigateToActivity(WaypointsActivity::class.java)
-      }
-      R.id.nav_about -> {
-        navigateToActivity(AboutActivity::class.java)
       }
       R.id.nav_logout -> {
         logout()
