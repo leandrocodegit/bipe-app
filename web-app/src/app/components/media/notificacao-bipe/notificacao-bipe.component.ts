@@ -6,6 +6,7 @@ import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { ButtonModule } from 'primeng/button';
 import { AudioCallService, CallInfo } from '@/shared/services/audio-call.service';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { DeviceService } from '@/shared/services/device.service';
 
 export type BipeStage = 'IDLE' | 'START' | 'WAITING_ACCEPT' | 'ACCEPTED' | 'COMPLETED' | 'VIBRATE_COMPLETED' | 'TIMEOUT' | 'ERROR' | 'FORCE';
 
@@ -42,7 +43,8 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     private readonly mqttConnectionService: MqttConnectionService,
     private readonly audioCallService: AudioCallService,
     private readonly oauthService: OAuthService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly deviceService: DeviceService
   ) { }
 
   ngOnInit(): void {
@@ -237,48 +239,45 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   public executarBipeForce(): void {
     if (!this.callInfo) return;
 
-    const bipeTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/bipe`;
-    const cmdTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/cmd`;
+    const type = 'bipe';
+    const status = 'FORCE';
 
-    const forcePayload = JSON.stringify({
-      _type: 'bipe',
-      status: 'FORCE',
-      token: this.oauthService.getAccessToken()
+    console.log('Enviando comando de Bipe FORCE via backend para dispositivo:', this.callInfo.deviceId);
+
+    this.deviceService.sendCommand(this.callInfo.deviceId, {type, status}).subscribe({
+      next: () => {
+        this.statusStage = 'WAITING_ACCEPT';
+        this.completedCount++;
+        const name = this.remoteNickName || this.remoteUserName || this.callInfo?.userName || 'Dispositivo';
+        this.statusMessage = `Bipe FORÇADO enviado para ${name} (${this.completedCount}x)!`;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao enviar bipe FORCE:', err);
+      }
     });
-
-    console.log('Enviando comando de Bipe FORCE (retained = true) para:', bipeTopic);
-
-    this.mqttConnectionService.unsafePublish(cmdTopic, forcePayload, { qos: 1, retain: true });
-    this.mqttConnectionService.unsafePublish(bipeTopic, forcePayload, { qos: 1, retain: true });
-
-    this.statusStage = 'WAITING_ACCEPT';
-    this.completedCount++;
-    const name = this.remoteNickName || this.remoteUserName || this.callInfo.userName || 'Dispositivo';
-    this.statusMessage = `Bipe FORÇADO enviado para ${name} (${this.completedCount}x)!`;
-    this.cdr.detectChanges();
   }
 
   public confirmarExecutarBipe(): void {
     if (!this.callInfo) return;
 
-    const bipeTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/bipe`;
-    const cmdTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/cmd`;
+    const type = this.callInfo.vibrate ? 'vibrate' : 'bipe';
+    const status = 'START';
 
-    const completePayload = JSON.stringify({
-      _type: this.callInfo.vibrate ? 'vibrate' : 'bipe',
-      status: 'START',
-      token: this.oauthService.getAccessToken()
+    console.log('Enviando comando de Bipe via backend para dispositivo:', this.callInfo.deviceId);
+
+    this.deviceService.sendCommand(this.callInfo.deviceId, {type, status}).subscribe({
+      next: () => {
+        this.statusStage = 'WAITING_ACCEPT';
+        this.completedCount++;
+        const name = this.remoteNickName || this.remoteUserName || this.callInfo?.userName || 'Dispositivo';
+        this.statusMessage = `Bipe enviado com sucesso para ${name} (${this.completedCount}x)!`;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erro ao enviar bipe:', err);
+      }
     });
-
-    console.log('Enviando comando de conclusão de Bipe (COMPLETE) para:', bipeTopic);
-
-    this.mqttConnectionService.unsafePublish(cmdTopic, completePayload, { qos: 1, retain: false });
-
-    this.statusStage = 'WAITING_ACCEPT';
-    this.completedCount++;
-    const name = this.remoteNickName || this.remoteUserName || this.callInfo.userName || 'Dispositivo';
-    this.statusMessage = `Bipe enviado com sucesso para ${name} (${this.completedCount}x)!`;
-    this.cdr.detectChanges();
   }
 
 

@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { AudioCallService, CallState, CallInfo } from '@/shared/services/audio-call.service';
 import { MessageService } from 'primeng/api';
 import { OAuthService } from 'angular-oauth2-oidc';
+import { DeviceService } from '@/shared/services/device.service';
 
 interface RtcSignal {
   _type: 'rtc';
@@ -62,6 +63,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   constructor(
     private readonly mqttConnectionService: MqttConnectionService,
     private readonly audioCallService: AudioCallService,
+    private readonly deviceService: DeviceService,
     private readonly oauthService: OAuthService
   ) { }
 
@@ -159,26 +161,28 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     }
   }
 
+
+
   private async initOutgoingCall(): Promise<void> {
     if (!this.callInfo) return;
-    const callPublishTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/call`;
 
     delete this.resposta;
     this.startCallTimeout();
 
-    this.mqttConnectionService.unsafePublish(
-      callPublishTopic,
-      JSON.stringify(
-        {
-          _type: 'call',
-          token: this.oauthService.getAccessToken(),
-          senderId: this.clientId,
-          userName: this.userName,
-          clienteId: this.clientId,
-          _id: this.generateMessageId()
-        }),
-      { qos: 1, retain: false }
-    );
+    this.deviceService.sendCommand(this.callInfo.deviceId, {
+      type: 'call',
+      status: 'IDLE',
+      userName: this.userName,
+      clientId: this.clientId
+    }).subscribe({
+      next: () => {
+
+      },
+      error: (err) => {
+        this.resposta = 'Chamada não foi concluida';
+        this.rejectCall();
+      }
+    });
   }
 
   private stopCall(): void {
@@ -227,7 +231,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
       if (this.callState === 'OUTGOING' || this.callState === 'RINGING') {
         this.audioCallService.endCall();
         this.resposta = 'O dispositivo já está em uma chamada no momento.';
-             }
+      }
       return;
     }
 

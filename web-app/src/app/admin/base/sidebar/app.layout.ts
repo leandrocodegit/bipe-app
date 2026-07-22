@@ -45,7 +45,7 @@ import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/no
     <!-- UI SOBREPOSTA (ROUTER + BOTTOM BAR) -->
     <div class="absolute inset-0 z-10 pointer-events-none flex flex-col"
          [style.paddingTop]="'calc(4rem + env(safe-area-inset-top, 0px))'">
- 
+
 
       <app-audio-webrtc class="pointer-events-auto z-50 w-full shrink-0"></app-audio-webrtc>
       <app-notificacao-bipe class="pointer-events-auto z-50 w-full shrink-0"/>
@@ -70,10 +70,10 @@ import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/no
       </div>
 
       <!-- BOTTOM NAVIGATION BAR (Apenas Mobile) -->
-      <div class="pb-[3.5rem] lg:hidden pointer-events-auto w-full bg-white/90 dark:bg-[#0b1214]/90 backdrop-blur-md border-t border-slate-200 dark:border-[#142b32] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
+      <div class="pb-[3.5rem] lg:hidden pointer-events-auto w-full bg-[#0b151708] dark:bg-[#0b1214]/90 backdrop-blur-md border-t border-slate-200 dark:border-[#142b32] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
            @if(load){
             <p-progressbar mode="indeterminate" [style]="{ height: '4px' }" />
-          }  
+          }
       <div class="flex justify-around items-center h-16">
           <a routerLink="/friends" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="pi pi-users text-xl mb-1"></i>

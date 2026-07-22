@@ -36,4 +36,8 @@ export class DeviceService {
     return this.http.get<ProximidadeDevice[]>(url);
   }
 
+  public sendCommand(deviceId: string, request: any): Observable<any> {
+    return this.http.post<any>(`${environment.urlApi}/bipe/devices/${deviceId}/bipe`, request);
+  }
+
 }

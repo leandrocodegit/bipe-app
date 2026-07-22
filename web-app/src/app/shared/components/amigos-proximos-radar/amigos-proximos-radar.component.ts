@@ -110,13 +110,13 @@ export class AmigosProximosRadarComponent implements OnInit, OnChanges {
 
     const bearing = this.calculateBearing(this.deviceLat, this.deviceLon, friend.lat, friend.lon);
 
-    // Escala logarítmica para distribuir os dispositivos de forma mais visível no radar
-    const minDistance = 5;
-    const dist = Math.max(minDistance, friend.distanciaMetros);
-    const ratio = Math.log(dist) / Math.log(this.maxDistance);
+    // Escala linear para manter consistência exata com os círculos concêntricos de distância do radar
+    const ratio = this.maxDistance > 0 ? friend.distanciaMetros / this.maxDistance : 0;
 
-    // Distribui o raio em porcentagem (entre 18% e 45% do raio total do círculo)
-    const radius = 18 + Math.min(27, ratio * 27);
+    // Distribui o raio em porcentagem (entre 10% e 45% do tamanho total)
+    // O círculo interno de 25% do diâmetro corresponde a um raio de 12.5%.
+    // Um dispositivo a 9m com maxDistance de 500m terá raio de ~10.6%, caindo perfeitamente dentro do círculo interno.
+    const radius = 10 + Math.min(35, ratio * 35);
 
     // Converter ângulo polar para coordenadas cartesianas (Norte = 0 graus)
     const angleRad = (bearing - 90) * Math.PI / 180;

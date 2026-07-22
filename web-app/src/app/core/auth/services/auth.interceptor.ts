@@ -56,16 +56,16 @@ export class AuthInterceptor implements HttpInterceptor {
           return throwError(() => error);
         }
         else if (!req.url.includes('noLoad=true')) {
-          if (error.status == 409 && error?.error?.message && !req.url.endsWith('formKey'))
+       /*    if (error.status == 409 && error?.error?.message && !req.url.endsWith('formKey'))
             this.messageService.add({ severity: 'error', summary: 'Erro', detail: error?.error?.message });
           else if (error.status == 400 && error?.error?.message && !req.url.endsWith('formKey'))
-            this.messageService.add({ severity: 'error', summary: 'Erro', detail: error?.error?.message });
+            this.messageService.add({ severity: 'error', summary: 'Erro', detail: error?.error?.message }); */
           return throwError(() => error);
         }
       }),
       tap(event => {
         if (!req.url.includes('noLoad=true') && event instanceof HttpResponse && req.method !== 'GET' && req.method !== 'OPTIONS' && !req.url.includes('tema') && !req.url.includes('/list') && !req.url.includes('/processo/api/v1/history/task') && !req.url.includes('/processo/api/v1/history/process-instance') && !req.url.includes('/relatorio')) {
-          this.messageService.add({ severity: 'success', detail: 'Salvo com sucesso' });
+        //  this.messageService.add({ severity: 'success', detail: 'Salvo com sucesso' });
         }
       }),
       finalize(() => {
