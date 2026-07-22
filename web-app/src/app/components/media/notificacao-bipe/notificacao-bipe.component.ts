@@ -48,6 +48,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscriptions.add(
       this.audioCallService.bipeState$.subscribe(state => {
+        console.log('Mensagem de Bipe recebida no /bipe:', state);
         if (state === 'BIPE' && this.audioCallService.currentCallInfo) {
           this.callInfo = this.audioCallService.currentCallInfo;
           this.iniciarFluxoBipe();

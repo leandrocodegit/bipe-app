@@ -76,16 +76,14 @@ export class FriendDetailComponent implements OnChanges {
 
   protected carregarProximidades(): void {
 
-    if (!this.friend?.id) return;
-
-    const parts = this.friend.topic.split('/');
-    if (parts.length < 3) return;
-
-    const userName = parts[1];
-    const deviceId = parts[2];
+    if (!this.friend?.deviceId) {
+      const parts = this.friend.topic.split('/');       
+      if (parts.length < 3) return;
+      this.friend.deviceId = parts[2];
+    };
 
     this.loadingProximity = true;
-    this.waypointService.getProximidade(deviceId).subscribe({
+    this.waypointService.getProximidade(this.friend.deviceId).subscribe({
       next: (data) => {
         this.proximityWaypoints = data || [];
         this.loadingProximity = false;

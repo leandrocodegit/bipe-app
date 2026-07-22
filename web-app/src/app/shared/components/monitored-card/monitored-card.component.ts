@@ -63,27 +63,30 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
   }
 
   callFriend(): void {
+    if (!this.monitoredCard) return;
 
-
-    if(!this.monitoredCard) return;
-
-    const parts = this.monitoredCard.id.split('/');
+    const path = this.monitoredCard.id || this.monitoredCard.id || '';
+    const parts = path.split('/');
     if (parts.length >= 3) {
       const userName = parts[1];
       const deviceId = parts[2];
       this.audioCallService.startOutgoingCall(deviceId, userName);
+    } else {
+      console.warn('Não foi possível extrair userName e deviceId do path:', path);
     }
   }
 
   sendBipe(vibrate?: boolean): void {
- 
-    if(!this.monitoredCard) return;
+    if (!this.monitoredCard) return;
 
-    const parts = this.monitoredCard.id.split('/');
+    const path = this.monitoredCard.topic || this.monitoredCard.id || '';
+    const parts = path.split('/');
     if (parts.length >= 3) {
       const userName = parts[1];
       const deviceId = parts[2];
       this.audioCallService.sendBipe(deviceId, userName, this.monitoredCard.card, vibrate);
+    } else {
+      console.warn('Não foi possível extrair userName e deviceId do path:', path);
     }
   }
 

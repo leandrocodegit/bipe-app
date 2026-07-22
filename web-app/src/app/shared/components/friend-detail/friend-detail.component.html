@@ -154,13 +154,9 @@
   </div>
 
   <!-- RADAR DE PROXIMIDADE DE AMIGOS -->
-  <div *ngIf="friend.location" class="mt-2.5">
+  <div *ngIf="this.friend?.deviceId" class="mt-2.5">
     <app-amigos-proximos-radar 
-      [deviceId]="friend.id"
-      [deviceLat]="friend.location.lat"
-      [deviceLon]="friend.location.lon"
-      [deviceIcon]="friend.card.face"
-      [deviceColor]="friend.card.color" />
+      [deviceId]="this.friend.deviceId" />
   </div>
 
   <!-- Espaço para não encostar os botões no fundo ao dar scroll -->

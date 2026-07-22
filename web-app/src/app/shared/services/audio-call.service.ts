@@ -45,7 +45,7 @@ export class AudioCallService {
   }
 
   public sendBipe(deviceId: string, userName: string, card: FriendCard, vibrate?: boolean): void {
-    console.log('AudioCallService.sendBipe chamado com:', deviceId, userName);
+    console.log('sendBipe:', deviceId, userName, card);
     this.callInfoSubject.next({ deviceId, userName, direction: 'outgoing', card, vibrate: vibrate });
     this.bipeSubject.next('BIPE');
   }

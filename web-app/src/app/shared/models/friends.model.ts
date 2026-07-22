@@ -68,6 +68,7 @@ export interface Region {
 
 export interface FriendPresence {
   id: string;
+  deviceId?: string;
   topic: string;
   card: FriendCard;
   location?: OwnTracksLocation;
