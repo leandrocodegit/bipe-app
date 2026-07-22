@@ -13,7 +13,6 @@ import { LayoutService } from '@/shared/services/layout.service';
 import { LoadService } from '@/shared/components/preload/load.service';
 import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webrtc.component';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/notificacao-bipe.component';
 
 @Component({
   selector: 'app-layout',
@@ -28,8 +27,7 @@ import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/no
     TabsModule,
     ButtonModule,
     ProgressBarModule,
-    AudioWebrtcComponent,
-    NotificacaoBipeComponent
+    AudioWebrtcComponent
   ],
   template: `
 <div class="layout-wrapper" [ngClass]="containerClass">
@@ -48,7 +46,6 @@ import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/no
  
 
       <app-audio-webrtc class="pointer-events-auto z-50 w-full shrink-0"></app-audio-webrtc>
-      <app-notificacao-bipe class="pointer-events-auto z-50 w-full shrink-0"/>
 
       <div class="flex-1 w-full min-h-0 relative overflow-hidden flex flex-col lg:flex-row pointer-events-none">
 
@@ -82,6 +79,10 @@ import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/no
           <a routerLink="/devices" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="pi pi-tablet text-xl mb-1"></i>
             <span class="text-[10px] font-medium">Dispositivos</span>
+          </a>
+          <a routerLink="/rotinas" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
+            <i class="pi pi-directions text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Rotinas</span>
           </a>
           <a routerLink="/radar" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="pi pi-bullseye text-xl mb-1"></i>
