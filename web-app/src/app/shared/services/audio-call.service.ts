@@ -17,7 +17,7 @@ export class AudioCallService {
 
   public callState$: Observable<CallState> = this.callStateSubject.asObservable();
 
-  private bipeSubject = new BehaviorSubject<CallState>('BIPE');
+  private bipeSubject = new BehaviorSubject<CallState>('IDLE');
   public bipeState$: Observable<CallState> = this.bipeSubject.asObservable();
 
   private callInfoSubject = new BehaviorSubject<CallInfo | null>(null);
@@ -38,7 +38,7 @@ export class AudioCallService {
   }
 
   public sendBipe(deviceId: string, userName?: string): void {
-    if (this.currentStateBipe !== 'BIPE') return;
+    console.log('AudioCallService.sendBipe chamado com:', deviceId, userName);
     this.callInfoSubject.next({ deviceId, userName, direction: 'outgoing' });
     this.bipeSubject.next('BIPE');
   }
@@ -63,6 +63,7 @@ export class AudioCallService {
 
   public endCall(): void {
     this.callStateSubject.next('IDLE');
+    this.bipeSubject.next('IDLE');
     this.callInfoSubject.next(null);
   }
 }

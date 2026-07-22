@@ -22,7 +22,7 @@
       @if (isLogin && unattendedCount > 0) {
       <button type="button" class="layout-topbar-action relative"
         (click)="notifOp.toggle($event); buscarNaoAtendidas()">
-        <i class="pi pi-bell text-orange-600 animate-pulse"></i>
+        <i class="pi pi-clock text-orange-600 animate-pulse"></i>
         <span
           class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm animate-pulse">
           {{ unattendedCount }}

@@ -6,7 +6,7 @@
     <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
     <span
       class="text-[9px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1 hidden xs:inline">Rastreando</span>
-    <h3 class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white m-0">{{ layoutService.isMobile() ?
+    <h3 class="text-sm font-extrabold tracking-tight text-slate-900 dark:text-white m-0 uppercase">{{ layoutService.isMobile() ?
       monitoredCard.card.tid : monitoredCard.card?.nickname
       ?? monitoredCard.card.tid }}</h3>
   </div>
@@ -54,9 +54,7 @@
     <button (click)="sendBipe()"
       class="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-yellow-600 transition-colors hover:bg-yellow-200 active:scale-95 dark:bg-yellow-950/40 dark:text-yellow-400"
       pTooltip="Bipe" tooltipPosition="top">
-      <span class="material-symbols-outlined">
-        notification_sound
-      </span>
+      <i class="pi pi-bell text-sm"></i>
     </button>
     <button *ngIf="monitoredCard?.id && monitoredCard.card?.opMode !== 3 && monitoredCard.location?.opMode !== 3"
       (click)="callFriend()"

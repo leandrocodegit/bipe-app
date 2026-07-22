@@ -1,7 +1,161 @@
-<div *ngIf="resposta"
-    class="p-2 bg-[#29b57c] text-white text-xs font-semibold text-center shadow-sm transition-all duration-300">
-    {{ resposta }}
-    <span class="material-symbols-outlined" (click)="fechar()">
-        close
-    </span>
+<div *ngIf="statusStage !== 'IDLE'"
+  class="w-full shrink-0 transition-all duration-300 ease-out pointer-events-auto shadow-lg z-50">
+
+  <!-- STAGE 1: WAITING ACCEPT -->
+  <div *ngIf="statusStage === 'WAITING_ACCEPT'"
+    class="flex items-center justify-between w-full px-4 py-2.5 bg-slate-900/95 border-b border-blue-500/30 text-white animate-fade-in gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400">
+        <span class="pi pi-spin pi-spinner text-lg"></span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-sm font-semibold text-white truncate">{{ displayTitle }}</span>
+        <span class="text-xs text-slate-300 truncate">{{ statusMessage }}</span>
+      </div>
+    </div>
+
+    <button type="button" (click)="cancelarBipe()"
+      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white transition-colors">
+      <span class="material-symbols-outlined text-base">close</span>
+    </button>
+  </div>
+
+  <!-- STAGE 2: ACCEPT (CARD DE ESPERA COM MASCOTE E COR) -->
+  <div *ngIf="statusStage === 'START'"
+    class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full px-4 py-2.5 bg-slate-900/95 border-b text-white animate-bounce-short gap-3"
+    [style.borderColor]="remoteColor ? remoteColor : '#3b82f6'">
+
+    <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+      <!-- Mascote com Cor de Fundo/Borda -->
+      <div
+        class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm p-1 transition-transform"
+        [style.background]="remoteColor ? remoteColor + '30' : '#3b82f630'"
+        [style.border]="'2px solid ' + (remoteColor ? remoteColor : '#3b82f6')">
+        <img #mascoteImg [src]="'assets/drawable/' + (remoteIcon || 'urso') + '.png'"
+          (error)="mascoteImg.src = 'assets/drawable/urso.png'" alt="Mascote" class="h-full w-full object-contain" />
+      </div>
+
+      <div class="flex flex-col grow w-full min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold text-white truncate">{{ displayTitle }}</span>
+          <span
+            class="inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-500/30 shrink-0">
+            Pronto
+          </span>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span *ngIf="displaySubtitle" class="text-slate-400 font-medium truncate">{{ displaySubtitle }}</span>
+          <span class="text-slate-300 truncate">{{ statusMessage }}</span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Ações: Concluir/Bipar & Cancelar -->
+    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
+      <button type="button" (click)="confirmarExecutarBipe()"
+        class="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-1.5 px-4 rounded-lg font-bold text-xs text-white shadow-md transition-all active:scale-95 hover:brightness-110"
+        [style.background]="remoteColor ? remoteColor : '#2563eb'">
+        <span class="pi pi-volume-up text-sm"></span>
+        <span>Bipar Dispositivo</span>
+      </button>
+
+      <button type="button" (click)="cancelarBipe()"
+        class="py-1.5 px-3 rounded-lg font-medium text-xs text-slate-300 bg-white/10 hover:bg-white/20 transition-colors">
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- STAGE 2: ACCEPT (CARD DE ESPERA COM MASCOTE E COR) -->
+  <div *ngIf="statusStage === 'ACCEPTED'"
+    class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full px-4 py-3 bg-slate-900/95 text-white animate-bounce-short gap-3">
+
+    <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+      <!-- Mascote com Cor de Fundo/Borda -->
+      <div
+        class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm p-[2px] transition-transform overflow-hidden"
+        [class.animate-border-loading]="true" [style.background]="remoteColor ? remoteColor + '30' : '#3b82f630'">
+
+        <div *ngIf="true" class="absolute inset-[-100%] animate-[spin_2s_linear_infinite]"
+          [style.background]="'conic-gradient(from 0deg, transparent 0 300deg, ' + (remoteColor || '#3b82f6') + ' 360deg)'">
+        </div>
+
+        <!-- CONTAINER INTERNO (Para isolar a imagem e manter o fundo) -->
+        <div class="relative z-10 flex h-full w-full items-center justify-center rounded-full p-1 bg-[#091114]">
+
+          <img #mascoteImg [src]="'assets/drawable/' + (remoteIcon || 'urso') + '.png'"
+            (error)="mascoteImg.src = 'assets/drawable/urso.png'" alt="Mascote" class="h-full w-full object-contain" />
+        </div>
+
+      </div>
+
+      <div class="flex flex-col grow w-full min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-bold text-white truncate">{{ displayTitle }}</span>
+          <span
+            class="inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-500/30 shrink-0">
+            Online
+          </span>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span *ngIf="displaySubtitle" class="text-slate-400 font-medium truncate">{{ displaySubtitle }}</span>
+          <span class="text-slate-300 truncate">{{ statusMessage }}</span>
+        </div>
+      </div>
+      <button type="button" (click)="cancelarBipe()"
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-slate-200 hover:bg-white/20 hover:text-white transition-colors">
+        <span class="material-symbols-outlined text-base">close</span>
+      </button>
+    </div>
+
+  </div>
+
+
+  <!-- STAGE 3: COMPLETED -->
+  <div *ngIf="statusStage === 'COMPLETED'"
+    class="flex items-center justify-between w-full px-4 py-2.5 bg-emerald-950/95 border-b border-emerald-500/40 text-white animate-fade-in gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm !border border-green-400/60">
+        <img src="assets/drawable/{{remoteIcon}}.png" alt="" class="h-7 w-7 object-contain">
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-sm font-bold text-white truncate">{{ statusMessage }}</span>
+        <span class="text-xs text-emerald-200 truncate">Usuário respondeu o bipe</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0">
+      <button type="button" (click)="confirmarExecutarBipe()"
+        class="py-1 px-3 rounded-lg font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5">
+        <span class="pi pi-volume-up text-xs"></span>
+        <span>Bipar de novo</span>
+      </button>
+
+      <button type="button" (click)="cancelarBipe()"
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-emerald-200 hover:bg-white/20 hover:text-white transition-colors">
+        <span class="material-symbols-outlined text-base">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STAGE 4: TIMEOUT / ERROR -->
+  <div *ngIf="statusStage === 'TIMEOUT' || statusStage === 'ERROR'"
+    class="flex items-center justify-between w-full px-4 py-2.5 bg-amber-950/95 border-b border-amber-500/40 text-white animate-fade-in gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">
+        <span class="pi pi-exclamation-triangle text-base"></span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-sm font-bold text-white truncate">Não houve resposta</span>
+        <span class="text-xs text-amber-200 truncate">{{ statusMessage }}</span>
+      </div>
+    </div>
+
+    <button type="button" (click)="cancelarBipe()"
+      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-amber-200 hover:bg-white/20 hover:text-white transition-colors">
+      <span class="material-symbols-outlined text-base">close</span>
+    </button>
+  </div>
 </div>
