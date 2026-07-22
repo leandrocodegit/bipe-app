@@ -1,14 +1,14 @@
-<div class="pointer-events-auto flex flex-col z-100 w-full dark:bg-[#0b1214e6] p-4 border border-white/5 shadow-inner backdrop-blur-md">
+<div class="pointer-events-auto flex flex-col z-100 w-full h-full min-h-0 dark:bg-[#0b1214e6] p-4 border border-white/5 shadow-inner backdrop-blur-md">
   
   <!-- Header do Radar -->
-  <div class="flex items-center justify-between mb-4">
-    <div class="flex items-center gap-2">
+  <div class="flex items-center justify-between mb-4 shrink-0">
+    <div class="flex flex items-center gap-2">
       <span class="relative flex h-2.5 w-2.5">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
       </span>
       <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 m-0">
-        Radar de Proximidade (Amigos)
+        Radar de Proximidade
       </h3>
     </div>
     
@@ -21,7 +21,7 @@
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="flex flex-col items-center justify-center py-12 gap-3">
+  <div *ngIf="loading" class="flex-1 flex flex-col items-center justify-center py-12 gap-3">
     <div class="relative flex items-center justify-center">
       <div class="animate-spin rounded-full h-10 w-10 border-2 border-slate-700 border-t-teal-500"></div>
     </div>
@@ -29,7 +29,7 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && friends.length === 0" class="flex flex-col items-center justify-center py-8 text-center text-xs text-slate-400 dark:text-slate-500 gap-2">
+  <div *ngIf="!loading && friends.length === 0" class="flex-1 flex flex-col items-center justify-center py-8 text-center text-xs text-slate-400 dark:text-slate-500 gap-2">
     <span class="material-symbols-outlined text-3xl text-slate-600 animate-pulse">radar</span>
     <p class="m-0 font-medium">Nenhum amigo próximo localizado.</p>
     <p class="m-0 text-[10px] text-slate-500">Certifique-se de que outros dispositivos possuam localizações atualizadas.</p>
@@ -37,7 +37,8 @@
 
   <!-- Radar Mode -->
   <div *ngIf="!loading && friends.length > 0 && viewMode === 'radar'" 
-       class="relative w-full aspect-square max-w-[280px] mx-auto flex items-center justify-center bg-slate-950/80 rounded-full border border-teal-500/20 overflow-hidden shadow-2xl shadow-black/60 radar-grid select-none">
+       class="flex-1 flex items-center justify-center min-h-0 w-full relative py-4">
+    <div class="relative w-full h-full aspect-square flex items-center justify-center bg-slate-950/80 rounded-full border border-teal-500/20 overflow-hidden shadow-2xl shadow-black/60 radar-grid select-none">
     
     <!-- Linhas de Direção (Cruz de Mira) -->
     <div class="absolute inset-0 border-t border-dashed border-teal-500/10 top-1/2 w-full h-0 pointer-events-none"></div>
@@ -89,6 +90,7 @@
         {{ friend.desc }}
       </div>
     </div>
+  </div>
   </div>
 
   <!-- List Mode -->

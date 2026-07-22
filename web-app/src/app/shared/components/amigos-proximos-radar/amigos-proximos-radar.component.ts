@@ -35,10 +35,32 @@ export class AmigosProximosRadarComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.activedRoute.queryParams.subscribe(params => {
       this.deviceId = this.deviceId ?? params['deviceId'];
+
+      // Se deviceId for nulo, tenta obter do Android Bridge
+      if (!this.deviceId && typeof (window as any).Android !== 'undefined') {
+        try {
+          const androidId = (window as any).Android.getDeviceId();
+          if (androidId) {
+            this.deviceId = androidId;
+
+            // Pré-inicializa o mascote e a cor do centro do radar se disponíveis
+            const androidFace = (window as any).Android.getFace();
+            if (androidFace) {
+              this.deviceIcon = androidFace;
+            }
+            const androidColor = (window as any).Android.getColor();
+            if (androidColor) {
+              this.deviceColor = androidColor;
+            }
+          }
+        } catch (e) {
+          console.warn('Erro ao obter dados do Android Bridge:', e);
+        }
+      }
+
       this.viewMode = params['viewMode'] ?? 'list';
       this.carregarAmigosProximos();
-    })
-
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
