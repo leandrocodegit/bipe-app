@@ -161,7 +161,7 @@
 </p-dialog>
 
 <p-dialog [(visible)]="mostrarDetalhe" [modal]="true" [draggable]="false" [resizable]="false" [showHeader]="false" position="bottom" class="rounded-none p-0"
-  styleClass="region-dialog p-0 !m-0 !max-h-[100dvh] !w-screen !max-w-none sm:!m-4 sm:!h-auto sm:!max-h-[85vh] sm:!w-full sm:!max-w-lg"
+  styleClass="region-dialog p-0 !m-0 h-[80dvh] !max-h-[100dvh] !w-screen !max-w-none sm:!m-4 sm:!h-auto sm:!max-h-[85vh] sm:!w-full sm:!max-w-lg"
   [dismissableMask]="false">
   <div class="p-4" *ngIf="deviceDetailToShow">
     <app-friend-detail [maxHeight]="'250px'" [friend]="deviceDetailToShow" [isModal]="true"

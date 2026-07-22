@@ -69,6 +69,9 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.cancelarBipe();
+    if (this.mqttSignalingSub && !this.mqttSignalingSub.closed) {
+      this.mqttSignalingSub.unsubscribe();
+    }
     this.subscriptions.unsubscribe();
   }
 
@@ -296,9 +299,6 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
     this.stopCallTimeout();
     this.stopAutoDismiss();
-    if (this.mqttSignalingSub && !this.mqttSignalingSub.closed) {
-      this.mqttSignalingSub.unsubscribe();
-    }
     this.statusStage = 'IDLE';
     this.callInfo = null;
     this.remoteNickName = undefined;
