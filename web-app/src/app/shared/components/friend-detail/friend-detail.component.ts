@@ -12,6 +12,7 @@ import { RecorderService } from '@/shared/services/recorder.service';
 import { WaypointService } from '@/shared/services/waypoint.service';
 import { Transition, TransitionTimelineComponent } from '../transition-timeline/transition-timeline.component';
 import { log } from 'console';
+import { AmigosProximosRadarComponent } from '../amigos-proximos-radar/amigos-proximos-radar.component';
 
 @Component({
   selector: 'app-friend-detail',
@@ -20,7 +21,8 @@ import { log } from 'console';
     CommonModule,
     ButtonModule,
     TooltipModule,
-    TransitionTimelineComponent
+    TransitionTimelineComponent,
+    AmigosProximosRadarComponent
   ],
   templateUrl: './friend-detail.component.html'
 })

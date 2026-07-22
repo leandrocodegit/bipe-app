@@ -12,3 +12,13 @@ export interface WaypointDeviceInfo {
   nome: string;
   conectado?: boolean;
 }
+
+
+export interface ProximidadeWaypoint {
+  id: string;
+  desc: string;
+  lat: number;
+  lon: number;
+  rad: number;
+  distanciaMetros: number;
+}

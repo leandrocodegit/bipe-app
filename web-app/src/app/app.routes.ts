@@ -15,6 +15,7 @@ import { KeycloakSessionsComponent } from './core/minha-conta/keycloak/keycloak-
 import { PainelUsuarioLogadoComponent } from './core/minha-conta/painel-usuario-logado/painel-usuario-logado.component';
 import { PainelRouteBaseComponent } from './shared/components/painel-route-base/painel-route-base.component';
 import { RotinaNaoAtendidaDetailComponent } from './components/rotinas/rotina-nao-atendida-detail/rotina-nao-atendida-detail.component';
+import { AmigosProximosRadarComponent } from './shared/components/amigos-proximos-radar/amigos-proximos-radar.component';
 
 const painelRoutes: Routes = [
 
@@ -22,6 +23,7 @@ const painelRoutes: Routes = [
     path: '', component: AppLayout, canActivate: [AuthGuard], children: [
       { path: 'friends', component: FriendsComponent },
       { path: 'mapa', component: PainelMapaComponent },
+      { path: 'radar', component: AmigosProximosRadarComponent },
       { path: 'mapa/waypoint', component: PainelMapaComponent },
       { path: 'rotinas', component: RoutinesComponent },
       { path: 'rotina/nao-atendida/:rotinaId/:deviceId', component: RotinaNaoAtendidaDetailComponent },

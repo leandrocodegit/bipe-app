@@ -17,3 +17,16 @@ export interface ShareRequest {
   device: Device;
   email: string;
 }
+
+
+export interface ProximidadeDevice {
+  id: string;
+  desc: string;
+  tid: string;
+  icon: string;
+  color: string;
+  lat: number;
+  lon: number;
+  rad: number;
+  distanciaMetros: number;
+}

@@ -83,9 +83,9 @@ import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/no
             <i class="pi pi-tablet text-xl mb-1"></i>
             <span class="text-[10px] font-medium">Dispositivos</span>
           </a>
-          <a routerLink="/rotinas" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
-            <i class="pi pi-directions text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Rotinas</span>
+          <a routerLink="/radar" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
+            <i class="pi pi-bullseye text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Radar</span>
           </a>
           <a routerLink="/mapa" routerLinkActive="text-emerald-500" [routerLinkActiveOptions]="{exact: true}" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
             <i class="pi pi-map text-xl mb-1"></i>

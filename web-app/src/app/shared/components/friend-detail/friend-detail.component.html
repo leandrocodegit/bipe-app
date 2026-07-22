@@ -153,6 +153,16 @@
     </ng-template>
   </div>
 
+  <!-- RADAR DE PROXIMIDADE DE AMIGOS -->
+  <div *ngIf="friend.location" class="mt-2.5">
+    <app-amigos-proximos-radar 
+      [deviceId]="friend.id"
+      [deviceLat]="friend.location.lat"
+      [deviceLon]="friend.location.lon"
+      [deviceIcon]="friend.card.face"
+      [deviceColor]="friend.card.color" />
+  </div>
+
   <!-- Espaço para não encostar os botões no fundo ao dar scroll -->
   <div class="pb-16 lg:pb-0"></div>
 </div>
