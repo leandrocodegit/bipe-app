@@ -63,7 +63,7 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
   }
 
   callFriend(): void {
- 
+
 
     if(!this.monitoredCard) return;
 
@@ -75,8 +75,8 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
     }
   }
 
-  sendBipe(): void {
- 
+  sendBipe(vibrate?: boolean): void {
+
     console.log('Bipe enviado', this.monitoredCard);
     if(!this.monitoredCard) return;
 
@@ -84,7 +84,7 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
     if (parts.length >= 3) {
       const userName = parts[1];
       const deviceId = parts[2];
-      this.audioCallService.sendBipe(deviceId, userName);
+      this.audioCallService.sendBipe(deviceId, userName, vibrate);
     }
   }
 

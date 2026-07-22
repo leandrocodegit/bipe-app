@@ -7,6 +7,7 @@ export interface CallInfo {
   deviceId: string;
   userName?: string;
   direction: 'incoming' | 'outgoing';
+  vibrate?: boolean
 }
 
 @Injectable({
@@ -37,9 +38,9 @@ export class AudioCallService {
     return this.callInfoSubject.value;
   }
 
-  public sendBipe(deviceId: string, userName?: string): void {
+  public sendBipe(deviceId: string, userName: string, vibrate?: boolean): void {
     console.log('AudioCallService.sendBipe chamado com:', deviceId, userName);
-    this.callInfoSubject.next({ deviceId, userName, direction: 'outgoing' });
+    this.callInfoSubject.next({ deviceId, userName, direction: 'outgoing', vibrate: vibrate });
     this.bipeSubject.next('BIPE');
   }
 

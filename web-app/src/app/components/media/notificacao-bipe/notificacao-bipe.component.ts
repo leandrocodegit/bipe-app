@@ -7,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { AudioCallService, CallInfo } from '@/shared/services/audio-call.service';
 import { OAuthService } from 'angular-oauth2-oidc';
 
-export type BipeStage = 'IDLE' | 'START' | 'WAITING_ACCEPT' | 'ACCEPTED' | 'COMPLETED' | 'TIMEOUT' | 'ERROR' | 'FORCE';
+export type BipeStage = 'IDLE' | 'START' | 'WAITING_ACCEPT' | 'ACCEPTED' | 'COMPLETED' | 'VIBRATE_COMPLETED' | 'TIMEOUT' | 'ERROR' | 'FORCE';
 
 @Component({
   selector: 'app-notificacao-bipe',
@@ -79,10 +79,10 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     this.stopAutoDismiss();
 
     this.statusStage = 'START';
-    this.remoteNickName = undefined;
-    this.remoteUserName = undefined;
-    this.remoteIcon = undefined;
-    this.remoteColor = undefined;
+    delete this.remoteNickName;
+    delete this.remoteUserName;
+    delete this.remoteIcon;
+    delete this.remoteColor;
 
     this.displayTitle = 'Solicitando Bipe...';
     this.displaySubtitle = 'Aguardando resposta';
@@ -119,7 +119,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         : new TextDecoder('utf-8').decode(msg.payload);
       const payload = JSON.parse(jsonString);
 
-      if (payload._type !== 'bipe') return;
+      if (payload._type !== 'bipe' && payload._type !== 'vibrate') return;
 
       console.log('Mensagem de Bipe recebida no /bipe:', payload);
 
@@ -127,7 +127,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
       this.remoteNickName = payload.nickname || payload.nicknameConfigured || payload.apelido || payload.nome;
       this.remoteUserName = payload.userName || payload.username || payload.user || this.callInfo?.userName;
-      this.remoteIcon = payload.icon || payload.face || payload.mascot || 'urso';
+      this.remoteIcon = payload.icon || payload.face || payload.mascot;
       this.remoteColor = payload.color || '#3b82f6';
 
       // Se for FORCE, sempre mostra a notificação (mesmo que esteja em IDLE ou em outro estado)
@@ -152,6 +152,8 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         const name = this.remoteNickName || this.remoteUserName || topicUserName || 'Dispositivo';
         this.displayTitle = name;
         this.displaySubtitle = this.remoteNickName && this.remoteUserName ? `@${this.remoteUserName}` : '';
+
+        this.playAlertSound();
 
         this.cdr.detectChanges();
         return;
@@ -183,31 +185,19 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         this.statusMessage = 'Aguardando usuário interagir';
 
         this.cdr.detectChanges();
-      } else if (status === 'COMPLETED') {
+      } else if (status === 'COMPLETED' || status === 'VIBRATE_COMPLETED') {
         this.stopCallTimeout();
-        this.statusStage = 'COMPLETED';
+        this.statusStage = status;
         const name = this.remoteNickName || this.remoteUserName || this.callInfo?.userName || 'Dispositivo';
         this.statusMessage = `${name} (${this.completedCount}x)!`;
+
+        this.playSuccessSound();
+
         this.cdr.detectChanges();
       }
     } catch (err) {
       console.error('Erro ao ler payload de bipe MQTT:', err);
     }
-  }
-
-  private sendInitialBipeCmd(): void {
-    if (!this.callInfo) return;
-    const bipeTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/bipe`;
-    const cmdTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/cmd`;
-
-    const initialPayload = JSON.stringify({
-      _type: 'bipe',
-      token: this.oauthService.getAccessToken()
-    });
-
-    console.log('Enviando comando inicial de Bipe para:', bipeTopic);
-    this.mqttConnectionService.unsafePublish(bipeTopic, initialPayload, { qos: 1, retain: false });
-    this.mqttConnectionService.unsafePublish(cmdTopic, initialPayload, { qos: 1, retain: false });
   }
 
   public startHold(event?: Event): void {
@@ -269,7 +259,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     const cmdTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/cmd`;
 
     const completePayload = JSON.stringify({
-      _type: 'bipe',
+      _type: this.callInfo.vibrate ? 'vibrate' : 'bipe',
       status: 'START',
       token: this.oauthService.getAccessToken()
     });
@@ -352,6 +342,67 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     if (this.autoDismissTimer) {
       clearTimeout(this.autoDismissTimer);
       this.autoDismissTimer = null;
+    }
+  }
+
+  private playAlertSound(): void {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      // Tom do alarme
+      oscillator.type = 'sawtooth';
+
+      const time = audioCtx.currentTime;
+      oscillator.frequency.setValueAtTime(880, time);
+      oscillator.frequency.setValueAtTime(660, time + 0.15);
+      oscillator.frequency.setValueAtTime(880, time + 0.3);
+      oscillator.frequency.setValueAtTime(660, time + 0.45);
+
+      gainNode.gain.setValueAtTime(0.4, time);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
+
+      oscillator.start();
+      oscillator.stop(time + 0.6);
+    } catch (e) {
+      console.warn('Web Audio API não suportada ou bloqueada pelo navegador:', e);
+    }
+  }
+
+  private playSuccessSound(): void {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      // Tom de sucesso simples (sine wave suave)
+      oscillator.type = 'sine';
+
+      const time = audioCtx.currentTime;
+
+      // Nota 1: C5 (Dó)
+      oscillator.frequency.setValueAtTime(523.25, time);
+      gainNode.gain.setValueAtTime(0.25, time);
+      gainNode.gain.linearRampToValueAtTime(0.01, time + 0.08);
+
+      // Nota 2: E5 (Mi)
+      oscillator.frequency.setValueAtTime(659.25, time + 0.1);
+      gainNode.gain.setValueAtTime(0.25, time + 0.1);
+      gainNode.gain.linearRampToValueAtTime(0.01, time + 0.22);
+
+      oscillator.start(time);
+      oscillator.stop(time + 0.22);
+    } catch (e) {
+      console.warn('Web Audio API não suportada ou bloqueada pelo navegador:', e);
     }
   }
 }

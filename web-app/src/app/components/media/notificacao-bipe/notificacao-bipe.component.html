@@ -31,8 +31,10 @@
         class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm p-1 transition-transform"
         [style.background]="remoteColor ? remoteColor + '30' : '#3b82f630'"
         [style.border]="'2px solid ' + (remoteColor ? remoteColor : '#3b82f6')">
+        @if(remoteIcon){
         <img #mascoteImg [src]="'assets/drawable/' + (remoteIcon || 'urso') + '.png'"
           (error)="mascoteImg.src = 'assets/drawable/urso.png'" alt="Mascote" class="h-full w-full object-contain" />
+          }
       </div>
 
       <div class="flex flex-col grow w-full min-w-0">
@@ -63,7 +65,7 @@
         class="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-1.5 px-4 rounded-lg font-bold text-xs text-white shadow-md transition-all active:scale-95 hover:brightness-110 select-none"
         [style.background]="remoteColor ? remoteColor : '#2563eb'">
         <span class="pi pi-volume-up text-sm"></span>
-        <span>Bipar Dispositivo</span>
+        <span>{{callInfo?.vibrate ? 'Vibrar Dispositivo' : 'Bipar Dispositivo'}}</span>
       </button>
 
       <button type="button" (click)="cancelarBipe()"
@@ -119,7 +121,7 @@
 
 
   <!-- STAGE 3: COMPLETED -->
-  <div *ngIf="statusStage === 'COMPLETED'"
+  <div *ngIf="statusStage === 'COMPLETED' || statusStage === 'VIBRATE_COMPLETED'"
     class="flex items-center justify-between w-full px-4 py-2.5 bg-emerald-950/95 border-b border-emerald-500/40 text-white animate-fade-in gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm !border border-green-400/60">
@@ -127,7 +129,7 @@
       </div>
       <div class="flex flex-col min-w-0">
         <span class="text-sm font-bold text-white truncate">{{ statusMessage }}</span>
-        <span class="text-xs text-emerald-200 truncate">Usuário respondeu o bipe</span>
+        <span class="text-xs text-emerald-200 truncate">{{statusStage === 'VIBRATE_COMPLETED' ? 'Celular Vibrou' : 'Usuário respondeu o bipe'}}</span>
       </div>
     </div>
 
@@ -141,7 +143,7 @@
         (touchcancel)="cancelHold()"
         class="py-1 px-3 rounded-lg font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5 select-none">
         <span class="pi pi-volume-up text-xs"></span>
-        <span>Bipar de novo</span>
+        <span>{{statusStage === 'VIBRATE_COMPLETED' ? 'Vibrar de novo' : 'Bipar de novo'}}</span>
       </button>
 
       <button type="button" (click)="cancelarBipe()"
