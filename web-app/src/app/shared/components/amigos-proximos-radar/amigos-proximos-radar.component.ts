@@ -58,7 +58,7 @@ export class AmigosProximosRadarComponent implements OnInit, OnChanges {
         }
       }
 
-      this.viewMode = params['viewMode'] ?? 'list';
+      this.viewMode = params['viewMode'] ?? 'radar';
       this.carregarAmigosProximos();
     });
   }
