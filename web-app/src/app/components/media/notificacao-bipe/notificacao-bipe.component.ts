@@ -35,7 +35,6 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   private mqttSignalingSub?: Subscription;
   private callTimeoutTimer: any;
   private autoDismissTimer: any;
-  private jaAceitou = false;
   private holdTimer: any;
   private isLongPress = false;
 
@@ -53,6 +52,9 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
           this.callInfo = this.audioCallService.currentCallInfo;
           this.iniciarFluxoBipe();
         }
+
+        this.callInfo = this.audioCallService.currentCallInfo;
+        console.log('Iniciando fluxo de Bipe para:', this.callInfo);
       })
     );
 
@@ -73,7 +75,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   public iniciarFluxoBipe(): void {
     if (!this.callInfo) return;
 
-    console.log('Iniciando fluxo de Bipe para:', this.callInfo);
+
 
     this.stopCallTimeout();
     this.stopAutoDismiss();
@@ -81,8 +83,8 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     this.statusStage = 'START';
     delete this.remoteNickName;
     delete this.remoteUserName;
-    delete this.remoteIcon;
-    delete this.remoteColor;
+    this.remoteIcon = this.callInfo?.card?.face;
+    this.remoteColor = this.callInfo?.card?.color;
 
     this.displayTitle = 'Solicitando Bipe...';
     this.displaySubtitle = 'Aguardando resposta';

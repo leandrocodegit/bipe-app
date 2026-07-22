@@ -63,7 +63,7 @@
             {{ device?.apelido ?? device.nome }}
           </p>
           <p class="truncate text-xs text-slate-500 dark:text-slate-400">
-            {{ device.username }}
+            {{ device?.tid }}
           </p>
         </div>
 
@@ -92,7 +92,7 @@
 
           <!-- Botão principal do menu -->
           <div class="inline-flex">
-            <button pButton type="button" (click)="toggleMenu($event, menu)"
+            <button pButton type="button" (click)="toggleMenu($event, menu); selected = device"
               class="p-button-rounded p-button-text p-button-plain !h-11 !w-11" pTooltip="Opções" tooltipPosition="top">
               <span class="material-symbols-outlined text-[22px]">drag_indicator</span>
             </button>
@@ -161,8 +161,8 @@
 </p-dialog>
 
 <p-dialog [(visible)]="mostrarDetalhe" [modal]="true" [draggable]="false" [resizable]="false" [showHeader]="false"
-  styleClass="!m-0 p-0 !w-full !max-w-md !rounded-t-3xl sm:!max-w-lg sm:!rounded-3xl border border-slate-200/10 shadow-2xl bg-white dark:bg-[#0c1518]"
-  [dismissableMask]="true">
+  styleClass="!m-0 p-0 !w-full !rounded-t-3xl sm:!rounded-3xl border border-slate-200/10 shadow-2xl bg-white dark:bg-[#0c1518]"
+  [dismissableMask]="false">
   <div class="p-4" *ngIf="deviceDetailToShow">
     <app-friend-detail [maxHeight]="'250px'" [friend]="deviceDetailToShow" [isModal]="true"
       (onClose)="mostrarDetalhe = false" />

@@ -10,6 +10,7 @@ export interface Device {
   icon: string;
   color: string;
   opMode?: number;
+  tid: string;
 }
 
 export interface ShareRequest {

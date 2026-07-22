@@ -12,9 +12,7 @@
           [class.friend-bubble--new]="true" [style.background]="friend?.color ? friend.color + 'd0' : '#3862b2d0'"
           [style.border]="'2px solid ' + (friend?.color ? friend.color + 'd0' : '#3862b2d0')">
 
-
           @if(friend?.image){
-
           <img src="assets/drawable/{{friend?.image}}.png" alt="">
           }@else {
           <p class="text-white text-lg align-middle">{{friend.tid}}</p>

@@ -105,7 +105,7 @@ export class ListaDevicesComponent {
         qos: 0,
         retained: false,
         _id: device.id,
-        tid: device.clientId,
+        tid: device.tid,
         nickname: device.apelido || device.nome,
         name: device.nome,
         color: device.color || '#6366F1',
@@ -116,21 +116,27 @@ export class ListaDevicesComponent {
   }
 
   salvarApelido() {
+    if (!this.selected) return;
     this.deviceService.salvarApelido({
-      id: this.selected!.id,
+      id: this.selected.id,
       apelido: this.apelido
     }).subscribe({
       next: () => {
         this.view = false;
+
+        let device = this.devices.find(device => this.selected!.id === device.id);
+
+        if (device)
+          device.apelido = this.apelido;
+
         delete this.selected;
         this.apelido = '';
       }
     });
   }
 
-  editApelido(device: Device) {
+  editApelido(event: any) {
     this.view = true;
-    this.selected = device;
   }
 
   abrirPermissoes(device: Device): void {

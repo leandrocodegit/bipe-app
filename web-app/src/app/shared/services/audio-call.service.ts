@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { FriendCard } from '../models/friends.model';
 
 export type CallState = 'IDLE' | 'RINGING' | 'IN_CALL' | 'OUTGOING' | 'BIPE' | 'BIPE_WAITE';
 
@@ -7,6 +8,7 @@ export interface CallInfo {
   deviceId: string;
   userName?: string;
   direction: 'incoming' | 'outgoing';
+  card?: FriendCard;
   vibrate?: boolean
 }
 
@@ -38,9 +40,13 @@ export class AudioCallService {
     return this.callInfoSubject.value;
   }
 
-  public sendBipe(deviceId: string, userName: string, vibrate?: boolean): void {
+  public sendVibrate(deviceId: string, userName: string, card: FriendCard): void {
+    this.sendBipe(deviceId, userName, card, true);
+  }
+
+  public sendBipe(deviceId: string, userName: string, card: FriendCard, vibrate?: boolean): void {
     console.log('AudioCallService.sendBipe chamado com:', deviceId, userName);
-    this.callInfoSubject.next({ deviceId, userName, direction: 'outgoing', vibrate: vibrate });
+    this.callInfoSubject.next({ deviceId, userName, direction: 'outgoing', card, vibrate: vibrate });
     this.bipeSubject.next('BIPE');
   }
 

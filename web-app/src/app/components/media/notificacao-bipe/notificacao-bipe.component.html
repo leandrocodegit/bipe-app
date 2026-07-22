@@ -64,7 +64,7 @@
         (touchcancel)="cancelHold()"
         class="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-1.5 px-4 rounded-lg font-bold text-xs text-white shadow-md transition-all active:scale-95 hover:brightness-110 select-none"
         [style.background]="remoteColor ? remoteColor : '#2563eb'">
-        <span class="pi pi-volume-up text-sm"></span>
+        <span class="pi pi-{{callInfo?.vibrate ? 'mobile' : 'volume-up'}} text-sm"></span>
         <span>{{callInfo?.vibrate ? 'Vibrar Dispositivo' : 'Bipar Dispositivo'}}</span>
       </button>
 

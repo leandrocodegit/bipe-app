@@ -11,6 +11,7 @@ import { MonitoredCardService } from '@/shared/services/monitored-card.service';
 import { RecorderService } from '@/shared/services/recorder.service';
 import { WaypointService } from '@/shared/services/waypoint.service';
 import { Transition, TransitionTimelineComponent } from '../transition-timeline/transition-timeline.component';
+import { log } from 'console';
 
 @Component({
   selector: 'app-friend-detail',
@@ -44,6 +45,9 @@ export class FriendDetailComponent implements OnChanges {
   ) { }
 
   ngOnChanges(changes: SimpleChanges): void {
+
+    console.log(this.friend);
+
     if (changes['friend'] && this.friend) {
       this.addressText = this.friend.address ?? null;
       this.minhaListaDeTransicoes = [];
@@ -69,14 +73,14 @@ export class FriendDetailComponent implements OnChanges {
   }
 
   protected carregarProximidades(): void {
- 
+
     if (!this.friend?.id) return;
 
     const parts = this.friend.topic.split('/');
     if (parts.length < 3) return;
 
-      const userName = parts[1];
-      const deviceId = parts[2];
+    const userName = parts[1];
+    const deviceId = parts[2];
 
     this.loadingProximity = true;
     this.waypointService.getProximidade(deviceId).subscribe({
@@ -102,8 +106,8 @@ export class FriendDetailComponent implements OnChanges {
     const parts = this.friend.topic.split('/');
     if (parts.length < 3) return;
 
-      const userName = parts[1];
-      const deviceId = parts[2];
+    const userName = parts[1];
+    const deviceId = parts[2];
 
     this.recorderService.listaPosicoes({
       user: userName,
@@ -137,6 +141,15 @@ export class FriendDetailComponent implements OnChanges {
       this.audioCallService.startOutgoingCall(deviceId, userName);
     } else {
       this.audioCallService.startOutgoingCall(this.friend.id, this.friend.card.name);
+    }
+  }
+
+  sendBipe(vibrate?: boolean): void {
+    const parts = this.friend.topic?.split('/');
+    if (parts && parts.length >= 3) {
+      const userName = parts[1];
+      const deviceId = parts[2];
+      this.audioCallService.sendBipe(deviceId, userName, this.friend.card, vibrate);
     }
   }
 

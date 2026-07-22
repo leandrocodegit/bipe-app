@@ -76,15 +76,14 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
   }
 
   sendBipe(vibrate?: boolean): void {
-
-    console.log('Bipe enviado', this.monitoredCard);
+ 
     if(!this.monitoredCard) return;
 
     const parts = this.monitoredCard.id.split('/');
     if (parts.length >= 3) {
       const userName = parts[1];
       const deviceId = parts[2];
-      this.audioCallService.sendBipe(deviceId, userName, vibrate);
+      this.audioCallService.sendBipe(deviceId, userName, this.monitoredCard.card, vibrate);
     }
   }
 
