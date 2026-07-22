@@ -388,7 +388,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
           if (this.caminhosLayer) {
             this.mapa.removeLayer(this.caminhosLayer);
             console.log('Size', geoJsonData.features.length);
-            
+
             delete this.caminhosLayer;
           }
 
@@ -627,6 +627,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         } else if (payload._type === 'transition') {
           this.processarEventoTransicao(payload);
         }
+
       } catch (error) {
         console.error('Erro ao processar payload MQTT do OwnTracks:', error);
       }

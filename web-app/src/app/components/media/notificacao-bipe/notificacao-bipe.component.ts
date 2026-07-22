@@ -7,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { AudioCallService, CallInfo } from '@/shared/services/audio-call.service';
 import { OAuthService } from 'angular-oauth2-oidc';
 
-export type BipeStage = 'IDLE' | 'START' | 'WAITING_ACCEPT' | 'ACCEPTED' | 'COMPLETED' | 'TIMEOUT' | 'ERROR';
+export type BipeStage = 'IDLE' | 'START' | 'WAITING_ACCEPT' | 'ACCEPTED' | 'COMPLETED' | 'TIMEOUT' | 'ERROR' | 'FORCE';
 
 @Component({
   selector: 'app-notificacao-bipe',
@@ -36,6 +36,8 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   private callTimeoutTimer: any;
   private autoDismissTimer: any;
   private jaAceitou = false;
+  private holdTimer: any;
+  private isLongPress = false;
 
   constructor(
     private readonly mqttConnectionService: MqttConnectionService,
@@ -115,7 +117,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     });
   }
 
-  private handleBipeMessage(msg: any): void {
+  handleBipeMessage(msg: any): void {
     try {
       const jsonString = typeof msg.payload === 'string'
         ? msg.payload
@@ -126,6 +128,11 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
       const status = (payload.status || payload.action || '').toUpperCase();
 
+       this.remoteNickName = payload.nickname || payload.nicknameConfigured || payload.apelido || payload.nome;
+        this.remoteUserName = payload.userName || payload.username || payload.user || this.callInfo?.userName;
+        this.remoteIcon = payload.icon || payload.face || payload.mascot || 'urso';
+        this.remoteColor = payload.color || '#3b82f6';
+
       if (status === 'ACCEPTED') {
         if (this.statusStage === 'COMPLETED') {
           console.log('Ignorando status ACCEPTED pois o bipe já está concluído (COMPLETED)');
@@ -133,10 +140,6 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         }
         this.stopCallTimeout();
         this.statusStage = 'ACCEPTED';
-        this.remoteNickName = payload.nickname || payload.nicknameConfigured || payload.apelido || payload.nome;
-        this.remoteUserName = payload.userName || payload.username || payload.user || this.callInfo?.userName;
-        this.remoteIcon = payload.icon || payload.face || payload.mascot || 'urso';
-        this.remoteColor = payload.color || '#3b82f6';
 
         const name = this.remoteNickName || this.remoteUserName || this.callInfo?.userName || 'Dispositivo';
         this.displayTitle = name;
@@ -149,6 +152,13 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         this.statusStage = 'COMPLETED';
         const name = this.remoteNickName || this.remoteUserName || this.callInfo?.userName || 'Dispositivo';
         this.statusMessage = `${name} (${this.completedCount}x)!`;
+        this.cdr.detectChanges();
+      } else if (status === 'FORCE') {
+
+
+        this.stopCallTimeout();
+        this.statusStage = 'FORCE';
+        this.statusMessage = `RECURSO FORÇADO`;
         this.cdr.detectChanges();
       }
     } catch (err) {
@@ -169,6 +179,58 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     console.log('Enviando comando inicial de Bipe para:', bipeTopic);
     this.mqttConnectionService.unsafePublish(bipeTopic, initialPayload, { qos: 1, retain: false });
     this.mqttConnectionService.unsafePublish(cmdTopic, initialPayload, { qos: 1, retain: false });
+  }
+
+  public startHold(event?: Event): void {
+    this.isLongPress = false;
+    if (this.holdTimer) {
+      clearTimeout(this.holdTimer);
+    }
+    this.holdTimer = setTimeout(() => {
+      this.isLongPress = true;
+      this.executarBipeForce();
+    }, 3000);
+  }
+
+  public endHold(event?: Event): void {
+    if (this.holdTimer) {
+      clearTimeout(this.holdTimer);
+      this.holdTimer = null;
+    }
+    if (!this.isLongPress) {
+      this.confirmarExecutarBipe();
+    }
+  }
+
+  public cancelHold(): void {
+    if (this.holdTimer) {
+      clearTimeout(this.holdTimer);
+      this.holdTimer = null;
+    }
+  }
+
+  public executarBipeForce(): void {
+    if (!this.callInfo) return;
+
+    const bipeTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/bipe`;
+    const cmdTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/cmd`;
+
+    const forcePayload = JSON.stringify({
+      _type: 'bipe',
+      status: 'FORCE',
+      token: this.oauthService.getAccessToken()
+    });
+
+    console.log('Enviando comando de Bipe FORCE (retained = true) para:', bipeTopic);
+
+    this.mqttConnectionService.unsafePublish(cmdTopic, forcePayload, { qos: 1, retain: true });
+    this.mqttConnectionService.unsafePublish(bipeTopic, forcePayload, { qos: 1, retain: true });
+
+    this.statusStage = 'WAITING_ACCEPT';
+    this.completedCount++;
+    const name = this.remoteNickName || this.remoteUserName || this.callInfo.userName || 'Dispositivo';
+    this.statusMessage = `Bipe FORÇADO enviado para ${name} (${this.completedCount}x)!`;
+    this.cdr.detectChanges();
   }
 
   public confirmarExecutarBipe(): void {
@@ -192,6 +254,27 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     const name = this.remoteNickName || this.remoteUserName || this.callInfo.userName || 'Dispositivo';
     this.statusMessage = `Bipe enviado com sucesso para ${name} (${this.completedCount}x)!`;
     this.cdr.detectChanges();
+  }
+
+  public cancelarBipeForcado(): void {
+
+console.log('Cancelando...', this.callInfo);
+
+
+    if (!this.callInfo) return;
+
+    const cmdTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/cmd`;
+    const bipeTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/bipe`;
+
+    const initialPayload = JSON.stringify({
+      _type: 'STOP'
+    });
+
+    console.log('Cancelando...');
+
+    this.mqttConnectionService.unsafePublish(cmdTopic, initialPayload, { qos: 1, retain: false });
+    this.mqttConnectionService.unsafePublish(bipeTopic, '{}', { qos: 1, retain: true });
+    this.cancelarBipe();
   }
 
   public cancelarBipe(): void {
