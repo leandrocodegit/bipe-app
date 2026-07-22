@@ -58,8 +58,8 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.mqttConnectionService.connected$.subscribe((isConnected: boolean) => {
-        if (isConnected && this.statusStage === 'WAITING_ACCEPT') {
-          this.subscribeBipeMqtt();
+        if (isConnected) {
+          this.subscribeGlobalBipeMqtt();
         }
       })
     );
@@ -91,28 +91,23 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
     this.cdr.detectChanges();
 
-    this.subscribeBipeMqtt();
-
     this.startCallTimeout();
   }
 
-  private subscribeBipeMqtt(): void {
+  private subscribeGlobalBipeMqtt(): void {
     if (this.mqttSignalingSub && !this.mqttSignalingSub.closed) {
       this.mqttSignalingSub.unsubscribe();
     }
 
-    if (!this.callInfo) return;
+    const globalBipeTopic = 'owntracks/+/+/bipe';
+    console.log('Inscrito no tópico global de Bipe:', globalBipeTopic);
 
-    const callBipeTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/bipe`;
-
-    console.log('Inscrito no tópico de resposta do Bipe:', callBipeTopic);
-
-    this.mqttSignalingSub = this.mqttConnectionService.observe(callBipeTopic).subscribe({
+    this.mqttSignalingSub = this.mqttConnectionService.observe(globalBipeTopic).subscribe({
       next: (msg: any) => {
         this.handleBipeMessage(msg);
       },
       error: (err: any) => {
-        console.error('Erro na assinatura do bipe MQTT:', err);
+        console.error('Erro na assinatura global do bipe MQTT:', err);
       }
     });
   }
@@ -124,14 +119,55 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         : new TextDecoder('utf-8').decode(msg.payload);
       const payload = JSON.parse(jsonString);
 
+      if (payload._type !== 'bipe') return;
+
       console.log('Mensagem de Bipe recebida no /bipe:', payload);
 
       const status = (payload.status || payload.action || '').toUpperCase();
 
-       this.remoteNickName = payload.nickname || payload.nicknameConfigured || payload.apelido || payload.nome;
-        this.remoteUserName = payload.userName || payload.username || payload.user || this.callInfo?.userName;
-        this.remoteIcon = payload.icon || payload.face || payload.mascot || 'urso';
-        this.remoteColor = payload.color || '#3b82f6';
+      this.remoteNickName = payload.nickname || payload.nicknameConfigured || payload.apelido || payload.nome;
+      this.remoteUserName = payload.userName || payload.username || payload.user || this.callInfo?.userName;
+      this.remoteIcon = payload.icon || payload.face || payload.mascot || 'urso';
+      this.remoteColor = payload.color || '#3b82f6';
+
+      // Se for FORCE, sempre mostra a notificação (mesmo que esteja em IDLE ou em outro estado)
+      if (status === 'FORCE') {
+        const parts = msg.topic.split('/');
+        const topicUserName = parts[1];
+        const topicDeviceId = parts[2];
+
+        // Garante que callInfo está configurado para o dispositivo do FORCE
+        if (!this.callInfo || this.callInfo.deviceId !== topicDeviceId) {
+          this.callInfo = {
+            deviceId: topicDeviceId,
+            userName: topicUserName,
+            direction: 'incoming'
+          };
+        }
+
+        this.stopCallTimeout();
+        this.statusStage = 'FORCE';
+        this.statusMessage = `RECURSO FORÇADO`;
+
+        const name = this.remoteNickName || this.remoteUserName || topicUserName || 'Dispositivo';
+        this.displayTitle = name;
+        this.displaySubtitle = this.remoteNickName && this.remoteUserName ? `@${this.remoteUserName}` : '';
+
+        this.cdr.detectChanges();
+        return;
+      }
+
+      // Para outros status, só processa se estivermos em um fluxo ativo para este dispositivo
+      if (this.statusStage === 'IDLE' || !this.callInfo) {
+        return;
+      }
+
+      // Verifica se a mensagem pertence ao dispositivo ativo que estamos chamando
+      const parts = msg.topic.split('/');
+      const topicDeviceId = parts[2];
+      if (this.callInfo.deviceId !== topicDeviceId) {
+        return;
+      }
 
       if (status === 'ACCEPTED') {
         if (this.statusStage === 'COMPLETED') {
@@ -152,13 +188,6 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         this.statusStage = 'COMPLETED';
         const name = this.remoteNickName || this.remoteUserName || this.callInfo?.userName || 'Dispositivo';
         this.statusMessage = `${name} (${this.completedCount}x)!`;
-        this.cdr.detectChanges();
-      } else if (status === 'FORCE') {
-
-
-        this.stopCallTimeout();
-        this.statusStage = 'FORCE';
-        this.statusMessage = `RECURSO FORÇADO`;
         this.cdr.detectChanges();
       }
     } catch (err) {
@@ -256,10 +285,9 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  public cancelarBipeForcado(): void {
 
-console.log('Cancelando...', this.callInfo);
 
+  public cancelarBipe(forceStop?: boolean): void {
 
     if (!this.callInfo) return;
 
@@ -270,14 +298,10 @@ console.log('Cancelando...', this.callInfo);
       _type: 'STOP'
     });
 
-    console.log('Cancelando...');
-
     this.mqttConnectionService.unsafePublish(cmdTopic, initialPayload, { qos: 1, retain: false });
-    this.mqttConnectionService.unsafePublish(bipeTopic, '{}', { qos: 1, retain: true });
-    this.cancelarBipe();
-  }
+    if (forceStop)
+      this.mqttConnectionService.unsafePublish(bipeTopic, '{}', { qos: 1, retain: true });
 
-  public cancelarBipe(): void {
     this.stopCallTimeout();
     this.stopAutoDismiss();
     if (this.mqttSignalingSub && !this.mqttSignalingSub.closed) {
