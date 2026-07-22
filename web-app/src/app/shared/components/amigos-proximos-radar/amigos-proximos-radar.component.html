@@ -1,5 +1,6 @@
-<div class="pointer-events-auto flex flex-col z-100 w-full h-full min-h-0 dark:bg-[#0b1214e6] p-4 border border-white/5 shadow-inner backdrop-blur-md">
-  
+<div
+  class="pointer-events-auto flex flex-col z-100 w-full h-full min-h-0 dark:bg-[#0b1214e6] p-4 border border-white/5 shadow-inner backdrop-blur-md">
+
   <!-- Header do Radar -->
   <div class="flex items-center justify-between mb-4 shrink-0">
     <div class="flex flex items-center gap-2">
@@ -11,13 +12,19 @@
         Radar de Proximidade
       </h3>
     </div>
-    
+
     <!-- Botão de Alternar Visualização -->
-    <button type="button" (click)="toggleViewMode()"
-      class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-300 bg-[#0b1214e6] hover:bg-green/10 transition-colors border border-white/10 active:scale-95">
-      <i class="pi" [ngClass]="viewMode === 'radar' ? 'pi-list' : 'pi-compass'"></i>
-      <span>{{ viewMode === 'radar' ? 'Ver em Lista' : 'Ver Radar' }}</span>
-    </button>
+    <div class="flex gap-2">
+      <button type="button" (click)="carregarAmigosProximos()"
+        class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-300 bg-[#0b1214e6] hover:bg-green/10 transition-colors border border-white/10 active:scale-95">
+        <i class="pi pi-refresh"></i>
+      </button>
+      <button type="button" (click)="toggleViewMode()"
+        class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-300 bg-[#0b1214e6] hover:bg-green/10 transition-colors border border-white/10 active:scale-95">
+        <i class="pi" [ngClass]="viewMode === 'radar' ? 'pi-list' : 'pi-compass'"></i>
+        <span>{{ viewMode === 'radar' ? 'Ver em Lista' : 'Ver Radar' }}</span>
+      </button>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -29,81 +36,87 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && friends.length === 0" class="flex-1 flex flex-col items-center justify-center py-8 text-center text-xs text-slate-400 dark:text-slate-500 gap-2">
+  <div *ngIf="!loading && friends.length === 0"
+    class="flex-1 flex flex-col items-center justify-center py-8 text-center text-xs text-slate-400 dark:text-slate-500 gap-2">
     <span class="material-symbols-outlined text-3xl text-slate-600 animate-pulse">radar</span>
     <p class="m-0 font-medium">Nenhum amigo próximo localizado.</p>
-    <p class="m-0 text-[10px] text-slate-500">Certifique-se de que outros dispositivos possuam localizações atualizadas.</p>
+    <p class="m-0 text-[10px] text-slate-500">Certifique-se de que outros dispositivos possuam localizações atualizadas.
+    </p>
   </div>
 
   <!-- Radar Mode -->
-  <div *ngIf="!loading && friends.length > 0 && viewMode === 'radar'" 
-       class="flex-1 flex items-center justify-center min-h-0 w-full relative py-4">
-    <div class="relative w-full h-full aspect-square flex items-center justify-center bg-slate-950/80 rounded-full border border-teal-500/20 overflow-hidden shadow-2xl shadow-black/60 radar-grid select-none">
-    
-    <!-- Linhas de Direção (Cruz de Mira) -->
-    <div class="absolute inset-0 border-t border-dashed border-teal-500/10 top-1/2 w-full h-0 pointer-events-none"></div>
-    <div class="absolute inset-0 border-l border-dashed border-teal-500/10 left-1/2 h-full w-0 pointer-events-none"></div>
-    
-    <!-- Círculos de Distância (Rings) -->
-    <div class="absolute h-[75%] w-[75%] rounded-full border border-teal-500/15 pointer-events-none flex items-end justify-center">
-      <span class="text-[8px] text-teal-500/40 font-bold mb-0.5">{{ formatDistance(maxDistance * 0.75) }}</span>
-    </div>
-    <div class="absolute h-[50%] w-[50%] rounded-full border border-teal-500/15 pointer-events-none flex items-end justify-center">
-      <span class="text-[8px] text-teal-500/40 font-bold mb-0.5">{{ formatDistance(maxDistance * 0.5) }}</span>
-    </div>
-    <div class="absolute h-[25%] w-[25%] rounded-full border border-teal-500/20 pointer-events-none flex items-end justify-center">
-      <span class="text-[8px] text-teal-500/40 font-bold mb-0.5">{{ formatDistance(maxDistance * 0.25) }}</span>
-    </div>
-    
-    <!-- Centro do Radar (Dispositivo Atual) -->
-    <div class="absolute z-20 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 border-2 shadow-lg"
-         [style.borderColor]="deviceColor"
-         [style.boxShadow]="'0 0 15px ' + deviceColor + '44'">
-      <img src="assets/drawable/{{deviceIcon}}.png" alt="" class="h-6 w-6 object-contain">
-      <!-- Pulsar central -->
-      <span class="absolute animate-ping inline-flex h-full w-full rounded-full opacity-35" [style.background]="deviceColor"></span>
-    </div>
+  <div *ngIf="!loading && friends.length > 0 && viewMode === 'radar'"
+    class="flex-1 flex items-center justify-center min-h-0 w-full relative py-4">
+    <div
+      class="relative w-full h-full aspect-square flex items-center justify-center bg-slate-950/80 rounded-full border border-teal-500/20 overflow-hidden shadow-2xl shadow-black/60 radar-grid select-none">
 
-    <!-- Feixe Rotativo do Radar (Efeito Varredura) -->
-    <div class="radar-sweep"></div>
-    
-    <!-- Dispositivos Próximos (Amigos) Plotados -->
-    <div *ngFor="let friend of friends" 
-         class="absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-out cursor-pointer group"
-         [style.left]="getPositionStyles(friend).left"
-         [style.top]="getPositionStyles(friend).top"
-         [pTooltip]="friend.desc + ' • ' + formatDistance(friend.distanciaMetros)"
-         tooltipPosition="top">
-      
-      <!-- Marcador Visual do Amigo -->
-      <div class="relative flex h-8 w-8 items-center justify-center rounded-full bg-slate-850 border-2 hover:scale-125 transition-transform shadow-md"
-           [style.borderColor]="friend.color"
-           [style.boxShadow]="'0 0 10px ' + friend.color + '66'">
-        <img src="assets/drawable/{{friend.icon}}.png" alt="" class="h-5 w-5 object-contain">
-        
-        <!-- Pequena indicação de direção (linha do centro até o amigo) -->
-        <span class="absolute h-1 w-1 rounded-full bg-white opacity-80 animate-ping"></span>
+      <!-- Linhas de Direção (Cruz de Mira) -->
+      <div class="absolute inset-0 border-t border-dashed border-teal-500/10 top-1/2 w-full h-0 pointer-events-none">
       </div>
-      
-      <!-- Label flutuante compacto -->
-      <div class="absolute top-9 left-1/2 -translate-x-1/2 bg-slate-950/90 text-[8px] font-bold text-white px-1 py-0.5 rounded border border-white/10 whitespace-nowrap shadow opacity-80 group-hover:opacity-100 transition-opacity">
-        {{ friend.desc }}
+      <div class="absolute inset-0 border-l border-dashed border-teal-500/10 left-1/2 h-full w-0 pointer-events-none">
+      </div>
+
+      <!-- Círculos de Distância (Rings) -->
+      <div
+        class="absolute h-[75%] w-[75%] rounded-full border border-teal-500/15 pointer-events-none flex items-end justify-center">
+        <span class="text-[8px] text-teal-500/40 font-bold mb-0.5">{{ formatDistance(maxDistance * 0.75) }}</span>
+      </div>
+      <div
+        class="absolute h-[50%] w-[50%] rounded-full border border-teal-500/15 pointer-events-none flex items-end justify-center">
+        <span class="text-[8px] text-teal-500/40 font-bold mb-0.5">{{ formatDistance(maxDistance * 0.5) }}</span>
+      </div>
+      <div
+        class="absolute h-[25%] w-[25%] rounded-full border border-teal-500/20 pointer-events-none flex items-end justify-center">
+        <span class="text-[8px] text-teal-500/40 font-bold mb-0.5">{{ formatDistance(maxDistance * 0.25) }}</span>
+      </div>
+
+      <!-- Centro do Radar (Dispositivo Atual) -->
+      <div class="absolute z-20 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 border-2 shadow-lg"
+        [style.borderColor]="deviceColor" [style.boxShadow]="'0 0 15px ' + deviceColor + '44'">
+        <img src="assets/drawable/{{deviceIcon}}.png" alt="" class="h-6 w-6 object-contain">
+        <!-- Pulsar central -->
+        <span class="absolute animate-ping inline-flex h-full w-full rounded-full opacity-35"
+          [style.background]="deviceColor"></span>
+      </div>
+
+      <!-- Feixe Rotativo do Radar (Efeito Varredura) -->
+      <div class="radar-sweep"></div>
+
+      <!-- Dispositivos Próximos (Amigos) Plotados -->
+      <div *ngFor="let friend of friends"
+        class="absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 ease-out cursor-pointer group"
+        [style.left]="getPositionStyles(friend).left" [style.top]="getPositionStyles(friend).top"
+        [pTooltip]="friend.desc + ' • ' + formatDistance(friend.distanciaMetros)" tooltipPosition="top">
+
+        <!-- Marcador Visual do Amigo -->
+        <div
+          class="relative flex h-8 w-8 items-center justify-center rounded-full bg-slate-850 border-2 hover:scale-125 transition-transform shadow-md"
+          [style.borderColor]="friend.color" [style.boxShadow]="'0 0 10px ' + friend.color + '66'">
+          <img src="assets/drawable/{{friend.icon}}.png" alt="" class="h-5 w-5 object-contain">
+
+          <!-- Pequena indicação de direção (linha do centro até o amigo) -->
+          <span class="absolute h-1 w-1 rounded-full bg-white opacity-80 animate-ping"></span>
+        </div>
+
+        <!-- Label flutuante compacto -->
+        <div
+          class="absolute top-9 left-1/2 -translate-x-1/2 bg-slate-950/90 text-[8px] font-bold text-white px-1 py-0.5 rounded border border-white/10 whitespace-nowrap shadow opacity-80 group-hover:opacity-100 transition-opacity">
+          {{ friend.desc }}
+        </div>
       </div>
     </div>
-  </div>
   </div>
 
   <!-- List Mode -->
-  <div *ngIf="!loading && friends.length > 0 && viewMode === 'list'" 
-       class="flex flex-col gap-2.5 max-h-[280px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/5">
-    <div *ngFor="let friend of friends; let idx = index" 
-         class="flex items-center justify-between gap-3 rounded-2xl  border border-slate-100 bg-white dark:bg-[#0b1214e6] p-3 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md cursor-pointer">
-      
+  <div *ngIf="!loading && friends.length > 0 && viewMode === 'list'"
+    class="flex flex-col gap-2.5 max-h-[280px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/5">
+    <div *ngFor="let friend of friends; let idx = index"
+      class="flex items-center justify-between gap-3 rounded-2xl  border border-slate-100 bg-white dark:bg-[#0b1214e6] p-3 shadow-sm transition-shadow active:shadow-none sm:hover:shadow-md cursor-pointer">
+
       <!-- Avatar e Nome -->
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border shadow-sm"
-             [style.borderColor]="friend.color"
-             [style.background]="friend.color + '15'">
+          [style.borderColor]="friend.color" [style.background]="friend.color + '15'">
           <img src="assets/drawable/{{friend.icon}}.png" alt="" class="h-5 w-5 object-contain">
         </div>
         <div class="min-w-0 flex flex-col">
@@ -111,18 +124,18 @@
           <span class="text-[9px] text-slate-500">{{friend.tid}}</span>
         </div>
       </div>
-      
+
       <!-- Barra de Distância Dinâmica -->
       <div class="flex flex-col items-end gap-1 shrink-0">
         <span class="text-[11px] font-bold" [style.color]="friend.color">
           {{ formatDistance(friend.distanciaMetros) }}
         </span>
-        
+
         <!-- Indicador de Clotheness (barra de progresso reversa: quanto mais perto, mais cheia e verde) -->
         <div class="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
           <div class="h-full rounded-full transition-all duration-1000"
-               [style.width.%]="mathMax(5, (1 - (friend.distanciaMetros / maxDistance)) * 100)"
-               [style.background]="friend.distanciaMetros < 300 ? '#10b981' : (friend.distanciaMetros < 1000 ? '#eab308' : '#6b7280')">
+            [style.width.%]="mathMax(5, (1 - (friend.distanciaMetros / maxDistance)) * 100)"
+            [style.background]="friend.distanciaMetros < 300 ? '#10b981' : (friend.distanciaMetros < 1000 ? '#eab308' : '#6b7280')">
           </div>
         </div>
       </div>
