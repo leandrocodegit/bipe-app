@@ -710,7 +710,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       const highlighted = this.monitoredCardTid === tid;
       marker.setPopupContent(this.criarPopupOwnTracks(user, deviceName, payload, highlighted));
 
-      marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload.color, highlighted));
+      marker.setIcon(this.obterIconeLeaflet(iconName, tid, payload, highlighted));
 
       if (this.monitoredCardTid === tid) {
         marker.setZIndexOffset(99999);
@@ -803,7 +803,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     }).addTo(this.mapa);
 
     const highlighted = this.monitoredCardTid === tid;
-    const icon = this.obterIconeLeaflet(iconName, tid, payload?.color, highlighted);
+    const icon = this.obterIconeLeaflet(iconName, tid, payload, highlighted);
     const popupHtml = this.criarPopupOwnTracks(user, deviceName, payload, highlighted);
 
     const marker = Leaflet.marker(latLng, { icon, zIndexOffset: highlighted ? 99999 : 100 })
@@ -872,7 +872,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     this.monitoredCardService.monitorCard(friend);
   }
 
-  private obterIconeLeaflet(iconName: string | undefined, tid: string, color?: string, highlighted = false): Leaflet.DivIcon {
+  private obterIconeLeaflet(iconName: string | undefined, tid: string, payload: any, highlighted = false): Leaflet.DivIcon {
     let conteudoCentro = '';
 
     if (iconName) {
@@ -882,12 +882,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       conteudoCentro = `<span style="color: #1e293b; font-family: system-ui, sans-serif; font-size: 14px; font-weight: bold;z-index: 9999999;background: white;width: 100%;height: 100%;text-align: center;line-height: 2;">${tid}</span>`;
     }
 
-    const fill = highlighted && color ? color + 'b3' : color ? color : '#3b82f6';
+    const fill = highlighted && payload?.color ? payload.color + 'b3' : payload?.color ? payload.color : '#3b82f6';
     const width = highlighted ? 'width: 70px; height: 85px;' : 'width: 40px; height: 55px;';
 
     const htmlMarcador = `
-      <div style="position: relative; ${width}; display: flex; justify-content: center;">
-<div class="p-4 rounded-full bg-green-500 absolute z-50"></div>
+      <div style="position: relative; ${width}; display: flex; justify-content: center;" class="animate-bounce [animation-duration:${!payload?.vel ? '6' : '2'}s]">
+        <div class="p-4 rounded-full bg-green-500 absolute z-50 "></div>
         <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3));" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg">
           <path fill="${fill}" d="M12 0C5.37 0 0 5.37 0 12c0 7.5 12 24 12 24s12-16.5 12-24C24 5.37 18.63 0 12 0z"/>
         </svg>
@@ -995,7 +995,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (marker && markerDataObj) {
         const markerTid = currentTid || markerDataObj.tid;
-        marker.setIcon(this.obterIconeLeaflet(payload?.icon, markerTid, payload?.color, true));
+        marker.setIcon(this.obterIconeLeaflet(payload?.icon, markerTid, payload, true));
         this.moveMarkerToMonitoredLayer(marker, markerTid);
         if (markerDataObj.user && markerDataObj.deviceName) {
           this.buscarPosicoes(markerDataObj.user, markerDataObj.deviceName, payload?.color);
@@ -1083,7 +1083,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const markerInfo = this.markerData.get(markerId);
     const payload = markerInfo?.payload;
-    marker.setIcon(this.obterIconeLeaflet(payload?.icon, tid, payload?.color, false));
+    marker.setIcon(this.obterIconeLeaflet(payload?.icon, tid, payload, false));
   }
 
   private removerMarcadorDispositivo(uniqueId: string): void {

@@ -13,7 +13,7 @@
           [style.border]="'2px solid ' + (friend?.color ? friend.color + 'd0' : '#3862b2d0')">
 
           @if(friend?.image){
-          <img src="assets/drawable/{{friend?.image}}.png" alt="">
+          <img src="assets/drawable/{{friend?.image}}.png">
           }@else {
           <p class="text-white text-lg align-middle uppercase">{{friend.tid}}</p>
           }
