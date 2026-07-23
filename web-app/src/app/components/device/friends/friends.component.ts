@@ -29,6 +29,7 @@ import { RecorderService } from '@/shared/services/recorder.service';
 import { AudioCallService } from '@/shared/services/audio-call.service';
 import { WaypointService } from '@/shared/services/waypoint.service';
 import { FriendDetailComponent } from '@/shared/components/friend-detail/friend-detail.component';
+import { AuthService } from '@/core/auth/services/auth.service';
 
 
 @Component({
@@ -64,6 +65,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
   loading = true;
   justArrivedIds = new Set<string>();
   protected proximityWaypoints: any[] = [];
+  private readonly clientId = `web-${Math.random().toString(36).slice(2, 10)}`;
 
 
   private mqttSubscription?: Subscription;
@@ -82,6 +84,7 @@ export class FriendsComponent implements OnInit, OnDestroy {
     private readonly mqttConnectionService: MqttConnectionService,
     private readonly monitoredCardService: MonitoredCardService,
     private readonly recorderService: RecorderService,
+    private readonly authService: AuthService,
     private readonly router: Router,
     private readonly audioCallService: AudioCallService,
     private readonly waypointService: WaypointService
@@ -117,15 +120,16 @@ export class FriendsComponent implements OnInit, OnDestroy {
   private iniciarRastreamentoMqtt(): void {
     this.loading = true;
 
-    this.mqttSubscription = this.mqttConnectionService.observe('owntracks/#').subscribe((message: IMqttMessage) => {
+    const subscriptionTopic = `bipe/${this.authService.extrairEmailUsuario()}/info/${this.authService.extrairIdUsuario()}`;
+    this.mqttSubscription = this.mqttConnectionService.observe(subscriptionTopic).subscribe((message: IMqttMessage) => {
       try {
         const jsonString = new TextDecoder().decode(message.payload);
         const payload = JSON.parse(jsonString);
 
         if (payload._type === 'location') {
-          this.upsertLocation(payload as OwnTracksLocation, message.topic);
+          this.upsertLocation(payload as OwnTracksLocation, payload.topic || message.topic);
         } else if (payload._type === 'lwt') {
-          this.removeByTopic(message.topic);
+          this.removeByTopic(payload.topic || message.topic);
         }
       } catch (error) {
         console.error('Erro ao processar payload MQTT do OwnTracks:', error);

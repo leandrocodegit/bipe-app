@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { AudioCallService, CallInfo } from '@/shared/services/audio-call.service';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { DeviceService } from '@/shared/services/device.service';
+import { AuthService } from '@/core/auth/services/auth.service';
 
 export type BipeStage = 'IDLE' | 'START' | 'WAITING_ACCEPT' | 'ACCEPTED' | 'COMPLETED' | 'VIBRATE_COMPLETED' | 'TIMEOUT' | 'ERROR' | 'FORCE';
 
@@ -39,10 +40,12 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   private holdTimer: any;
   private isLongPress = false;
 
+  private readonly clientId = `web-${Math.random().toString(36).slice(2, 10)}`;
+
   constructor(
     private readonly mqttConnectionService: MqttConnectionService,
     private readonly audioCallService: AudioCallService,
-    private readonly oauthService: OAuthService,
+    private readonly authService: AuthService,
     private readonly cdr: ChangeDetectorRef,
     private readonly deviceService: DeviceService
   ) { }
@@ -107,7 +110,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
       this.mqttSignalingSub.unsubscribe();
     }
 
-    const globalBipeTopic = 'owntracks/+/+/bipe';
+    const globalBipeTopic = `bipe/${this.authService.extrairEmailUsuario()}/push/${this.authService.extrairIdUsuario()}`;
     console.log('Inscrito no tópico global de Bipe:', globalBipeTopic);
 
     this.mqttSignalingSub = this.mqttConnectionService.observe(globalBipeTopic).subscribe({
@@ -244,7 +247,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
     console.log('Enviando comando de Bipe FORCE via backend para dispositivo:', this.callInfo.deviceId);
 
-    this.deviceService.sendCommand(this.callInfo.deviceId, {type, status}).subscribe({
+    this.deviceService.sendCommand(this.callInfo.deviceId, { type, status }).subscribe({
       next: () => {
         this.statusStage = 'WAITING_ACCEPT';
         this.completedCount++;
@@ -266,7 +269,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
     console.log('Enviando comando de Bipe via backend para dispositivo:', this.callInfo.deviceId);
 
-    this.deviceService.sendCommand(this.callInfo.deviceId, {type, status}).subscribe({
+    this.deviceService.sendCommand(this.callInfo.deviceId, { type, status }).subscribe({
       next: () => {
         this.statusStage = 'WAITING_ACCEPT';
         this.completedCount++;

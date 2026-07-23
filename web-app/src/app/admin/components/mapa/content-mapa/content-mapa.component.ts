@@ -95,6 +95,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   protected ultimasTransicoes: any[] = [];
   private regioesLayer = Leaflet.layerGroup();
 
+  private readonly clientId = `web-${Math.random().toString(36).slice(2, 10)}`;
+
   private obterLeaflet(): any {
     return (window as any).L || Leaflet;
   }
@@ -171,7 +173,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
           this.buscarTransicoes()
           if (!this.edicao) {
             this.iniciarRastreamentoMqtt();
-            this.iniciarRastreamentoShared();
           }
         }
 
@@ -607,12 +608,17 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.mqttSubscription) {
       this.mqttSubscription.unsubscribe();
     }
-    this.mqttSubscription = this.mqttConnectionService.observe(`owntracks/#`).subscribe((message: any) => {
+
+    const subscriptionTopic = `bipe/${this.authService.extrairIdUsuario()}/info/${this.authService.extrairIdUsuario()}`;
+    this.mqttSubscription = this.mqttConnectionService.observe(subscriptionTopic).subscribe((message: any) => {
       try {
         const jsonString = String.fromCharCode(...message.payload);
         const payload = JSON.parse(jsonString);
-        const topic = message.topic;
+        const topic = payload.topic || message.topic;
         this.showMqttMessageIndicator();
+
+        console.log(payload);
+
 
         if (payload._type === 'location') {
           this.processarEventoLocalizacao(topic, payload);
