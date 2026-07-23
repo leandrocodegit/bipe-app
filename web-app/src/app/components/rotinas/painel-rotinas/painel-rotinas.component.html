@@ -1,25 +1,24 @@
 <div class="pointer-events-auto flex-1 lg:flex-none lg:w-[500px] flex flex-col h-full bg-white/10 dark:bg-[#0b1214]/90 backdrop-blur-sm shadow-2xl transition-all">
   <p-tabs [scrollable]="true" (valueChange)="selectTab($event)" [value]="tab" class="flex-1 flex flex-col overflow-hidden">
     <p-tablist>
-      <p-tab value="device">
+      <p-tab value="rotina">
         <span class="material-symbols-outlined !text-[22px]">
-          mobile
+          map_pin_review
         </span>
-        Meus Dispositivos
+        Rotinas
       </p-tab>
-      <p-tab value="shared">
+      <p-tab value="bipe">
         <span class="material-symbols-outlined !text-[22px]">
-          share_location
+          alarm_on
         </span>
-        Compartilhando
+        Bipes
       </p-tab>
     </p-tablist>
     <p-tabpanels class="flex-1 overflow-y-auto">
-      <p-tabpanel value="device">
-        <app-lista-devices [devices]="devices" (refresh)="listar()"/>
+      <p-tabpanel value="rotina">
+        <app-routines/>
       </p-tabpanel>
-      <p-tabpanel value="shared">
-        <app-lista-devices [devices]="devices" (refresh)="listar()" [shareMode]="true"/>
+      <p-tabpanel value="bipe">
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

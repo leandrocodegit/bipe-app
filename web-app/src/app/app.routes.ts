@@ -17,6 +17,7 @@ import { PainelRouteBaseComponent } from './shared/components/painel-route-base/
 import { RotinaNaoAtendidaDetailComponent } from './components/rotinas/rotina-nao-atendida-detail/rotina-nao-atendida-detail.component';
 import { AmigosProximosRadarComponent } from './shared/components/amigos-proximos-radar/amigos-proximos-radar.component';
 import { AmigosProximosBarraComponent } from './shared/components/amigos-proximos-barra/amigos-proximos-barra.component';
+import { PainelRotinasComponent } from './components/rotinas/painel-rotinas/painel-rotinas.component';
 
 const painelRoutes: Routes = [
 
@@ -27,7 +28,7 @@ const painelRoutes: Routes = [
       { path: 'radar', component: AmigosProximosRadarComponent },
       { path: 'distancia', component: AmigosProximosBarraComponent },
       { path: 'mapa/waypoint', component: PainelMapaComponent },
-      { path: 'rotinas', component: RoutinesComponent },
+      { path: 'rotinas', component: PainelRotinasComponent },
       { path: 'rotina/nao-atendida/:rotinaId/:deviceId', component: RotinaNaoAtendidaDetailComponent },
       { path: 'waypoint', component: WaypointListComponent },
       { path: 'devices', component: PainelDevicesComponent },
@@ -45,7 +46,7 @@ const painelRoutes: Routes = [
   { path: 'login', component: LoginSocialComponent },
   { path: 'logout', component: LogoutComponent },
   { path: 'auth', component: AutenticacaoComponent },
- 
+
 
 ];
 
