@@ -14,6 +14,7 @@ import { LoadService } from '@/shared/components/preload/load.service';
 import { AudioWebrtcComponent } from '@/components/media/audio-webrtc/audio-webrtc.component';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/notificacao-bipe.component';
+import { AmigosProximosBarraComponent } from '@/shared/components/amigos-proximos-barra/amigos-proximos-barra.component';
 
 @Component({
   selector: 'app-layout',
@@ -29,79 +30,11 @@ import { NotificacaoBipeComponent } from '@/components/media/notificacao-bipe/no
     ButtonModule,
     ProgressBarModule,
     AudioWebrtcComponent,
-    NotificacaoBipeComponent
+    NotificacaoBipeComponent,
+    AmigosProximosBarraComponent
   ],
-  template: `
-<div class="layout-wrapper" [ngClass]="containerClass">
-  <app-top-bar class="block z-50 relative"></app-top-bar>
-   <p-progressbar mode="indeterminate" [style]="{ height: '16px' }" />
-  <!-- Sidebar apenas para Desktop (hidden no Mobile, a menos que o menu mobile esteja ativo) -->
-  <app-sidebar [class.hidden]="!layoutService.layoutState().staticMenuMobileActive && layoutService.isMobile()" class="block z-40 relative"></app-sidebar>
-
-  <div class="layout-main-container p-0! absolute top-0 left-0 right-0 overflow-hidden"
-       [ngClass]="{ 'bg-surface-50 dark:bg-surface-950': router.url.startsWith('/conta') }">
-    <!-- MAPA GLOBAL NO FUNDO -->
-
-    <!-- UI SOBREPOSTA (ROUTER + BOTTOM BAR) -->
-    <div class="absolute inset-0 z-10 pointer-events-none flex flex-col"
-         [style.paddingTop]="'calc(4rem + env(safe-area-inset-top, 0px))'">
-
-
-      <app-audio-webrtc class="pointer-events-auto z-50 w-full shrink-0"></app-audio-webrtc>
-      <app-notificacao-bipe class="pointer-events-auto z-50 w-full shrink-0"/>
-
-      <div class="flex-1 w-full min-h-0 relative overflow-hidden flex flex-col lg:flex-row pointer-events-none">
-
-  <!--       @if(load){
-        <app-preload class="pointer-events-auto z-50"></app-preload>
-        } -->
-
-        <!-- Outlet transparente -->
-        <div class="flex-1 w-full min-h-0 relative pointer-events-none"
-             [class.pointer-events-auto]="router.url.startsWith('/conta') || router.url.startsWith('/mapa')">
-          <!-- As telas (como friends) usarão pointer-events-auto no seu conteúdo principal -->
-          <router-outlet></router-outlet>
-        </div>
-
-        <!-- Monitored Card: Flutuante no Desktop, Bottom Sheet no Mobile -->
-
-        <p-toast [breakpoints]="{ '920px': { width: '96%', right: '0', left: '5px' } }" class="pointer-events-auto z-50"/>
-        <p-confirmdialog class="pointer-events-auto z-50"/>
-      </div>
-
-      <!-- BOTTOM NAVIGATION BAR (Apenas Mobile) -->
-      <div class="pb-[3.5rem] lg:hidden pointer-events-auto w-full bg-[#0b151708] dark:bg-[#0b1214]/90 backdrop-blur-md border-t border-slate-200 dark:border-[#142b32] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-safe shrink-0 z-50">
-           @if(load){
-            <p-progressbar mode="indeterminate" [style]="{ height: '4px' }" />
-          }
-      <div class="flex justify-around items-center h-16">
-          <a routerLink="/friends" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
-            <i class="pi pi-users text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Amigos</span>
-          </a>
-          <a routerLink="/devices" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
-            <i class="pi pi-tablet text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Dispositivos</span>
-          </a>
-          <a routerLink="/rotinas" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
-            <i class="pi pi-directions text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Rotinas</span>
-          </a>
-          <a routerLink="/radar" routerLinkActive="text-emerald-500" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
-            <i class="pi pi-bullseye text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Radar</span>
-          </a>
-          <a routerLink="/mapa" routerLinkActive="text-emerald-500" [routerLinkActiveOptions]="{exact: true}" class="flex flex-col items-center justify-center w-full h-full text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors">
-            <i class="pi pi-map text-xl mb-1"></i>
-            <span class="text-[10px] font-medium">Mapa</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-  `
-})
+   templateUrl: './layout.html'
+  })
 export class AppLayout {
   overlayMenuOpenSubscription: Subscription;
 
@@ -112,6 +45,7 @@ export class AppLayout {
   @ViewChild(TopBarComponent) appTopBar!: TopBarComponent;
 
   protected viewDetalhes = false;
+  protected showAmigosProximosBarra = false;
   protected load = false;
   protected instanceId?: any;
 
@@ -147,6 +81,7 @@ export class AppLayout {
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.hideMenu();
+      this.showAmigosProximosBarra = false;
     });
   }
 

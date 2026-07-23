@@ -20,27 +20,13 @@
 
         </button>
       </ng-template>
-
-
     </p-speeddial>
 
   </div>
 
-  <!--   <div class="absolute left-1 top-[60px] z-[1001]">
-            <button type="button"
-          class="friend-bubble relative flex h-[30px] w-[30px] items-center justify-center rounded-full text-3xl shadow-sm transition-transform active:scale-90 sm:hover:-translate-y-0.5 sm:hover:shadow-md"
-          [class.friend-bubble--new]="true" [style.background]="'#2bf45b' + '22'"
-          [style.border]="'2px solid ' + '#2bf45b'" tooltipPosition="top">
 
-
-          <img src="assets/drawable/urso.png" alt="">
-
-
-        </button>
-
-  </div> -->
   <div class="flex-1 w-full min-h-0 relative">
-    <div id="map" #mapContainer class="w-full h-full" [class.bg-transicoes]="ultimasTransicoes.length"></div>
+    <div id="map" #mapContainer class="w-full h-full z-30" [class.bg-transicoes]="ultimasTransicoes.length"></div>
     <div class="mqtt-message-indicator" [class.active]="mqttMessageActive" title="Recebendo mensagens MQTT"></div>
   </div>
 
@@ -65,6 +51,8 @@
     </div>
   </div> -->
 </div>
+
+
 
 <app-waypoint-form-dialog [(visible)]="mostrarDialogZona" [latLng]="coordenadasAlvoClicado" [devices]="devices"
   (salvar)="onSalvarNovaZona($event)">

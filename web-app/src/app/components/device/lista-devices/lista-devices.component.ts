@@ -137,7 +137,7 @@ export class ListaDevicesComponent {
   }
 
   editApelido(event: any) {
-    this.view = true;
+    this.view = !!this.selected;
   }
 
   abrirPermissoes(device: Device): void {

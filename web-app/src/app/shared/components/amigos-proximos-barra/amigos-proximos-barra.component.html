@@ -1,0 +1,100 @@
+<div class="pointer-events-auto flex flex-col z-100 w-full h-full min-h-[350px] dark:bg-[#0b1214e6] p-4">
+
+  <!-- Header -->
+<!--   <div class="flex items-center justify-between mb-4 shrink-0">
+    <div class="flex items-center gap-2">
+      <span class="relative flex h-2.5 w-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
+      </span>
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 m-0">
+        Escala de Proximidade
+      </h3>
+    </div>
+
+    <button type="button" (click)="carregarAmigosProximos()"
+      class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-300 bg-[#0b1214e6] hover:bg-green/10 transition-colors border border-white/10 active:scale-95">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div> -->
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex-1 flex flex-col items-center justify-center py-12 gap-3">
+    <div class="relative flex items-center justify-center">
+      <div class="animate-spin rounded-full h-10 w-10 border-2 border-slate-700 border-t-teal-500"></div>
+    </div>
+    <span class="text-xs text-slate-400 dark:text-slate-500">Calculando distâncias...</span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && friends.length === 0"
+    class="flex-1 flex flex-col items-center justify-center py-8 text-center text-xs text-slate-400 dark:text-slate-500 gap-2">
+    <span class="material-symbols-outlined text-3xl text-slate-600 animate-pulse">explore</span>
+    <p class="m-0 font-medium">Nenhum amigo próximo localizado.</p>
+    <p class="m-0 text-[10px] text-slate-500">Certifique-se de que outros dispositivos possuam localizações atualizadas.</p>
+  </div>
+
+  <!-- Main Vertical Timeline / Scale -->
+  <div *ngIf="!loading && friends.length > 0" class="flex-1 min-h-0 w-full relative py-6 flex justify-center select-none">
+
+    <div class="relative w-full max-w-[280px] h-full flex items-center justify-center">
+
+      <!-- Linha Vertical Principal (Eixo) -->
+      <div class="absolute left-1/2 -translate-x-1/2 w-[3px] bg-gradient-to-t from-teal-500/80 via-teal-500/30 to-transparent h-[82%] bottom-[12%] rounded-full shadow-[0_0_8px_rgba(20,184,166,0.2)]"></div>
+
+      <!-- Ticks Horizontais de Distância (Marcadores de Escala) -->
+      <div class="absolute w-8 h-[1px] bg-slate-700/60 left-1/2 -translate-x-1/2 bottom-[90%] flex items-center justify-end">
+        <span class="absolute text-[8px] text-slate-500 font-bold mr-6 whitespace-nowrap">{{ formatDistance(maxDistance) }}</span>
+      </div>
+      <div class="absolute w-6 h-[1px] bg-slate-700/60 left-1/2 -translate-x-1/2 bottom-[50%] flex items-center justify-end">
+        <span class="absolute text-[8px] text-slate-500 font-bold mr-6 whitespace-nowrap">{{ formatDistance(maxDistance * 0.5) }}</span>
+      </div>
+
+      <!-- Anchor / Dispositivo Principal (Fundo da Escala - 0m) -->
+      <div (click)="opcoes()" class="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 border-2 shadow-lg"
+        [style.borderColor]="deviceColor" [style.boxShadow]="'0 0 12px ' + deviceColor + '55'">
+        <img src="assets/drawable/{{deviceIcon}}.png" alt="Centro" class="h-5.5 w-5.5 object-contain">
+
+        <!-- Pequena tag indicator de 0m -->
+        <span class="absolute -bottom-4 text-[7px] font-bold text-slate-400 whitespace-nowrap">Referência (0m)</span>
+      </div>
+
+      <!-- Dispositivos (Amigos) posicionados proporcionalmente -->
+      <div *ngFor="let friend of friends; let idx = index"
+        class="absolute w-1/2 flex items-center z-10 transition-all duration-700 ease-out"
+        [ngClass]="idx % 2 === 0 ? 'right-1/2 flex-row-reverse text-right pr-1' : 'left-1/2 text-left pl-1'"
+        [style.bottom]="getFriendStyles(friend, idx).bottom"
+        [pTooltip]="friend.desc + ' • ' + formatDistance(friend.distanciaMetros)" tooltipPosition="top">
+
+        <!-- Pequena linha de conexão horizontal ao eixo -->
+        <div class="h-[1px] w-3 bg-slate-700/60 relative"
+             [ngClass]="idx % 2 === 0 ? 'left-[1px]' : 'right-[1px]'"></div>
+
+        <!-- Card/Avatar do Amigo -->
+        <div class="flex items-center gap-2 max-w-full">
+
+          <!-- Avatar Circular -->
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 border-2 shadow-md hover:scale-115 transition-transform"
+            [style.borderColor]="friend.color" [style.boxShadow]="'0 0 8px ' + friend.color + '44'">
+            <img src="assets/drawable/{{friend.icon}}.png" alt="" class="h-4.5 w-4.5 object-contain">
+          </div>
+
+          <!-- Informações de Apelido e Distância -->
+          <div class="flex flex-col min-w-0" [ngClass]="idx % 2 === 0 ? 'items-end' : 'items-start'">
+            <span class="text-[10px] font-bold text-slate-300 truncate max-w-[80px]">
+              {{ friend.desc }}
+            </span>
+            <span class="text-[9px] font-bold" [style.color]="friend.color">
+              {{ formatDistance(friend.distanciaMetros) }}
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

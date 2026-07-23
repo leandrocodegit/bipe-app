@@ -9,11 +9,15 @@ import { FriendPresence } from '@/shared/models/friends.model';
 import { batteryInfo, BatteryInfo, topMotionActivity } from '@/shared/GeoUtil';
 import { AudioCallService } from '@/shared/services/audio-call.service';
 import { LayoutService } from '@/shared/services/layout.service';
+import { AmigosProximosBarraComponent } from '../amigos-proximos-barra/amigos-proximos-barra.component';
 
 @Component({
   selector: 'app-monitored-card',
   standalone: true,
-  imports: [CommonModule, ButtonModule],
+  imports: [
+    CommonModule, 
+    ButtonModule
+  ],
   templateUrl: './monitored-card.component.html',
   styleUrls: ['./monitored-card.component.scss']
 })
@@ -122,7 +126,7 @@ export class MonitoredCardComponent implements OnInit, OnDestroy {
   }
 
   get locationText(): string {
-    if (!this.monitoredCard?.location) {
+    if (!this.monitoredCard?.location?.lat) {
       return 'Sem localização';
     }
     return `${this.monitoredCard.location.lat.toFixed(5)}, ${this.monitoredCard.location.lon.toFixed(5)}`;

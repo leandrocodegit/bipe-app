@@ -1,0 +1,33 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.radar-grid {
+  background-image: 
+    radial-gradient(circle, rgba(20, 184, 166, 0.05) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 16px 16px, 32px 32px, 32px 32px;
+  background-position: center;
+}
+
+// Suave flutuação para indicar dinamismo nos avatares
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0px); }
+}
+
+.absolute.z-10 {
+  animation: float 4s ease-in-out infinite;
+  
+  &:nth-child(2n) {
+    animation-delay: -1.5s;
+  }
+  
+  &:nth-child(3n) {
+    animation-delay: -3s;
+  }
+}

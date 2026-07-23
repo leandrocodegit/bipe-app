@@ -32,7 +32,7 @@ import { OwnTracksLocation } from '@/shared/models/friends.model';
     WaypointFormDialogComponent,
     CarouselModule,
     SpeedDialModule,
-    MonitoredCardComponent
+    MonitoredCardComponent    
   ],
   templateUrl: './content-mapa.component.html',
   styleUrls: ['./content-mapa.component.scss'],
