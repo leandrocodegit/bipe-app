@@ -71,7 +71,7 @@
              [ngClass]="idx % 2 === 0 ? 'left-[1px]' : 'right-[1px]'"></div>
 
         <!-- Card/Avatar do Amigo -->
-        <div class="flex items-center gap-2 max-w-full">
+        <div (click)="selecionarAmigo(friend)" class="cursor-pointer flex items-center gap-2 max-w-full hover:scale-105 active:scale-95 transition-all duration-200">
 
           <!-- Avatar Circular -->
           <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 border-2 shadow-md hover:scale-115 transition-transform"

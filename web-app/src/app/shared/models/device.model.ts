@@ -21,6 +21,8 @@ export interface ShareRequest {
 
 export interface ProximidadeDevice {
   id: string;
+  username: string;
+  clientId?: string;
   desc: string;
   tid: string;
   icon: string;

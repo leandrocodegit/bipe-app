@@ -129,7 +129,6 @@ export class ListaDevicesComponent {
 
         if (device)
           device.apelido = this.apelido;
-
         delete this.selected;
         this.apelido = '';
       }

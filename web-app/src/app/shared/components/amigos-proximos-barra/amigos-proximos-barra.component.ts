@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { DeviceService } from '@/shared/services/device.service';
 import { ProximidadeDevice } from '@/shared/models/device.model';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MonitoredCardService } from '@/shared/services/monitored-card.service';
+import { FriendPresence } from '@/shared/models/friends.model';
 
 @Component({
   selector: 'app-amigos-proximos-barra',
@@ -23,6 +24,8 @@ export class AmigosProximosBarraComponent implements OnInit, OnChanges {
   @Input() deviceIcon: string = 'localizacao';
   @Input() deviceColor: string = '#6366f1';
 
+  protected deviceUsername: string = '';
+  protected deviceClientId: string = '';
   protected friends: ProximidadeDevice[] = [];
   protected maxDistance: number = 1000; // em metros
   protected loading = false;
@@ -30,7 +33,8 @@ export class AmigosProximosBarraComponent implements OnInit, OnChanges {
   constructor(
     private readonly deviceService: DeviceService,
     private readonly activedRoute: ActivatedRoute,
-    private readonly monitoredCardService: MonitoredCardService
+    private readonly monitoredCardService: MonitoredCardService,
+    private readonly router: Router
   ) { }
 
   ngOnInit(): void {
@@ -69,49 +73,57 @@ export class AmigosProximosBarraComponent implements OnInit, OnChanges {
   }
 
   opcoes() {
-    const friend: any = {
-      id: `owntracks/${'user'}/${'deviceName'}`,
+    if (!this.deviceId) return;
+    const centerFriend: ProximidadeDevice = {
+      id: this.deviceId,
+      username: this.deviceUsername || '',
+      clientId: this.deviceClientId || '',
+      desc: 'Dispositivo Referência',
+      tid: '',
+      icon: this.deviceIcon,
+      color: this.deviceColor,
+      lat: this.deviceLat,
+      lon: this.deviceLon,
+      rad: 0,
+      distanciaMetros: 0
+    };
+    this.selecionarAmigo(centerFriend);
+  }
+
+  selecionarAmigo(friend: ProximidadeDevice) {
+    const userName = friend.username || 'unknown';
+    const deviceName = friend.clientId || friend.id;
+    const presence: FriendPresence = {
+      id: `owntracks/${userName}/${deviceName}`,
+      deviceId: friend.id,
+      topic: `owntracks/${userName}/${deviceName}`,
       card: {
-        tid: 'tid',
-        name: 'deviceName',
-        face: 'default',
-        color: '#3b82f6',
-        nickname: 'payload.nickname'
+        _type: 'card',
+        qos: 1,
+        retained: true,
+        _id: friend.id,
+        name: friend.desc,
+        face: friend.icon,
+        color: friend.color,
+        tid: friend.tid,
+        nickname: friend.desc
       },
       location: {
-        "_type": "location",
-        "qos": 1,
-        "retained": true,
-        "created_at": 1784765465,
-        "_id": "36847a58",
-        "source": "fused",
-        "batt": 100,
-        "bs": 3,
-        "acc": 20,
-        "vac": 1,
-        "lat": -23.7312763,
-        "lon": -46.5892953,
-        "alt": 811,
-        "tst": 1784765464,
-        "m": 2,
-        "conn": "w",
-        "inregions": [],
-        "BSSID": "d8:c6:78:e4:33:68",
-        "SSID": "VIVO",
-        "tid": "nt",
-        "icon": "leao",
-        "color": "#F03ACA",
-        "userName": "user_d980a0e7",
-        "clienteId": "b0fd1e1d-f11d-47ca-8b02-188e7c077240",
-        "nickname": "",
-        "opMode": 0
+        _type: 'location',
+        tid: friend.tid,
+        lat: friend.lat,
+        lon: friend.lon,
+        tst: Math.floor(Date.now() / 1000),
+        icon: friend.icon,
+        color: friend.color,
+        userName: userName,
+        clienteId: friend.id
       }
     };
 
-    console.log(friend);
-
-
-    this.monitoredCardService.monitorCard(friend);
+    console.log('Monitorando amigo pela barra:', presence);
+    this.monitoredCardService.monitorCard(presence);
+    this.router.navigate(['/mapa']);
   }
 
   protected carregarAmigosProximos(): void {
@@ -123,6 +135,8 @@ export class AmigosProximosBarraComponent implements OnInit, OnChanges {
           const center = friendsList.shift();
           if (center) {
             this.deviceId = center.id;
+            this.deviceUsername = center.username;
+            this.deviceClientId = center.clientId || '';
             this.deviceLat = center.lat;
             this.deviceLon = center.lon;
             this.deviceIcon = center.icon;

@@ -32,7 +32,7 @@ import { OwnTracksLocation } from '@/shared/models/friends.model';
     WaypointFormDialogComponent,
     CarouselModule,
     SpeedDialModule,
-    MonitoredCardComponent    
+    MonitoredCardComponent
   ],
   templateUrl: './content-mapa.component.html',
   styleUrls: ['./content-mapa.component.scss'],
@@ -166,8 +166,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private conectarMqttComToken(): void {
     this.connectedSubscription = this.mqttConnectionService.connected$.subscribe(
       (isConnected: boolean) => {
-
-        console.log('MQTT Connected:', isConnected);
 
         if (isConnected) {
           this.buscarTransicoes()
@@ -387,8 +385,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         next: (geoJsonData: any) => {
           if (this.caminhosLayer) {
             this.mapa.removeLayer(this.caminhosLayer);
-            console.log('Size', geoJsonData.features.length);
-
             delete this.caminhosLayer;
           }
 
@@ -489,7 +485,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     btn.onAdd = () => {
       const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
 
-      el.innerHTML = '<img src="assets/drawable/google-maps.png"/>';
+      el.innerHTML = '<img src="assets/drawable/google-maps.png" style="object-fit: none; border-radius: 50px;"/>';
       Object.assign(el.style, {
         cursor: 'pointer',
         border: 'none',
@@ -524,7 +520,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     btnSatelite.onAdd = () => {
       const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
 
-      el.innerHTML = '<img src="assets/drawable/satelite.png"/>';
+      el.innerHTML = '<img src="assets/drawable/satelite.png" style="object-fit: none; border-radius: 50px;"/>';
       Object.assign(el.style, {
         cursor: 'pointer',
         border: 'none',
@@ -558,12 +554,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     btnDefaulTitle.onAdd = () => {
       const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
 
-      el.innerHTML = '<img src="assets/drawable/apple-maps.png"/>';
+      el.innerHTML = '<img src="assets/drawable/apple-maps.png" style="object-fit: none; border-radius: 50px;"/>';
       Object.assign(el.style, {
         cursor: 'pointer',
         border: 'none',
         marginTop: '10px',
-        width: '32px'
+        width: '36px'
       });
 
       el.onclick = () => {
@@ -583,12 +579,12 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     btnCenter.onAdd = () => {
       const el = Leaflet.DomUtil.create('button', 'leaflet-bar leaflet-control');
 
-      el.innerHTML = '<img src="assets/drawable/centralizar.png"/>';
+      el.innerHTML = '<img src="assets/drawable/centralizar.png" style="object-fit: none;"/>';
       Object.assign(el.style, {
         cursor: 'pointer',
         border: 'none',
         marginTop: '10px',
-        width: '30px'
+        borderRadius: '50px'
       });
 
       el.onclick = () => {
@@ -616,10 +612,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         const jsonString = String.fromCharCode(...message.payload);
         const payload = JSON.parse(jsonString);
         const topic = message.topic;
-
-        console.log(payload);
-
-
         this.showMqttMessageIndicator();
 
         if (payload._type === 'location') {
@@ -689,12 +681,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    console.log(payload);
-
-
     this.friends.set(payload.tid, { ...payload, uniqueId: uniqueId });
     this.updateSpeedDialItems();
-
 
     const tid = payload.tid || deviceName.substring(0, 2).toUpperCase();
     this.markerTidIndex.set(tid, uniqueId);
@@ -793,8 +781,6 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         this.mapa.removeLayer(pingCircle);
       }
     }, 2000);
-
-    console.log(this.ultimasTransicoes);
 
     // 3. Recarregar transições recentes no mapa
     //  this.buscarTransicoes();
@@ -971,7 +957,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
 
-      if (!currentTid) {
+      if (!card) {
         if (this.caminhosLayer) {
           this.mapa.removeLayer(this.caminhosLayer);
           this.caminhosLayer = undefined;
@@ -979,14 +965,32 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
 
-      const markerId = this.markerTidIndex.get(currentTid);
+      // Tenta obter o markerId construindo o uniqueId a partir do path/tópico do card
+      let markerId: string | undefined = undefined;
+      const cardPath = card.topic || card.id || '';
+      const parts = cardPath.split('/');
+      if (parts.length >= 3) {
+        const user = parts[1];
+        const deviceName = parts[2];
+        const uniqueId = `${user}-${deviceName}`;
+        if (this.markers.has(uniqueId)) {
+          markerId = uniqueId;
+        }
+      }
+
+      // Fallback para o índice por TID se não encontrar pelo path
+      if (!markerId && currentTid) {
+        markerId = this.markerTidIndex.get(currentTid);
+      }
+
       const marker = markerId ? this.markers.get(markerId) : undefined;
       const markerDataObj = markerId ? this.markerData.get(markerId) : undefined;
       const payload = markerDataObj?.payload;
 
       if (marker && markerDataObj) {
-        marker.setIcon(this.obterIconeLeaflet(payload?.icon, currentTid, payload?.color, true));
-        this.moveMarkerToMonitoredLayer(marker, currentTid);
+        const markerTid = currentTid || markerDataObj.tid;
+        marker.setIcon(this.obterIconeLeaflet(payload?.icon, markerTid, payload?.color, true));
+        this.moveMarkerToMonitoredLayer(marker, markerTid);
         if (markerDataObj.user && markerDataObj.deviceName) {
           this.buscarPosicoes(markerDataObj.user, markerDataObj.deviceName, payload?.color);
         }
@@ -1163,9 +1167,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     try {
-      // Publica com QoS 1 para garantir a entrega. Retain false para não prender a mensagem no broker.
       this.mqttConnectionService.unsafePublish(topic, JSON.stringify(payload), { qos: 1, retain: false });
-      console.log(`📡 Waypoint '${nomeZona}' enviado com sucesso para ${user}/${device}`);
     } catch (error) {
       console.error('Erro ao enviar waypoint via MQTT:', error);
     }

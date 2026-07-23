@@ -3,7 +3,7 @@
 
   <!-- STAGE 1: WAITING ACCEPT -->
   <div *ngIf="statusStage === 'WAITING_ACCEPT'"
-    class="flex items-center justify-between w-full px-4 py-2.5 bg-slate-900/95 border-b border-blue-500/30 text-white animate-fade-in gap-3">
+    class="flex items-center justify-between w-full px-4 py-3.5 bg-slate-900/95 border-b border-blue-500/30 text-white animate-fade-in gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400">
         <span class="pi pi-spin pi-spinner text-lg"></span>
@@ -22,7 +22,7 @@
 
   <!-- STAGE 2: ACCEPT (CARD DE ESPERA COM MASCOTE E COR) -->
   <div *ngIf="statusStage === 'START'"
-    class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full px-4 py-2.5 bg-slate-900/95 border-b text-white animate-bounce-short gap-3"
+    class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full px-4 py-3.5 bg-slate-900/95 border-b text-white animate-bounce-short gap-3"
     [style.borderColor]="remoteColor ? remoteColor : '#3b82f6'">
 
     <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
@@ -77,7 +77,7 @@
 
   <!-- STAGE 2: ACCEPT (CARD DE ESPERA COM MASCOTE E COR) -->
   <div *ngIf="statusStage === 'ACCEPTED'"
-    class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full px-4 py-3 bg-slate-900/95 text-white animate-bounce-short gap-3">
+    class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full px-4 py-4 bg-slate-900/95 text-white animate-bounce-short gap-3">
 
     <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
       <!-- Mascote com Cor de Fundo/Borda -->
@@ -122,7 +122,7 @@
 
   <!-- STAGE 3: COMPLETED -->
   <div *ngIf="statusStage === 'COMPLETED' || statusStage === 'VIBRATE_COMPLETED'"
-    class="flex items-center justify-between w-full px-4 py-2.5 bg-emerald-950/95 border-b border-emerald-500/40 text-white animate-fade-in gap-3">
+    class="flex items-center justify-between w-full px-4 py-3.5 bg-emerald-950/95 border-b border-emerald-500/40 text-white animate-fade-in gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm !border border-green-400/60">
         <img src="assets/drawable/{{remoteIcon}}.png" alt="" class="h-7 w-7 object-contain">
@@ -154,7 +154,7 @@
   </div>
 
     <div *ngIf="statusStage === 'FORCE'"
-    class="flex items-center justify-between w-full px-4 py-2.5 bg-orange-950/95 border-b border-orange-500/40 text-white animate-fade-in gap-3">
+    class="flex items-center justify-between w-full px-4 py-3.5 bg-orange-950/95 border-b border-orange-500/40 text-white animate-fade-in gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm !border border-orange-400/60">
         <img src="assets/drawable/{{remoteIcon}}.png" alt="" class="h-7 w-7 object-contain">
@@ -187,7 +187,7 @@
 
   <!-- STAGE 4: TIMEOUT / ERROR -->
   <div *ngIf="statusStage === 'TIMEOUT' || statusStage === 'ERROR'"
-    class="flex items-center justify-between w-full px-4 py-2.5 bg-amber-950/95 border-b border-amber-500/40 text-white animate-fade-in gap-3">
+    class="flex items-center justify-between w-full px-4 py-3.5 bg-amber-950/95 border-b border-amber-500/40 text-white animate-fade-in gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <div
         class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40">

@@ -173,7 +173,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
       type: 'call',
       status: 'IDLE',
       userName: this.userName,
-      clientId: this.clientId
+      clienteId: this.clientId
     }).subscribe({
       next: () => {
 
