@@ -53,7 +53,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscriptions.add(
       this.audioCallService.bipeState$.subscribe(state => {
-        console.log('Mensagem de Bipe recebida no /bipe:', state);
+
         if (state === 'BIPE' && this.audioCallService.currentCallInfo) {
           this.callInfo = this.audioCallService.currentCallInfo;
           this.iniciarFluxoBipe();
@@ -141,17 +141,17 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
       this.remoteIcon = payload.icon || payload.face || payload.mascot;
       this.remoteColor = payload.color || '#3b82f6';
 
+      console.log('Status', status, this.callInfo)
       // Se for FORCE, sempre mostra a notificação (mesmo que esteja em IDLE ou em outro estado)
       if (status === 'FORCE') {
-        const parts = msg.topic.split('/');
-        const topicUserName = parts[1];
-        const topicDeviceId = parts[2];
+        const payloadDeviceId = payload.deviceId || payload.id;
+        const payloadUserName = payload.userName || payload.username || payload.user || 'Dispositivo';
 
         // Garante que callInfo está configurado para o dispositivo do FORCE
-        if (!this.callInfo || this.callInfo.deviceId !== topicDeviceId) {
+        if (!this.callInfo || this.callInfo.deviceId !== payloadDeviceId) {
           this.callInfo = {
-            deviceId: topicDeviceId,
-            userName: topicUserName,
+            deviceId: payloadDeviceId,
+            userName: payloadUserName,
             direction: 'incoming'
           };
         }
@@ -160,7 +160,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         this.statusStage = 'FORCE';
         this.statusMessage = `RECURSO FORÇADO`;
 
-        const name = this.remoteNickName || this.remoteUserName || topicUserName || 'Dispositivo';
+        const name = this.remoteNickName || this.remoteUserName || payloadUserName || 'Dispositivo';
         this.displayTitle = name;
         this.displaySubtitle = this.remoteNickName && this.remoteUserName ? `@${this.remoteUserName}` : '';
 
@@ -176,9 +176,8 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
       }
 
       // Verifica se a mensagem pertence ao dispositivo ativo que estamos chamando
-      const parts = msg.topic.split('/');
-      const topicDeviceId = parts[2];
-      if (this.callInfo.deviceId !== topicDeviceId) {
+      const payloadDeviceId = payload.deviceId || payload.id;
+      if (this.callInfo.deviceId !== payloadDeviceId) {
         return;
       }
 
@@ -212,6 +211,9 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   }
 
   public startHold(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
     this.isLongPress = false;
     if (this.holdTimer) {
       clearTimeout(this.holdTimer);
@@ -223,6 +225,9 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   }
 
   public endHold(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
     if (this.holdTimer) {
       clearTimeout(this.holdTimer);
       this.holdTimer = null;

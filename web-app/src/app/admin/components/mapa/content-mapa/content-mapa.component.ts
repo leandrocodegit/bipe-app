@@ -609,7 +609,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mqttSubscription.unsubscribe();
     }
 
-    const subscriptionTopic = `bipe/${this.authService.extrairIdUsuario()}/info/${this.authService.extrairIdUsuario()}`;
+    const subscriptionTopic = `bipe/${this.authService.extrairEmailUsuario()}/info/${this.authService.extrairIdUsuario()}`;
     this.mqttSubscription = this.mqttConnectionService.observe(subscriptionTopic).subscribe((message: any) => {
       try {
         const jsonString = String.fromCharCode(...message.payload);

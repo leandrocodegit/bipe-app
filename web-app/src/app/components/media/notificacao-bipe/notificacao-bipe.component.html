@@ -56,11 +56,11 @@
     <!-- Ações: Concluir/Bipar & Cancelar -->
     <div class="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
       <button type="button"
-        (mousedown)="startHold()"
-        (mouseup)="endHold()"
+        (mousedown)="startHold($event)"
+        (mouseup)="endHold($event)"
         (mouseleave)="cancelHold()"
-        (touchstart)="startHold()"
-        (touchend)="endHold()"
+        (touchstart)="startHold($event)"
+        (touchend)="endHold($event)"
         (touchcancel)="cancelHold()"
         class="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-1.5 px-4 rounded-lg font-bold text-xs text-white shadow-md transition-all active:scale-95 hover:brightness-110 select-none"
         [style.background]="remoteColor ? remoteColor : '#2563eb'">
@@ -135,11 +135,11 @@
 
     <div class="flex items-center gap-2 shrink-0">
       <button type="button"
-        (mousedown)="startHold()"
-        (mouseup)="endHold()"
+        (mousedown)="startHold($event)"
+        (mouseup)="endHold($event)"
         (mouseleave)="cancelHold()"
-        (touchstart)="startHold()"
-        (touchend)="endHold()"
+        (touchstart)="startHold($event)"
+        (touchend)="endHold($event)"
         (touchcancel)="cancelHold()"
         class="py-1 px-3 rounded-lg font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5 select-none">
         <span class="pi pi-volume-up text-xs"></span>
@@ -167,11 +167,11 @@
 
     <div class="flex items-center gap-2 shrink-0">
       <button type="button"
-        (mousedown)="startHold()"
-        (mouseup)="endHold()"
+        (mousedown)="startHold($event)"
+        (mouseup)="endHold($event)"
         (mouseleave)="cancelHold()"
-        (touchstart)="startHold()"
-        (touchend)="endHold()"
+        (touchstart)="startHold($event)"
+        (touchend)="endHold($event)"
         (touchcancel)="cancelHold()"
         class="py-1 px-3 rounded-lg font-bold text-xs text-white bg-red-600 hover:bg-red-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5 select-none">
         <span class="pi pi-volume-up text-xs"></span>

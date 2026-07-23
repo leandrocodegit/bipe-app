@@ -8,6 +8,7 @@ import { AudioCallService, CallState, CallInfo } from '@/shared/services/audio-c
 import { MessageService } from 'primeng/api';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { DeviceService } from '@/shared/services/device.service';
+import { AuthService } from '@/core/auth/services/auth.service';
 
 interface RtcSignal {
   _type: 'rtc';
@@ -21,6 +22,7 @@ interface RtcSignal {
   _id?: string;
   userName: string;
   clienteId: string;
+  sessionId: string;
 }
 
 @Component({
@@ -51,12 +53,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   private readonly configuration = {
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
   };
-
-  private readonly userName = `uid-${Math.random().toString(36).slice(2, 10)}`;
-  private readonly clientId = `web-${Math.random().toString(36).slice(2, 10)}`;
-
-
-  private signalingListenTopic = `owntracks/${this.userName}/${this.clientId}/rtc/send`;
+  private readonly sessionId = `web-${Math.random().toString(36).slice(2, 10)}`;
 
   private processedMessageIds = new Set<string>();
 
@@ -64,7 +61,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     private readonly mqttConnectionService: MqttConnectionService,
     private readonly audioCallService: AudioCallService,
     private readonly deviceService: DeviceService,
-    private readonly oauthService: OAuthService
+    private readonly authService: AuthService,
   ) { }
 
   ngOnInit(): void {
@@ -124,8 +121,9 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
       JSON.stringify(
         {
           _type: 'stop',
-          userName: this.userName,
-          clienteId: this.clientId,
+          userName: this.authService.extrairEmailUsuario(),
+          sessionId: this.sessionId,
+          clienteId: this.authService.extrairIdUsuario(),
           _id: this.generateMessageId()
         }),
       { qos: 1, retain: false }
@@ -142,15 +140,22 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   private subscribeGlobalMqtt(): void {
     if (this.mqttSignalingSub && !this.mqttSignalingSub.closed) return;
 
-    this.mqttSignalingSub = this.mqttConnectionService.observe(this.signalingListenTopic).subscribe({
+    const signalingListenTopic = `bipe/${this.authService.extrairEmailUsuario()}/${this.authService.extrairIdUsuario()}/rtc/${this.sessionId}`;
+
+    this.mqttSignalingSub = this.mqttConnectionService.observe(signalingListenTopic).subscribe({
+
       next: (msg: any) => this.handleIncomingCallMessage(msg)
     });
   }
 
   private handleIncomingCallMessage(message: any): void {
 
+
+
     this.handleSignalingMessage(message);
     const payload = this.parseMqttPayload(message);
+
+
 
     const parts = message.topic.split('/');
     if (parts.length >= 3) {
@@ -172,8 +177,9 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     this.deviceService.sendCommand(this.callInfo.deviceId, {
       type: 'call',
       status: 'IDLE',
-      userName: this.userName,
-      clienteId: this.clientId
+      sessionId: this.sessionId,
+      clienteId: this.authService.extrairIdUsuario(),
+      userName: this.authService.extrairEmailUsuario(),
     }).subscribe({
       next: () => {
 
@@ -224,6 +230,8 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
 
   private handleSignalingMessage(message: any): void {
     const payload = this.parseMqttPayload(message);
+
+    console.log('RTC', payload);
     if (!payload) return;
 
     // Se recebemos um busy, significa que o remoto recusou/está ocupado
@@ -236,7 +244,7 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     }
 
     if (payload._type !== 'rtc') return;
-    if (this.isDuplicate(payload._id) || payload.senderId === this.clientId) return;
+    if (this.isDuplicate(payload._id)) return;
 
     if (payload.subtype === 'offer') {
       if (this.callState === 'IN_CALL' || this.callState === 'OUTGOING') {
@@ -262,8 +270,9 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
           candidate: event.candidate.candidate,
           sdpMid: event.candidate.sdpMid!,
           sdpMLineIndex: event.candidate.sdpMLineIndex!,
-          userName: this.userName,
-          clienteId: this.clientId
+          sessionId: this.sessionId,
+          clienteId: this.authService.extrairIdUsuario(),
+          userName: this.authService.extrairEmailUsuario(),
         });
       }
     };
@@ -314,8 +323,9 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
         _type: 'rtc',
         subtype: 'answer',
         sdp: answer.sdp,
-        userName: this.userName,
-        clienteId: this.clientId
+        sessionId: this.sessionId,
+        clienteId: this.authService.extrairIdUsuario(),
+        userName: this.authService.extrairEmailUsuario(),
       });
 
       this.audioCallService.acceptCall();
@@ -354,12 +364,14 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
     if (!this.callInfo) return;
     message._id = this.generateMessageId();
 
-    const topic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/call`;
+    const topic = `bipe/${this.authService.extrairEmailUsuario()}/${this.callInfo.deviceId}/call`;
     this.mqttConnectionService.unsafePublish(topic, JSON.stringify(
       {
         ...message,
-        userName: this.userName,
-        clienteId: this.clientId
+        sessionId: this.sessionId,
+        clienteId: this.callInfo.deviceId,
+        userName: this.authService.extrairEmailUsuario(),
+        userDevice: this.callInfo.userName
       }), { qos: 1, retain: false });
   }
 
