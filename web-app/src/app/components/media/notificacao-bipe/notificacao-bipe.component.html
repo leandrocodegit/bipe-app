@@ -34,7 +34,7 @@
         @if(remoteIcon){
         <img #mascoteImg [src]="'assets/drawable/' + (remoteIcon || 'urso') + '.png'"
           (error)="mascoteImg.src = 'assets/drawable/urso.png'" alt="Mascote" class="h-full w-full object-contain" />
-          }
+        }
       </div>
 
       <div class="flex flex-col grow w-full min-w-0">
@@ -55,18 +55,24 @@
 
     <!-- Ações: Concluir/Bipar & Cancelar -->
     <div class="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
-      <button type="button"
-        (mousedown)="startHold($event)"
-        (mouseup)="endHold($event)"
-        (mouseleave)="cancelHold()"
-        (touchstart)="startHold($event)"
-        (touchend)="endHold($event)"
+      <button type="button" (mousedown)="startHold(false, $event)" (mouseup)="endHold(false, $event)"
+        (mouseleave)="cancelHold()" (touchstart)="startHold(false, $event)" (touchend)="endHold(false, $event)"
         (touchcancel)="cancelHold()"
         class="flex-1 sm:flex-initial flex items-center justify-center gap-2 py-1.5 px-4 rounded-lg font-bold text-xs text-white shadow-md transition-all active:scale-95 hover:brightness-110 select-none"
         [style.background]="remoteColor ? remoteColor : '#2563eb'">
         <span class="pi pi-{{callInfo?.vibrate ? 'mobile' : 'volume-up'}} text-sm"></span>
         <span>{{callInfo?.vibrate ? 'Vibrar Dispositivo' : 'Bipar Dispositivo'}}</span>
       </button>
+
+      @if(!callInfo?.vibrate){
+      <button type="button" (mousedown)="startHold(true, $event)" (mouseup)="endHold(true, $event)"
+        (mouseleave)="cancelHold()" (touchstart)="startHold(true, $event)" (touchend)="endHold(true, $event)"
+        (touchcancel)="cancelHold()"
+        class="py-1 px-3 rounded-lg font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5 select-none">
+        <span class="pi pi-volume-up text-xs"></span>
+        <span>Alerta</span>
+      </button>
+      }
 
       <button type="button" (click)="cancelarBipe()"
         class="py-1.5 px-3 rounded-lg font-medium text-xs text-slate-300 bg-white/10 hover:bg-white/20 transition-colors">
@@ -124,28 +130,27 @@
   <div *ngIf="statusStage === 'COMPLETED' || statusStage === 'VIBRATE_COMPLETED'"
     class="flex items-center justify-between w-full px-4 py-3.5 bg-emerald-950/95 border-b border-emerald-500/40 text-white animate-fade-in gap-3">
     <div class="flex items-center gap-3 min-w-0">
-      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm !border border-green-400/60">
+      <div
+        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm !border border-green-400/60">
         <img src="assets/drawable/{{remoteIcon}}.png" alt="" class="h-7 w-7 object-contain">
       </div>
+      <span class="material-symbols-outlined p-2 rounded-full bg-green-200/20 !text-[24px]">
+        {{getButtonLabel().icon}}
+      </span>
       <div class="flex flex-col min-w-0">
         <span class="text-sm font-bold text-white truncate">{{ statusMessage }}</span>
-        <span class="text-xs text-emerald-200 truncate">{{statusStage === 'VIBRATE_COMPLETED' ? 'Celular Vibrou' : 'Usuário respondeu o bipe'}}</span>
+        <span class="text-xs text-emerald-200 truncate">{{ getButtonLabel().text }}</span>
       </div>
     </div>
 
     <div class="flex items-center gap-2 shrink-0">
-      <button type="button"
-        (mousedown)="startHold($event)"
-        (mouseup)="endHold($event)"
-        (mouseleave)="cancelHold()"
-        (touchstart)="startHold($event)"
-        (touchend)="endHold($event)"
+      <button type="button" (mousedown)="startHold(false, $event)" (mouseup)="endHold(false, $event)"
+        (mouseleave)="cancelHold()" (touchstart)="startHold(false, $event)" (touchend)="endHold(false, $event)"
         (touchcancel)="cancelHold()"
         class="py-1 px-3 rounded-lg font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5 select-none">
-        <span class="pi pi-volume-up text-xs"></span>
-        <span>{{statusStage === 'VIBRATE_COMPLETED' ? 'Vibrar de novo' : 'Bipar de novo'}}</span>
+        <span class="pi volume-off text-xs"></span>
+        <span>{{statusStage === 'VIBRATE_COMPLETED' ? 'Vibrar' : 'Bipar'}}</span>
       </button>
-
       <button type="button" (click)="cancelarBipe()"
         class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-emerald-200 hover:bg-white/20 hover:text-white transition-colors">
         <span class="material-symbols-outlined text-base">close</span>
@@ -153,10 +158,11 @@
     </div>
   </div>
 
-    <div *ngIf="statusStage === 'FORCE'"
+  <div *ngIf="statusStage === 'FORCE'"
     class="flex items-center justify-between w-full px-4 py-3.5 bg-orange-950/95 border-b border-orange-500/40 text-white animate-fade-in gap-3">
     <div class="flex items-center gap-3 min-w-0">
-      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm !border border-orange-400/60">
+      <div
+        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-sm !border border-orange-400/60">
         <img src="assets/drawable/{{remoteIcon}}.png" alt="" class="h-7 w-7 object-contain">
       </div>
       <div class="flex flex-col min-w-0">
@@ -166,16 +172,12 @@
     </div>
 
     <div class="flex items-center gap-2 shrink-0">
-      <button type="button"
-        (mousedown)="startHold($event)"
-        (mouseup)="endHold($event)"
-        (mouseleave)="cancelHold()"
-        (touchstart)="startHold($event)"
-        (touchend)="endHold($event)"
+      <button type="button" (mousedown)="startHold(false, $event)" (mouseup)="endHold(false, $event)"
+        (mouseleave)="cancelHold()" (touchstart)="startHold(false, $event)" (touchend)="endHold(false, $event)"
         (touchcancel)="cancelHold()"
         class="py-1 px-3 rounded-lg font-bold text-xs text-white bg-red-600 hover:bg-red-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5 select-none">
         <span class="pi pi-volume-up text-xs"></span>
-        <span>Bipar de novo</span>
+        <span>Bipar</span>
       </button>
 
       <button type="button" (click)="cancelarBipe(true)"

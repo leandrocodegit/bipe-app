@@ -2,23 +2,20 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-// Importações do PrimeNG necessárias
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { DropdownModule } from 'primeng/dropdown';
-import { MultiSelectModule } from 'primeng/multiselect';
 import { CheckboxModule } from 'primeng/checkbox';
-import { Device } from '@/shared/models/device.model';
-import { RotinaService } from '@/shared/services/rotina.service';
-import { DeviceService } from '@/shared/services/device.service';
-import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
-import { Routine } from '@/shared/models/rotina.model';
+
+import { Device } from '@/shared/models/device.model';
+import { BipeConfigService } from '@/shared/services/bipe-config.service';
+import { DeviceService } from '@/shared/services/device.service';
+import { BipeConfig } from '@/shared/models/bipe.model';
 
 @Component({
-  selector: 'app-zona-form-dialog',
+  selector: 'app-bipe-form-dialog',
   standalone: true,
   imports: [
     CommonModule,
@@ -27,32 +24,19 @@ import { Routine } from '@/shared/models/rotina.model';
     ButtonModule,
     InputTextModule,
     InputNumberModule,
-    DropdownModule,
-    MultiSelectModule,
     CheckboxModule,
-    TagModule,
     TableModule
   ],
-  templateUrl: './zona-form-dialog.component.html',
+  templateUrl: './bipe-form-dialog.component.html',
 })
-export class ZonaFormDialogComponent implements OnInit {
+export class BipeFormDialogComponent implements OnInit {
   @Input() visible = false;
-  @Input() latLng: any;
-  protected devices: any[] = [];
-
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() salvar = new EventEmitter<any>();
 
+  protected devices: any[] = [];
   protected deviceSearchTerm = '';
 
-  // Dicionário para o Dropdown
-  protected tiposEvento = [
-    { label: 'Entrada / Saída (Ambos)', value: 'ENTER_EXIT' },
-    { label: 'Apenas Entrada', value: 'ENTER' },
-    { label: 'Apenas Saída', value: 'EXIT' }
-  ];
-
-  // Definição visual e de valor para os dias
   protected diasDefinicao = [
     { label: 'D', valor: 'Dom' },
     { label: 'S', valor: 'Seg' },
@@ -63,30 +47,25 @@ export class ZonaFormDialogComponent implements OnInit {
     { label: 'S', valor: 'Sab' }
   ];
 
-  protected viewWaipoints = false;
-
-
-  @Input() formulario: Routine = {
+  @Input() formulario: BipeConfig = {
     nome: '',
-    horaInicio: '08:00',
-    horaTermino: '18:00',
+    intervaloMinutos: 15,
     diasSemana: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
-    devices: [] ,
-    tipo: 'ENTER',
+    devices: [],
     ativo: true
   };
 
   constructor(
     private readonly deviceService: DeviceService,
-    private readonly rotinaService: RotinaService) { }
-
+    private readonly bipeConfigService: BipeConfigService
+  ) { }
 
   ngOnInit(): void {
-    this.listaDevices()
+    this.listaDevices();
   }
 
   listaDevices() {
-    this.deviceService.listDevices().subscribe(response => this.devices = response)
+    this.deviceService.listDevices().subscribe(response => this.devices = response);
   }
 
   toggleDia(valor: string): void {
@@ -104,23 +83,22 @@ export class ZonaFormDialogComponent implements OnInit {
   }
 
   confirmar(): void {
-
-    this.salvar.emit();
     this.fechar();
-    this.rotinaService.criarWayPoint({
+    this.bipeConfigService.salvarBipe({
       ...this.formulario,
-      devices: this.formulario.devices.map(device => device.id),
-  }).subscribe(() => this.resetFormulario());
+      devices: this.formulario.devices.map((device: any) => device.id),
+    }).subscribe(() => {
+      this.salvar.emit();
+      this.resetFormulario();
+    });
   }
 
   private resetFormulario(): void {
     this.formulario = {
       nome: '',
-      horaInicio: '08:00',
-      horaTermino: '18:00',
+      intervaloMinutos: 15,
       diasSemana: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
       devices: [],
-      tipo: 'ENTER',
       ativo: true
     };
   }
@@ -141,7 +119,6 @@ export class ZonaFormDialogComponent implements OnInit {
     }
     return 'pi pi-desktop';
   }
-
 
   get filteredDevicesTable() {
     const term = this.deviceSearchTerm.trim().toLowerCase();
@@ -175,14 +152,14 @@ export class ZonaFormDialogComponent implements OnInit {
 
   toggleSelectAll(): void {
     if (this.allFilteredSelected) {
-      // desmarca só os que estão visíveis no filtro atual
       this.formulario.devices = this.formulario.devices.filter(
-        (dev: Device) => !this.filteredDevicesTable.some((d) => d.id === dev.id)
+        (selectedDev: any) => !this.filteredDevicesTable.some((d) => d.id === selectedDev.id)
       );
     } else {
-      const devicesToAdd = this.filteredDevicesTable
-        .filter((d) => !this.formulario.devices.some(device => device.id == d.id));
-      this.formulario.devices = [...this.formulario.devices, ...devicesToAdd];
+      const devsToAdd = this.filteredDevicesTable.filter(
+        (d) => !this.formulario.devices.some(device => device.id == d.id)
+      );
+      this.formulario.devices = [...this.formulario.devices, ...devsToAdd];
     }
   }
 }

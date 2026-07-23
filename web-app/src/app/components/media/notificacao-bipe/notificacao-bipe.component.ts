@@ -32,6 +32,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
   public displaySubtitle: string = '';
   public statusMessage: string = '';
   public completedCount: number = 0;
+  public buttonPressed?: string;
 
   private subscriptions = new Subscription();
   private mqttSignalingSub?: Subscription;
@@ -92,6 +93,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     this.statusStage = 'START';
     delete this.remoteNickName;
     delete this.remoteUserName;
+    delete this.buttonPressed;
     this.remoteIcon = this.callInfo?.card?.face;
     this.remoteColor = this.callInfo?.card?.color;
 
@@ -198,6 +200,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
       } else if (status === 'COMPLETED' || status === 'VIBRATE_COMPLETED') {
         this.stopCallTimeout();
         this.statusStage = status;
+        this.buttonPressed = payload.button;
         const name = this.remoteNickName || this.remoteUserName || this.callInfo?.userName || 'Dispositivo';
         this.statusMessage = `${name} (${this.completedCount}x)!`;
 
@@ -210,7 +213,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     }
   }
 
-  public startHold(event?: Event): void {
+  public startHold(alert: boolean, event?: Event): void {
     if (event) {
       event.preventDefault();
     }
@@ -220,11 +223,11 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     }
     this.holdTimer = setTimeout(() => {
       this.isLongPress = true;
-      this.executarBipeForce();
+      this.executarBipeForce(alert);
     }, 3000);
   }
 
-  public endHold(event?: Event): void {
+  public endHold(alert: boolean, event?: Event): void {
     if (event) {
       event.preventDefault();
     }
@@ -233,7 +236,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
       this.holdTimer = null;
     }
     if (!this.isLongPress) {
-      this.confirmarExecutarBipe();
+      this.confirmarExecutarBipe(alert);
     }
   }
 
@@ -244,10 +247,13 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     }
   }
 
-  public executarBipeForce(): void {
+  public executarBipeForce(alert: boolean): void {
+
+    console.log('Alert', alert);
+
     if (!this.callInfo) return;
 
-    const type = 'bipe';
+    const type = alert ? 'bipe_alert' : 'bipe';
     const status = 'FORCE';
 
     console.log('Enviando comando de Bipe FORCE via backend para dispositivo:', this.callInfo.deviceId);
@@ -266,10 +272,10 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     });
   }
 
-  public confirmarExecutarBipe(): void {
+  public confirmarExecutarBipe(alert: boolean): void {
     if (!this.callInfo) return;
 
-    const type = this.callInfo.vibrate ? 'vibrate' : 'bipe';
+    const type = this.callInfo.vibrate ? 'vibrate' : alert ? 'bipe_alert' : 'bipe';
     const status = 'START';
 
     console.log('Enviando comando de Bipe via backend para dispositivo:', this.callInfo.deviceId);
@@ -294,16 +300,11 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
 
     if (!this.callInfo) return;
 
-    const cmdTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/cmd`;
-    const bipeTopic = `owntracks/${this.callInfo.userName}/${this.callInfo.deviceId}/bipe`;
-
-    const initialPayload = JSON.stringify({
-      _type: 'STOP'
-    });
-
-    this.mqttConnectionService.unsafePublish(cmdTopic, initialPayload, { qos: 1, retain: false });
-    if (forceStop)
-      this.mqttConnectionService.unsafePublish(bipeTopic, '{}', { qos: 1, retain: true });
+    this.deviceService.sendCommand(this.callInfo.deviceId, {
+      type: 'bipe',
+      status: 'STOP',
+      clear: forceStop
+    }).subscribe();
 
     this.stopCallTimeout();
     this.stopAutoDismiss();
@@ -313,6 +314,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     this.remoteUserName = undefined;
     this.remoteIcon = undefined;
     this.remoteColor = undefined;
+    this.buttonPressed = undefined;
 
     this.displayTitle = '';
     this.displaySubtitle = '';
@@ -414,5 +416,58 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.warn('Web Audio API não suportada ou bloqueada pelo navegador:', e);
     }
+  }
+
+  public getButtonLabel(): any {
+    if (this.buttonPressed) {
+      switch (this.buttonPressed.toUpperCase()) {
+        case 'VOL_UP':
+          return {
+            text: 'Botão Aumentar',
+            icon: 'keyboard_double_arrow_up'
+          };
+        case 'VOL_DOWN':
+          return {
+            text: 'Botão Diminuir',
+            icon: 'keyboard_double_arrow_down'
+          };
+        case 'VOL_TICK':
+          return {
+            text: 'Confirmou com um toque',
+            icon: 'nest_wake_on_press'
+          };
+        case 'HEADSET':
+          return {
+            text: 'Confirmou usando botão do Fone de Ouvido',
+            icon: ''
+          };
+        case 'REMOTE':
+          return {
+            text: 'Vibração remota confirmada',
+            icon: ''
+          };
+        case 'PLAY':
+          return {
+            text: 'Confirmou usando botão Play',
+            icon: ''
+          };
+        case 'PAUSE':
+          return {
+            text: 'Confirmou usando botão Pause',
+            icon: ''
+          };
+        case 'STOP':
+          return {
+            text: 'Confirmou usando botão Stop',
+            icon: ''
+          };
+        default:
+          return {
+            text: `Confirmou via botão ${this.buttonPressed}`,
+            icon: ''
+          };
+      }
+    }
+    return this.statusStage === 'VIBRATE_COMPLETED' ? 'Celular Vibrou' : 'Usuário respondeu o bipe';
   }
 }

@@ -2,6 +2,7 @@ import { CommonModule, Location } from '@angular/common';
 import { Component } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { RoutinesComponent } from '../routines/routines.component';
+import { BipesComponent } from '../bipes/bipes.component';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -9,7 +10,8 @@ import { ActivatedRoute } from '@angular/router';
   imports: [
     CommonModule,
     TabsModule,
-    RoutinesComponent
+    RoutinesComponent,
+    BipesComponent
   ],
   templateUrl: './painel-rotinas.component.html',
   styleUrl: './painel-rotinas.component.scss'
@@ -26,13 +28,13 @@ export class PainelRotinasComponent {
 
   ngOnInit(): void {
     this.activedRoute.queryParams.subscribe(param => {
-      this.tab = param['tab'] ?? 'device';
+      this.tab = param['tab'] ?? 'rotina';
     });
   }
 
   selectTab(event: any) {
     this.tab = event;
-    this.location.go(`/devices?tab=${event}`);
+    this.location.go(`/rotinas?tab=${event}`);
   }
 
 }
