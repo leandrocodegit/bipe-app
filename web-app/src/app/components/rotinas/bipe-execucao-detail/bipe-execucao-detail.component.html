@@ -22,11 +22,15 @@
     <!-- Cabeçalho de Alerta -->
     <div class="flex items-center gap-3 pb-3 border-b border-slate-200/10">
       <div
-        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-        <span class="material-symbols-outlined text-2xl">volume_up</span>
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-sm p-1"
+        [style.background]="execution?.deviceColor ? execution.deviceColor + '20' : '#3b82f620'"
+        [style.border]="'2px solid ' + (execution?.deviceColor || '#3b82f6')">
+        <img #imgHeaderEl *ngIf="execution?.deviceMascot" [src]="'assets/drawable/' + execution.deviceMascot + '.png'"
+          (error)="imgHeaderEl.src = 'assets/drawable/urso.png'" alt="Mascote" class="h-full w-full object-contain" />
+        <span *ngIf="!execution?.deviceMascot" class="material-symbols-outlined text-2xl text-blue-500">volume_up</span>
       </div>
       <div class="min-w-0 flex-1">
-        <h3 class="text-base font-bold text-blue-500 dark:text-blue-400 m-0">Execução do Bipe</h3>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 m-0">Execução do Bipe</h3>
         <p class="text-xs text-slate-500 dark:text-slate-400 m-0">
           Detalhes de execução e resposta do dispositivo nas últimas 24hs.
         </p>
@@ -60,25 +64,31 @@
       <div
         class="p-3 rounded-2xl border flex flex-col gap-2.5"
         [ngClass]="{
-          'border-emerald-500/30 bg-emerald-500/5': execution?.respondido,
+          'border-rose-500/30 bg-rose-500/5': execution?.respondido && execution?.statusResposta === 'FORCED',
+          'border-emerald-500/30 bg-emerald-500/5': execution?.respondido && execution?.statusResposta !== 'FORCED',
           'border-amber-500/30 bg-amber-500/5': !execution?.respondido
         }">
         <span
           class="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
           [ngClass]="{
-            'text-emerald-500': execution?.respondido,
+            'text-rose-500': execution?.respondido && execution?.statusResposta === 'FORCED',
+            'text-emerald-500': execution?.respondido && execution?.statusResposta !== 'FORCED',
             'text-amber-500': !execution?.respondido
           }">
           <span class="material-symbols-outlined text-xs">
-            {{ execution?.respondido ? 'check_circle' : 'pending' }}
+            {{ execution?.statusResposta === 'FORCED' ? 'warning' : (execution?.respondido ? 'check_circle' : 'pending') }}
           </span>
           Status da Resposta
         </span>
         <div class="flex flex-col gap-1.5 text-xs text-slate-600 dark:text-slate-300">
           <div class="flex items-center justify-between">
             <span>Situação:</span>
-            <span class="font-bold uppercase" [ngClass]="{ 'text-emerald-500': execution?.respondido, 'text-amber-500': !execution?.respondido }">
-              {{ execution?.respondido ? 'Respondido' : 'Sem resposta' }}
+            <span class="font-bold uppercase" [ngClass]="{
+              'text-rose-500': execution?.respondido && execution?.statusResposta === 'FORCED',
+              'text-emerald-500': execution?.respondido && execution?.statusResposta !== 'FORCED',
+              'text-amber-500': !execution?.respondido
+            }">
+              {{ execution?.statusResposta === 'FORCED' ? 'Confirmação Forçada' : (execution?.respondido ? 'Respondido' : 'Sem resposta') }}
             </span>
           </div>
 
@@ -88,11 +98,16 @@
           </div>
 
           <div *ngIf="execution?.respondido && execution?.statusResposta" class="flex items-center justify-between border-t border-slate-200/10 pt-2 mt-1">
-            <span>Botão Utilizado:</span>
-            <span class="font-bold flex items-center gap-1">
-              <i [class]="getButtonLabel(execution.statusResposta).icon + ' text-emerald-500 text-xs'"></i>
+            <span>Método de Confirmação:</span>
+            <span class="font-bold flex items-center gap-1" [ngClass]="{ 'text-rose-500': execution?.statusResposta === 'FORCED', 'text-emerald-500': execution?.statusResposta !== 'FORCED' }">
+              <i [class]="getButtonLabel(execution.statusResposta).icon + ' text-xs'"></i>
               {{ getButtonLabel(execution.statusResposta).text }}
             </span>
+          </div>
+
+          <div *ngIf="execution?.statusResposta === 'FORCED'" class="mt-2 p-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-[11px] text-rose-500 leading-normal flex gap-1.5 items-start">
+            <i class="pi pi-exclamation-circle text-xs shrink-0 mt-0.5 animate-pulse"></i>
+            <span><strong>Atenção:</strong> Resposta forçada pelo sistema ou operador. O bipe não foi confirmado fisicamente pelo usuário no dispositivo.</span>
           </div>
         </div>
       </div>
@@ -106,10 +121,12 @@
           Status do Dispositivo
         </span>
         <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg"
-            [style.background]="deviceDetails?.color + '22'"
-            [style.border]="'2px solid ' + (deviceDetails?.color || '#94a3b8')">
-            <i [class]="deviceDetails?.icon ? 'pi pi-mobile' : 'pi pi-tablet'"></i>
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full p-1 shadow-sm"
+            [style.background]="(execution?.deviceColor || deviceDetails?.color) + '22'"
+            [style.border]="'2px solid ' + (execution?.deviceColor || deviceDetails?.color || '#94a3b8')">
+            <img #imgCardEl *ngIf="execution?.deviceMascot || deviceDetails?.icon" [src]="'assets/drawable/' + (execution?.deviceMascot || deviceDetails?.icon) + '.png'"
+              (error)="imgCardEl.src = 'assets/drawable/urso.png'" alt="Mascote" class="h-full w-full object-contain" />
+            <i *ngIf="!execution?.deviceMascot && !deviceDetails?.icon" [class]="deviceDetails?.icon ? 'pi pi-mobile' : 'pi pi-tablet'"></i>
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">

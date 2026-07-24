@@ -8,7 +8,7 @@ import { AudioCallService, CallInfo } from '@/shared/services/audio-call.service
 import { DeviceService } from '@/shared/services/device.service';
 import { AuthService } from '@/core/auth/services/auth.service';
 
-export type BipeStage = 'IDLE' | 'START' | 'WAITING_ACCEPT' | 'ACCEPTED' | 'COMPLETED' | 'VIBRATE_COMPLETED' | 'TIMEOUT' | 'ERROR' | 'FORCE';
+export type BipeStage = 'IDLE' | 'START' | 'WAITING_ACCEPT' | 'ACCEPTED' | 'COMPLETED' | 'VIBRATE_COMPLETED' | 'TIMEOUT' | 'ERROR' | 'FORCED';
 
 @Component({
   selector: 'app-notificacao-bipe',
@@ -143,12 +143,12 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
       this.remoteColor = payload.color || '#3b82f6';
 
       console.log('Status', status, this.callInfo)
-      // Se for FORCE, sempre mostra a notificação (mesmo que esteja em IDLE ou em outro estado)
-      if (status === 'FORCE') {
+      // Se for FORCED, sempre mostra a notificação (mesmo que esteja em IDLE ou em outro estado)
+      if (status === 'FORCED') {
         const payloadDeviceId = payload.deviceId || payload.id;
         const payloadUserName = payload.userName || payload.username || payload.user || 'Dispositivo';
 
-        // Garante que callInfo está configurado para o dispositivo do FORCE
+        // Garante que callInfo está configurado para o dispositivo do FORCED
         if (!this.callInfo || this.callInfo.deviceId !== payloadDeviceId) {
           this.callInfo = {
             deviceId: payloadDeviceId,
@@ -158,7 +158,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         }
 
         this.stopCallTimeout();
-        this.statusStage = 'FORCE';
+        this.statusStage = 'FORCED';
         this.statusMessage = `RECURSO FORÇADO`;
 
         const name = this.remoteNickName || this.remoteUserName || payloadUserName || 'Dispositivo';
@@ -253,9 +253,9 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
     if (!this.callInfo) return;
 
     const type = alert ? 'bipe_alert' : 'bipe';
-    const status = 'FORCE';
+    const status = 'FORCED';
 
-    console.log('Enviando comando de Bipe FORCE via backend para dispositivo:', this.callInfo.deviceId);
+    console.log('Enviando comando de Bipe FORCED via backend para dispositivo:', this.callInfo.deviceId);
 
     this.deviceService.sendCommand(this.callInfo.deviceId, { type, status }).subscribe({
       next: () => {
@@ -266,7 +266,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Erro ao enviar bipe FORCE:', err);
+        console.error('Erro ao enviar bipe FORCED:', err);
       }
     });
   }
@@ -284,7 +284,7 @@ export class NotificacaoBipeComponent implements OnInit, OnDestroy {
         this.statusStage = 'WAITING_ACCEPT';
         this.completedCount++;
         const name = this.remoteNickName || this.remoteUserName || this.callInfo?.userName || 'Dispositivo';
-        this.statusMessage = `Bipe enviado com sucesso para ${name} (${this.completedCount}x)!`;
+        this.statusMessage = `Aguardando dipositivo responder...`;
         this.cdr.detectChanges();
       },
       error: (err) => {

@@ -212,6 +212,8 @@ export class BipeExecucaoDetailComponent implements OnInit, OnChanges {
           return { text: 'Botão Fone de Ouvido', icon: 'pi pi-headphones' };
         case 'REMOTE':
           return { text: 'Vibração Remota', icon: 'pi pi-mobile' };
+        case 'FORCED':
+          return { text: 'Confirmação Forçada (FORCED) ⚠️', icon: 'pi pi-exclamation-triangle' };
         case 'PLAY':
           return { text: 'Botão Play', icon: 'pi pi-play' };
         case 'PAUSE':

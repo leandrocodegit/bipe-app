@@ -137,6 +137,21 @@ export class TopBarComponent implements OnInit {
 
   }
 
+  getFriendlyButtonLabel(button: string): string {
+    if (!button) return '';
+    switch (button.toUpperCase()) {
+      case 'VOL_UP': return 'Botão Aumentar';
+      case 'VOL_DOWN': return 'Botão Diminuir';
+      case 'VOL_TICK': return 'Toque Único';
+      case 'HEADSET': return 'Botão do Fone';
+      case 'REMOTE': return 'Vibração Remota';
+      case 'PLAY': return 'Play';
+      case 'PAUSE': return 'Pause';
+      case 'STOP': return 'Stop';
+      default: return button;
+    }
+  }
+
   login(): void {
     this.authService.loginOrdic();
   }

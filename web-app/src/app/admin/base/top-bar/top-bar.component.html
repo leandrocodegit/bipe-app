@@ -6,6 +6,7 @@
       <i class="pi pi-bars"></i>
     </button>
     }
+    <app-broker-status />
     <a class="layout-topbar-logo">
       BIPE
     </a>
@@ -13,7 +14,6 @@
 
   <div class="layout-topbar-actions">
     <div class="layout-config-menu">
-      <app-broker-status />
       <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
         <i
           [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
@@ -155,27 +155,43 @@
       @if (bipeExecucoes.length) {
       @for (item of bipeExecucoes; track item.id) {
       <div
-        class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060b0d] border border-slate-100 dark:border-white/5 hover:border-blue-400/50 transition-colors cursor-pointer"
-        (click)="abrirBipeExecucao(item); bipeNotifOp.hide()">
+        class="flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060b0d] border border-slate-100 dark:border-white/5 hover:border-blue-400/50 transition-colors cursor-pointer"
+        [ngClass]="{
+                 '!bg-red-500/20 text-red-400': item.respondido && item.statusResposta == 'FORCED'
+              }" (click)="abrirBipeExecucao(item); bipeNotifOp.hide()">
+
+        <!-- Mascote com Cor de Fundo/Borda -->
+        <div class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full shadow-sm p-0.5"
+          [style.background]="item.deviceColor ? item.deviceColor + '20' : '#3b82f620'"
+          [style.border]="'1.5px solid ' + (item.deviceColor ? item.deviceColor : '#3b82f6')">
+          <img #imgEl *ngIf="item.deviceMascot" [src]="'assets/drawable/' + item.deviceMascot + '.png'"
+            (error)="imgEl.src = 'assets/drawable/urso.png'" alt="Mascote" class="h-full w-full object-contain" />
+          <i *ngIf="!item.deviceMascot" class="pi pi-mobile text-slate-400 text-sm"></i>
+        </div>
+
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-1.5">
             <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate m-0 flex-1">
               {{ item.bipeNome || 'Bipe Avulso' }}
             </p>
-            <span
-              class="inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-bold shrink-0"
-              [ngClass]="{
-                'bg-emerald-500/10 text-emerald-400': item.respondido,
+            <span class="inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-bold shrink-0" [ngClass]="{
+                'bg-emerald-500/10 text-emerald-400': item.respondido && item.statusResposta != 'FORCED',
+                'bg-red-500/10 text-red-400': item.respondido && item.statusResposta == 'FORCED',
                 'bg-amber-500/10 text-amber-400': !item.respondido
               }">
-              {{ item.respondido ? 'Respondeu' : 'Pendente' }}
+              {{ item.respondido ? (item.statusResposta != 'FORCED' ? 'Respondeu' : 'Forçado') : 'Pendente' }}
             </span>
           </div>
-          <p class="text-[10px] text-slate-500 dark:text-slate-400 m-0 truncate mt-1">
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 m-0 truncate mt-0.5">
             Dispositivo: {{ item.deviceApelido }}
           </p>
           <p class="text-[9px] text-slate-400 dark:text-slate-600 m-0">
             Disparado: {{ item.dataHoraDisparo | date:'dd/MM/yyyy HH:mm:ss' }}
+          </p>
+          <p *ngIf="item.respondido && item.botaoPressionado"
+            class="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold m-0 mt-0.5 truncate flex items-center gap-1">
+            <i class="pi pi-check-circle text-[8px]"></i>
+            {{ getFriendlyButtonLabel(item.botaoPressionado) }}
           </p>
         </div>
         <i class="pi pi-chevron-right text-xs text-slate-400 shrink-0"></i>
