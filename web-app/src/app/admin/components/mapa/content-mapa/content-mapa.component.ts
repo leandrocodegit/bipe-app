@@ -60,6 +60,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
   private mqttSharedSubscription?: Subscription;
   private buscarPosicoesSubscription?: Subscription;
   private buscarTransicoesSubscription?: Subscription;
+  private localizacoesCarregadas = false;
+  private mqttQueue: { topic: string; payload: any }[] = [];
   protected desenhando = false;
   protected temDesenho = false;
   protected mqttMessageActive = false;
@@ -473,8 +475,10 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.iniciarCriacaoZonas();
     this.listarWaypoints();
 
-    if (!this.edicao)
+    if (!this.edicao) {
       this.subscribeMonitoredCard();
+      this.preCarregarLocalizacoes();
+    }
   }
 
   private addLayerToggleButton(): void {
@@ -615,10 +619,15 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
         const jsonString = String.fromCharCode(...message.payload);
         const payload = JSON.parse(jsonString);
         const topic = payload.topic || message.topic;
+
+        if (!this.localizacoesCarregadas) {
+          this.mqttQueue.push({ topic, payload });
+          return;
+        }
+
+        console.log('Mapa', payload);
+
         this.showMqttMessageIndicator();
-
-        console.log(payload);
-
 
         if (payload._type === 'location') {
           this.processarEventoLocalizacao(topic, payload);
@@ -687,7 +696,7 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.friends.set(payload.tid, { ...payload, uniqueId: uniqueId });
+    this.friends.set(uniqueId, { ...payload, uniqueId: uniqueId });
     this.updateSpeedDialItems();
 
     const tid = payload.tid || deviceName.substring(0, 2).toUpperCase();
@@ -1016,6 +1025,66 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private preCarregarLocalizacoes(): void {
+    if (!this.mapa) return;
+
+    this.deviceService.getDevicesLastLocations().subscribe({
+      next: (devices: any[]) => {
+        if (devices && devices.length > 0) {
+          const validCoords: Leaflet.LatLngExpression[] = [];
+
+          devices.forEach(device => {
+            if (device.lat !== undefined && device.lat !== null && device.lon !== undefined && device.lon !== null) {
+              const mockTopic = `owntracks/${device.username}/${device.id}`;
+              const payload = {
+                _type: 'location',
+                lat: device.lat,
+                lon: device.lon,
+                acc: 10,
+                icon: device.icon || 'urso',
+                color: device.color || '#3b82f6',
+                tid: device.tid || (device.clientId ? device.clientId.substring(0, 2).toUpperCase() : 'DV'),
+                batt: device.bateria || 100,
+                tst: device.dataHoraLeitura ? Math.floor(new Date(device.dataHoraLeitura).getTime() / 1000) : Math.floor(Date.now() / 1000),
+                opMode: device.opMode || 1
+              };
+              this.processarEventoLocalizacao(mockTopic, payload);
+              validCoords.push([device.lat, device.lon]);
+            }
+          });
+
+          // Se houver coordenadas válidas, ajusta o mapa para englobar todas as posições
+          if (validCoords.length > 0) {
+            const bounds = Leaflet.latLngBounds(validCoords);
+            this.mapa.fitBounds(bounds, { padding: [40, 40] });
+          }
+        }
+
+        this.localizacoesCarregadas = true;
+        this.processarFilaMqtt();
+      },
+      error: (err) => {
+        console.error('Erro ao pré-carregar localizações dos dispositivos:', err);
+        this.localizacoesCarregadas = true;
+        this.processarFilaMqtt();
+      }
+    });
+  }
+
+  private processarFilaMqtt(): void {
+    while (this.mqttQueue.length > 0) {
+      const msg = this.mqttQueue.shift();
+      if (msg) {
+        this.showMqttMessageIndicator();
+        if (msg.payload._type === 'location') {
+          this.processarEventoLocalizacao(msg.topic, msg.payload);
+        } else if (msg.payload._type === 'transition') {
+          this.processarEventoTransicao(msg.payload);
+        }
+      }
+    }
+  }
+
   private centerMonitoredCard(lat: number, lon: number, fly = false): void {
     if (!this.mapa) {
       return;
@@ -1103,14 +1172,8 @@ export class ContentMapaComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mapa.removeLayer(circle);
       this.circles.delete(uniqueId);
     }
-    let removed = false;
-    for (const [key, value] of this.friends.entries()) {
-      if (value.uniqueId === uniqueId) {
-        this.friends.delete(key);
-        removed = true;
-      }
-    }
-    if (removed) {
+    if (this.friends.has(uniqueId)) {
+      this.friends.delete(uniqueId);
       this.updateSpeedDialItems();
     }
   }

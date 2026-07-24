@@ -30,6 +30,7 @@ import { AudioCallService } from '@/shared/services/audio-call.service';
 import { WaypointService } from '@/shared/services/waypoint.service';
 import { FriendDetailComponent } from '@/shared/components/friend-detail/friend-detail.component';
 import { AuthService } from '@/core/auth/services/auth.service';
+import { Html5Qrcode } from 'html5-qrcode';
 
 
 @Component({
@@ -62,6 +63,9 @@ export class FriendsComponent implements OnInit, OnDestroy {
   searchTerm = '';
   selectedFriend: FriendPresence | null = null;
   copied = false;
+  protected showScanner = false;
+  protected scannerError = false;
+  private html5Qrcode?: Html5Qrcode;
   loading = true;
   justArrivedIds = new Set<string>();
   protected proximityWaypoints: any[] = [];
@@ -415,6 +419,68 @@ export class FriendsComponent implements OnInit, OnDestroy {
       this.arrivalTimers.delete(id);
     }, 3000);
     this.arrivalTimers.set(id, timer);
+  }
+
+  protected iniciarLeitor(): void {
+    this.scannerError = false;
+    setTimeout(() => {
+      try {
+        this.html5Qrcode = new Html5Qrcode("reader");
+        this.html5Qrcode.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 220, height: 220 }
+          },
+          (decodedText) => {
+            this.handleQrCodeDecoded(decodedText);
+          },
+          () => {
+            // Ignorar erros de frame no scan
+          }
+        ).catch(err => {
+          console.error("Erro ao iniciar leitor de QR Code:", err);
+          this.scannerError = true;
+        });
+      } catch (e) {
+        console.error("Erro ao instanciar Html5Qrcode:", e);
+        this.scannerError = true;
+      }
+    }, 300);
+  }
+
+  protected pararLeitor(): void {
+    if (this.html5Qrcode) {
+      if (this.html5Qrcode.isScanning) {
+        this.html5Qrcode.stop().then(() => {
+          this.html5Qrcode?.clear();
+          this.html5Qrcode = undefined;
+        }).catch(err => {
+          console.error("Erro ao parar leitor de QR Code:", err);
+          this.html5Qrcode = undefined;
+        });
+      } else {
+        this.html5Qrcode = undefined;
+      }
+    }
+  }
+
+  private handleQrCodeDecoded(decodedText: string): void {
+    this.showScanner = false;
+    this.pararLeitor();
+
+    try {
+      let payload = decodedText.trim();
+
+      if (decodedText.includes('payload=')) {
+        const urlObj = new URL(decodedText);
+        payload = urlObj.searchParams.get('payload') ?? decodedText;
+      }
+
+      this.router.navigate(['/share/accept'], { queryParams: { payload } });
+    } catch (err) {
+      console.error("Erro ao processar link de QR Code decodificado:", err);
+    }
   }
 
   ngOnDestroy(): void {

@@ -19,9 +19,14 @@
         </p>
       </div>
 
-      <button pButton type="button" icon="pi pi-refresh" class="p-button-rounded p-button-text p-button-plain shrink-0"
-        [class.animate-spin]="loading" pTooltip="Atualizar" tooltipPosition="left" (click)="onRefresh()"
-        aria-label="Atualizar lista de amigos"></button>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button pButton type="button" icon="pi pi-qrcode" class="p-button-rounded p-button-text p-button-plain"
+          pTooltip="Ler QR Code" tooltipPosition="bottom" (click)="showScanner = true"
+          aria-label="Ler QR Code de Compartilhamento"></button>
+        <button pButton type="button" icon="pi pi-refresh" class="p-button-rounded p-button-text p-button-plain"
+          [class.animate-spin]="loading" pTooltip="Atualizar" tooltipPosition="bottom" (click)="onRefresh()"
+          aria-label="Atualizar lista de amigos"></button>
+      </div>
     </header>
 
     <!-- Busca -->
@@ -100,3 +105,44 @@
   </div>
 
 </div>
+
+  <!-- Modal do Leitor de QR Code -->
+  <p-dialog [(visible)]="showScanner" [modal]="true" [header]="'Ler QR Code de Compartilhamento'" 
+            [style]="{ width: '90vw', maxWidth: '460px' }" [contentStyle]="{ overflow: 'visible' }"
+            styleClass="!rounded-2xl" (onShow)="iniciarLeitor()" (onHide)="pararLeitor()">
+    
+    <div class="flex flex-col items-center gap-4">
+      <p class="text-xs text-slate-500 dark:text-slate-400 text-center m-0">
+        Aponte a câmera para o QR Code de compartilhamento do dispositivo do seu amigo.
+      </p>
+
+      <!-- Área de Scan da Câmera -->
+      <div class="relative w-full aspect-square rounded-2xl bg-black/40 border border-white/5 overflow-hidden flex items-center justify-center shadow-inner">
+        <div id="reader" class="w-full h-full"></div>
+        
+        <!-- Overlay com Mira Verde de Foco -->
+        <div class="absolute inset-0 border-[35px] border-slate-900/50 pointer-events-none flex items-center justify-center">
+          <div class="w-44 h-44 border-2 border-emerald-500 rounded-xl relative shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+            <!-- Linha Horizontal do Laser -->
+            <div class="absolute inset-x-0 h-0.5 bg-emerald-500 shadow-[0_0_8px_#10b981]" style="animation: scanLaser 2s infinite linear; top: 0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback de Câmera/Permissão -->
+      <div class="w-full text-center">
+        <span *ngIf="scannerError" class="text-xs text-rose-500 font-semibold flex items-center justify-center gap-1.5">
+          <i class="pi pi-exclamation-triangle"></i> Câmera indisponível ou permissão negada.
+        </span>
+        <span *ngIf="!scannerError" class="text-xs text-emerald-500 font-semibold flex items-center justify-center gap-1.5">
+          <i class="pi pi-spin pi-spinner text-[10px]"></i> Câmera ativa. Aguardando leitura...
+        </span>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end pt-2">
+        <button pButton type="button" label="Fechar" icon="pi pi-times" class="p-button-outlined p-button-secondary !rounded-xl !text-xs !py-2" (click)="showScanner = false"></button>
+      </div>
+    </ng-template>
+  </p-dialog>

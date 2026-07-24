@@ -113,7 +113,10 @@ export class AppMenu implements OnInit {
         {
           order: 3,
           label: '',
-          items: [{ label: 'Regiões', icon: 'pi pi-map-marker', separator: false, routerLink: ['/waypoint'] }]
+          items: [
+            { label: 'Regiões', icon: 'pi pi-map-marker', separator: false, routerLink: ['/waypoint'] },
+            { label: 'Trajeto Diário', icon: 'pi pi-compass', separator: false, routerLink: ['/trajeto'] }
+          ]
         }] : []),
       ...(this.layoutService.isDesktop() ? [
         {
@@ -129,7 +132,10 @@ export class AppMenu implements OnInit {
         {
           order: 4,
           label: '',
-          items: [{ label: 'Rotinas', icon: 'pi pi-directions', separator: false, routerLink: ['/rotinas'] }]
+          items: [
+            { label: 'Rotinas', icon: 'pi pi-directions', separator: false, routerLink: ['/rotinas'] },
+            { label: 'Trajeto Diário', icon: 'pi pi-compass', separator: false, routerLink: ['/trajeto'] }
+          ]
         },
         {
           order: 3,

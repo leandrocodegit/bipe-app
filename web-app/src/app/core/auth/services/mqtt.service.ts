@@ -139,6 +139,8 @@ export class MqttConnectionService {
           this.mqttService.disconnect();
         }
 
+        return
+
         this.authService.refreshToken().subscribe({
           next: (success: boolean) => {
             this.isRefreshing = false;

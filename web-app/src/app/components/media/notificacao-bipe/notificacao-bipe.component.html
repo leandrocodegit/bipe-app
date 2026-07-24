@@ -149,7 +149,7 @@
         (touchcancel)="cancelHold()"
         class="py-1 px-3 rounded-full font-bold text-xs text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5 select-none">
         <span class="pi volume-off text-xs"></span>
-        <span>{{statusStage === 'VIBRATE_COMPLETED' ? 'Vibrar' : 'Bipar'}}</span>
+        <span>{{callInfo?.vibrate ? 'Vibrar' : 'Bipar'}}</span>
       </button>
       <button type="button" (click)="cancelarBipe()"
         class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-emerald-200 hover:bg-white/20 hover:text-white transition-colors">
@@ -177,7 +177,7 @@
         (touchcancel)="cancelHold()"
         class="py-1 px-3 rounded-full font-bold text-xs text-white bg-red-600 hover:bg-red-500 transition-colors shadow-md active:scale-95 flex items-center gap-1.5 select-none">
         <span class="pi pi-volume-up text-xs"></span>
-        <span>Bipar</span>
+        <span>{{callInfo?.vibrate ? 'Vibrar' : 'Bipar'}}</span>
       </button>
 
       <button type="button" (click)="cancelarBipe(true)"

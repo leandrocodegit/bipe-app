@@ -140,28 +140,28 @@ export class AudioWebrtcComponent implements OnInit, OnDestroy {
   private subscribeGlobalMqtt(): void {
     if (this.mqttSignalingSub && !this.mqttSignalingSub.closed) return;
 
-    const signalingListenTopic = `bipe/${this.authService.extrairEmailUsuario()}/${this.authService.extrairIdUsuario()}/rtc/${this.sessionId}`;
+    const signalingListenTopic = `bipe/${this.authService.extrairEmailUsuario()}/rtc/${this.authService.extrairIdUsuario()}`;
 
     this.mqttSignalingSub = this.mqttConnectionService.observe(signalingListenTopic).subscribe({
-
       next: (msg: any) => this.handleIncomingCallMessage(msg)
     });
   }
 
   private handleIncomingCallMessage(message: any): void {
-
-
-
-    this.handleSignalingMessage(message);
     const payload = this.parseMqttPayload(message);
+    if (!payload) return;
 
-
-
-    const parts = message.topic.split('/');
-    if (parts.length >= 3) {
-      const deviceTopic = `${parts[0]}/${parts[1]}/${parts[2]}`;
-      if (this.callState === 'IDLE') {
-        //   this.audioCallService.receiveIncomingCall(deviceTopic, parts[2]);
+    // Filter by WebRTC signaling message types and correct sessionId
+    if (payload._type === 'rtc' || payload._type === 'call' || payload._type === 'stop' || payload._type === 'busy') {
+      if (payload.sessionId === this.sessionId) {
+        this.handleSignalingMessage(message);
+        const parts = message.topic.split('/');
+        if (parts.length >= 3) {
+          const deviceTopic = `${parts[0]}/${parts[1]}/${parts[2]}`;
+          if (this.callState === 'IDLE') {
+            //   this.audioCallService.receiveIncomingCall(deviceTopic, parts[2]);
+          }
+        }
       }
     }
   }
