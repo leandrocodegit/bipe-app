@@ -4,27 +4,32 @@
 </button>
 
 <!-- O styleClass agora injeta classes que reagem a ambos os modos -->
-<p-dialog [(visible)]="view" #op
-  styleClass="lg:min-w-[50vw] min-w-[99vw] popover-clean p-0 !bg-white dark:!bg-[#0b1214] !border-gray-200 dark:!border-white/5 !rounded-xl shadow-2xl"
-  [modal]="true" [dismissableMask]="false" [showHeader]="false">
+<p-dialog [(visible)]="view" #op appendTo="body" class="rounded-none"
+  styleClass="lg:min-w-[50vw] min-w-[99vw] popover-clean p-0 !bg-white dark:!bg-[#0b1214] !border-gray-200 dark:!border-white/5 shadow-2xl"
+  [modal]="true" [dismissableMask]="true" [showHeader]="false">
 
-
-
-  <div class="flex w-full flex-col gap-5 px-4 pb-8 pt-5 sm:px-6">
+  <div class="flex w-full flex-col gap-5 px-4 pb-8 pt-5 sm:px-6 relative">
+    
+    <!-- Botão de Fechar -->
+    <button pButton type="button" icon="pi pi-times" 
+      class="p-button-rounded p-button-text p-button-secondary !absolute top-4 right-4 !h-9 !w-9 !z-10"
+      (click)="view = false" aria-label="Fechar"></button>
 
     <!-- Dispositivo sendo compartilhado -->
-    <div class="flex items-center gap-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0b1214] p-4 shadow-sm">
-      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#060b0d] text-lg text-slate-500">
+    <div
+      class="flex items-center gap-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-[#0b1214] p-4 shadow-sm">
+      <div
+        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#060b0d] text-lg text-slate-500">
         <i [class]="deviceIcon"></i>
       </div>
       <div class="min-w-0">
-        <p class="text-xs font-medium uppercase tracking-wide text-slate-400">Compartilhando</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-slate-400 mb-1">Compartilhando</p>
         <p class="truncate text-sm font-semibold text-slate-900">{{ device?.nome }}</p>
       </div>
     </div>
 
     <!-- Formulário -->
-    <div class="flex flex-col gap-1.5">
+    <div *ngIf="!qrDataUrl" class="flex flex-col gap-1.5">
       <label for="share-email" class="text-sm font-medium text-slate-700">
         E-mail de quem vai receber
       </label>
@@ -43,12 +48,17 @@
     </div>
 
     <!-- Ações -->
-    <div class="flex flex-col gap-2.5 sm:flex-row">
+    <div *ngIf="!shareLink && !qrDataUrl" class="flex flex-col gap-2.5 sm:flex-row">
       <button pButton type="button" label="Gerar link" icon="pi pi-link"
         class="p-button-outlined w-full !rounded-xl !py-3 sm:flex-1" [loading]="loadingLink"
         (click)="onGenerateLink()"></button>
       <button pButton type="button" label="Gerar QR Code" icon="pi pi-qrcode" class="w-full !rounded-xl !py-3 sm:flex-1"
         [loading]="loadingQrCode" (click)="onGenerateQrCode()"></button>
+    </div>
+
+    <div *ngIf="shareLink || qrDataUrl" class="flex flex-col gap-2.5 sm:flex-row mt-2">
+      <button pButton type="button" label="Gerar Novo" class="p-button-outlined w-full !rounded-xl !py-3 sm:flex-1"
+        (click)="gerarNovo()"></button>
     </div>
 
     <!-- Resultado: link gerado -->
@@ -58,7 +68,8 @@
         <p class="text-sm font-medium">Link pronto para compartilhar</p>
       </div>
 
-      <div class="flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-white/5 bg-white dark:bg-[#060b0d] px-3 py-2.5">
+      <div
+        class="flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-white/5 bg-white dark:bg-[#060b0d] px-3 py-2.5">
         <p class="min-w-0 flex-1 truncate text-xs text-slate-600 dark:text-slate-300">{{ shareLink }}</p>
         <button pButton type="button" [icon]="copied ? 'pi pi-check' : 'pi pi-copy'"
           class="p-button-text p-button-rounded shrink-0 !h-8 !w-8" [pTooltip]="copied ? 'Copiado!' : 'Copiar link'"

@@ -95,8 +95,23 @@ export class ShareDeviceComponent implements OnChanges {
       void this.renderQrCode(this.shareLink);
       return;
     }
-    this.awaitingLinkForQr = true;
-    this.generateQrCode.emit(this.buildRequest());
+    this.loadingQrCode = true;
+    this.sharedService.compartilhar(this.device.clientId, this.emailControl.value.trim()).subscribe({
+      next: (response) => {
+        this.shareLink = `${window.location.origin}/share/accept?payload=${response.payload}`;
+        void this.renderQrCode(this.shareLink);
+        this.loadingQrCode = false;
+      },
+      error: () => {
+        this.loadingQrCode = false;
+      }
+    });
+  }
+
+  gerarNovo(): void {
+    this.shareLink = null;
+    this.qrDataUrl = null;
+    this.emailControl.reset();
   }
 
   async copyLink(): Promise<void> {

@@ -9,6 +9,14 @@
   @media (max-height: 760px) {
     padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px)) !important;
   }
+
+  @media (max-height: 700px) {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  @media (max-height: 640px) {
+    padding-bottom: calc(0rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }
 
 .pt-safe {
@@ -1783,5 +1791,5 @@ p-togglebutton,
 }
 
 .p-menu .material-symbols-outlined {
-    font-size: 24px;
+  font-size: 24px;
 }
