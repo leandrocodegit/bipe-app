@@ -12,7 +12,9 @@ import { BrokerStatusComponent } from '@/shared/components/broker-status/broker-
 import { LayoutService } from '@/shared/services/layout.service';
 import { ButtonModule } from 'primeng/button';
 import { RotinaService } from '@/shared/services/rotina.service';
+import { BipeConfigService } from '@/shared/services/bipe-config.service';
 import { RotinaNaoAtendidaDetailComponent } from '@/components/rotinas/rotina-nao-atendida-detail/rotina-nao-atendida-detail.component';
+import { BipeExecucaoDetailComponent } from '@/components/rotinas/bipe-execucao-detail/bipe-execucao-detail.component';
 import { ProgressBarModule } from 'primeng/progressbar';
 
 @Component({
@@ -28,7 +30,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
     BrokerStatusComponent,
     ButtonModule,
     ProgressBarModule,
-    RotinaNaoAtendidaDetailComponent
+    RotinaNaoAtendidaDetailComponent,
+    BipeExecucaoDetailComponent
   ],
   templateUrl: './top-bar.component.html'
 })
@@ -42,18 +45,27 @@ export class TopBarComponent implements OnInit {
   protected mostrarAlertaDetalhe = false;
   protected alertaSelecionado: any = null;
 
+  protected bipeCount = 0;
+  protected bipeExecucoes: any[] = [];
+  protected mostrarBipeDetalhe = false;
+  protected bipeSelecionado: any = null;
+
   constructor(
     public readonly layoutService: LayoutService,
     private readonly oauthService: OAuthService,
     private readonly authService: AuthService,
-    private readonly rotinaService: RotinaService
+    private readonly rotinaService: RotinaService,
+    private readonly bipeConfigService: BipeConfigService
   ) {
     this.oauthService.events
       .pipe()
       .subscribe((e: any) => {
         if (e.type == 'token_received' || e.type == 'token_refreshed') {
           this.isLogin = oauthService.hasValidAccessToken() || authService.valid();
-          if (this.isLogin) this.buscarNaoAtendidas();
+          if (this.isLogin) {
+            this.buscarNaoAtendidas();
+            this.buscarBipeExecucoes();
+          }
         }
       });
   }
@@ -62,10 +74,14 @@ export class TopBarComponent implements OnInit {
     this.isLogin = this.oauthService.hasValidAccessToken() || this.authService.valid();
     if (this.isLogin) {
       this.buscarNaoAtendidas();
+      this.buscarBipeExecucoes();
       const interval = setInterval(() => {
-        if (this.unattendedCount == 0)
+        if (this.unattendedCount == 0 && this.bipeCount == 0) {
           this.buscarNaoAtendidas();
-        else clearInterval(interval)
+          this.buscarBipeExecucoes();
+        } else {
+          clearInterval(interval);
+        }
       }, 30000);
     }
   }
@@ -80,6 +96,16 @@ export class TopBarComponent implements OnInit {
     });
   }
 
+  buscarBipeExecucoes() {
+    this.bipeConfigService.getUltimas24hExecucoes().subscribe({
+      next: (res) => {
+        this.bipeExecucoes = res || [];
+        this.bipeCount = this.bipeExecucoes.length;
+      },
+      error: (err) => console.error('Erro ao buscar execuções de bipe:', err)
+    });
+  }
+
   marcarComoLida(id: string, event: Event) {
     event.stopPropagation();
     this.rotinaService.marcarNaoAtendidaComoLida(id).subscribe({
@@ -91,6 +117,11 @@ export class TopBarComponent implements OnInit {
   abrirAlerta(alerta: any) {
     this.alertaSelecionado = alerta;
     this.mostrarAlertaDetalhe = true;
+  }
+
+  abrirBipeExecucao(bipeExec: any) {
+    this.bipeSelecionado = bipeExec;
+    this.mostrarBipeDetalhe = true;
   }
 
   toggleDarkMode() {

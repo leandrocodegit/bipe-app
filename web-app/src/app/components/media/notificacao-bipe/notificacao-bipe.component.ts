@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { MqttConnectionService } from '@/core/auth/services/mqtt.service';
 import { ButtonModule } from 'primeng/button';
 import { AudioCallService, CallInfo } from '@/shared/services/audio-call.service';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { DeviceService } from '@/shared/services/device.service';
 import { AuthService } from '@/core/auth/services/auth.service';
 

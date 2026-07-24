@@ -34,4 +34,8 @@ export class BipeConfigService {
   public getBipeById(id: string): Observable<BipeConfig> {
     return this.http.get<BipeConfig>(`${environment.urlApi}/bipe/config-bipes/${id}`);
   }
+
+  public getUltimas24hExecucoes(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.urlApi}/bipe/config-bipes/execucoes/ultimas-24h`);
+  }
 }

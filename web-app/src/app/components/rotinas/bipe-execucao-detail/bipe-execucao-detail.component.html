@@ -1,0 +1,177 @@
+<p-dialog [(visible)]="visible" (visibleChange)="!$event && close()" [modal]="true" [draggable]="false"
+  [style]="{'border-radius': '0'}" [resizable]="false" [dismissableMask]="true" [showHeader]="false"
+  styleClass="region-dialog p-0 !m-0 !h-[100dvh] !max-h-[100dvh] !w-screen !max-w-none rounded-none sm:!m-4 sm:!h-auto sm:!max-h-[85vh] sm:!w-full sm:!max-w-lg"
+  [breakpoints]="{ '640px': '100vw' }">
+
+  <ng-container *ngTemplateOutlet="bipe" />
+
+</p-dialog>
+
+@if(container){
+<div>
+  <ng-container *ngTemplateOutlet="bipe" />
+</div>
+}
+
+<ng-template #bipe>
+  <div class="flex flex-col gap-4 p-4 select-none">
+
+    <!-- Top Drag Handle on Mobile -->
+    <div class="h-1 w-10 self-center bg-slate-200 dark:bg-neutral-800 sm:hidden"></div>
+
+    <!-- Cabeçalho de Alerta -->
+    <div class="flex items-center gap-3 pb-3 border-b border-slate-200/10">
+      <div
+        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+        <span class="material-symbols-outlined text-2xl">volume_up</span>
+      </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="text-base font-bold text-blue-500 dark:text-blue-400 m-0">Execução do Bipe</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 m-0">
+          Detalhes de execução e resposta do dispositivo nas últimas 24hs.
+        </p>
+      </div>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="flex flex-col gap-3.5 max-h-[97dvh] overflow-y-auto pr-1">
+
+      <!-- CARD 1: CONFIGURAÇÃO DO BIPE -->
+      <div
+        class="p-3 rounded-2xl border border-slate-100 bg-slate-50/50 dark:bg-[#060b0d] dark:border-white/5 flex flex-col gap-2">
+        <span
+          class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">settings_suggest</span>
+          Configuração do Bipe
+        </span>
+        <div class="min-w-0 flex-1">
+          <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate m-0">
+            {{ execution?.bipeNome }}
+          </h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-x-2 gap-y-1">
+            <span><strong>Dias:</strong> {{ bipeConfigDetails ? translateDays(bipeConfigDetails.diasSemana) : '—' }}</span>
+            <span>|</span>
+            <span><strong>Intervalo:</strong> {{ bipeConfigDetails ? bipeConfigDetails.intervaloMinutos + ' min' : '—' }}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- CARD 2: STATUS DE RESPOSTA -->
+      <div
+        class="p-3 rounded-2xl border flex flex-col gap-2.5"
+        [ngClass]="{
+          'border-emerald-500/30 bg-emerald-500/5': execution?.respondido,
+          'border-amber-500/30 bg-amber-500/5': !execution?.respondido
+        }">
+        <span
+          class="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"
+          [ngClass]="{
+            'text-emerald-500': execution?.respondido,
+            'text-amber-500': !execution?.respondido
+          }">
+          <span class="material-symbols-outlined text-xs">
+            {{ execution?.respondido ? 'check_circle' : 'pending' }}
+          </span>
+          Status da Resposta
+        </span>
+        <div class="flex flex-col gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+          <div class="flex items-center justify-between">
+            <span>Situação:</span>
+            <span class="font-bold uppercase" [ngClass]="{ 'text-emerald-500': execution?.respondido, 'text-amber-500': !execution?.respondido }">
+              {{ execution?.respondido ? 'Respondido' : 'Sem resposta' }}
+            </span>
+          </div>
+
+          <div *ngIf="execution?.respondido" class="flex items-center justify-between">
+            <span>Horário de Resposta:</span>
+            <span class="font-semibold">{{ execution.dataHoraResposta | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+          </div>
+
+          <div *ngIf="execution?.respondido && execution?.statusResposta" class="flex items-center justify-between border-t border-slate-200/10 pt-2 mt-1">
+            <span>Botão Utilizado:</span>
+            <span class="font-bold flex items-center gap-1">
+              <i [class]="getButtonLabel(execution.statusResposta).icon + ' text-emerald-500 text-xs'"></i>
+              {{ getButtonLabel(execution.statusResposta).text }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: STATUS DO DISPOSITIVO -->
+      <div
+        class="p-3 rounded-2xl border border-slate-100 bg-slate-50/50 dark:bg-[#060b0d] dark:border-white/5 flex flex-col gap-2.5">
+        <span
+          class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">phone_android</span>
+          Status do Dispositivo
+        </span>
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg"
+            [style.background]="deviceDetails?.color + '22'"
+            [style.border]="'2px solid ' + (deviceDetails?.color || '#94a3b8')">
+            <i [class]="deviceDetails?.icon ? 'pi pi-mobile' : 'pi pi-tablet'"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate m-0">
+                {{ execution?.deviceApelido }}
+              </h4>
+              <span class="h-2 w-2 shrink-0 rounded-full" [class.bg-emerald-500]="deviceDetails?.conectado"
+                [class.bg-slate-300]="!deviceDetails?.conectado"></span>
+            </div>
+            <p class="text-[11px] text-slate-400 dark:text-slate-500 m-0">
+              Sistema Operacional: {{ deviceDetails?.os || '—' }}
+            </p>
+          </div>
+          <!-- Bateria -->
+          <div *ngIf="latestLocation?.battery !== undefined"
+            class="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 border border-slate-200/50 dark:border-white/5 text-xs text-slate-600 dark:text-slate-300">
+            <span class="material-symbols-outlined text-xs">battery_charging_full</span>
+            <span class="font-bold">{{ latestLocation?.battery }}%</span>
+          </div>
+        </div>
+
+        <!-- Última localização recebida -->
+        <div class="text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200/10 pt-2 flex flex-col gap-1.5">
+          <span class="flex items-center justify-between text-[11px]">
+            <span class="flex items-center gap-1 text-slate-400">
+              <span class="material-symbols-outlined text-xs">location_on</span>
+              Última Posição:
+            </span>
+            <span *ngIf="latestLocation" class="font-mono text-slate-600 dark:text-slate-300">
+              {{ latestLocation.lat.toFixed(5) }}, {{ latestLocation.lon.toFixed(5) }}
+            </span>
+            <span *ngIf="!latestLocation" class="text-slate-400">Sem coordenadas</span>
+          </span>
+          <span *ngIf="latestLocation?.timestamp"
+            class="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 pl-4">
+            <span>Registrado em:</span>
+            <span>{{ latestLocation.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Ações e Tomada de Decisão -->
+    <div class="flex flex-col gap-2 pt-3 border-t border-slate-200/10 mt-1">
+
+      <div class="flex gap-2">
+        <!-- Rastrear no mapa -->
+        <button pButton type="button" label="Rastrear no Mapa" icon="pi pi-map"
+          class="p-button-outlined flex-1 !rounded-xl" (click)="verNoMapa()">
+        </button>
+        <!-- Bipar novamente -->
+        <button pButton type="button" label="Bipar Novamente" icon="pi pi-volume-up"
+          class="p-button-success flex-1 !rounded-xl" (click)="biparNovamente(false)">
+        </button>
+      </div>
+
+      <!-- Fechar Modal -->
+      <button *ngIf="!container" pButton type="button" label="Fechar Detalhes" icon="pi pi-times"
+        class="p-button-text !rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-white" (click)="close()">
+      </button>
+
+    </div>
+  </div>
+</ng-template>

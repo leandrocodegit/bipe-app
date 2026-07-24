@@ -30,6 +30,17 @@
       </button>
       }
 
+      @if (isLogin && bipeCount > 0) {
+      <button type="button" class="layout-topbar-action relative"
+        (click)="bipeNotifOp.toggle($event); buscarBipeExecucoes()">
+        <i class="pi pi-volume-up text-blue-600 animate-pulse"></i>
+        <span
+          class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[9px] font-bold text-white shadow-sm animate-pulse">
+          {{ bipeCount }}
+        </span>
+      </button>
+      }
+
       <app-configurator />
       <div class="relative hidden lg:block">
         <button class="layout-topbar-action" (click)="op.toggle($event)">
@@ -48,6 +59,10 @@
   <app-rotina-nao-atendida-detail [(visible)]="mostrarAlertaDetalhe" [alert]="alertaSelecionado"
     (onMarkedAsRead)="buscarNaoAtendidas()">
   </app-rotina-nao-atendida-detail>
+
+  <app-bipe-execucao-detail [(visible)]="mostrarBipeDetalhe" [execution]="bipeSelecionado">
+  </app-bipe-execucao-detail>
+
   <p-progressbar mode="indeterminate" [style]="{ height: '6px' }" />
 </div>
 
@@ -122,6 +137,54 @@
       <div class="flex flex-col items-center justify-center py-6 ">
         <i class="pi pi-bell-slash text-2xl mb-1 text-orange-600"></i>
         <p class="text-xs font-medium text-slate-400">Nenhum alerta pendente</p>
+      </div>
+      }
+    </div>
+  </div>
+</p-popover>
+
+<p-popover #bipeNotifOp styleClass="popover-clean">
+  <div class="py-3 px-3 w-80 max-h-96 flex flex-col overflow-hidden bg-white dark:bg-[#0c1518]">
+    <div class="flex items-center justify-between pb-2 border-b border-slate-200/10 mb-2">
+      <span class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-1.5">
+        <i class="pi pi-volume-up text-blue-500"></i>
+        Bipes das últimas 24h ({{ bipeCount }})
+      </span>
+    </div>
+    <div class="overflow-y-auto flex-1 flex flex-col gap-2 pr-1">
+      @if (bipeExecucoes.length) {
+      @for (item of bipeExecucoes; track item.id) {
+      <div
+        class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060b0d] border border-slate-100 dark:border-white/5 hover:border-blue-400/50 transition-colors cursor-pointer"
+        (click)="abrirBipeExecucao(item); bipeNotifOp.hide()">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5">
+            <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate m-0 flex-1">
+              {{ item.bipeNome || 'Bipe Avulso' }}
+            </p>
+            <span
+              class="inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-bold shrink-0"
+              [ngClass]="{
+                'bg-emerald-500/10 text-emerald-400': item.respondido,
+                'bg-amber-500/10 text-amber-400': !item.respondido
+              }">
+              {{ item.respondido ? 'Respondeu' : 'Pendente' }}
+            </span>
+          </div>
+          <p class="text-[10px] text-slate-500 dark:text-slate-400 m-0 truncate mt-1">
+            Dispositivo: {{ item.deviceApelido }}
+          </p>
+          <p class="text-[9px] text-slate-400 dark:text-slate-600 m-0">
+            Disparado: {{ item.dataHoraDisparo | date:'dd/MM/yyyy HH:mm:ss' }}
+          </p>
+        </div>
+        <i class="pi pi-chevron-right text-xs text-slate-400 shrink-0"></i>
+      </div>
+      }
+      } @else {
+      <div class="flex flex-col items-center justify-center py-6">
+        <i class="pi pi-volume-off text-2xl mb-1 text-blue-600"></i>
+        <p class="text-xs font-medium text-slate-400">Nenhum bipe recente</p>
       </div>
       }
     </div>
