@@ -88,6 +88,8 @@
 
           <app-share-device [device]="device" />
         </div> -->
+        <app-share-device [device]="device" />
+        <app-historico-rotinas />
         <div *ngIf="!shareMode" (click)="$event.stopPropagation()" class="flex shrink-0 items-center gap-2">
 
           <!-- Botão principal do menu -->
@@ -103,10 +105,8 @@
             <ng-template #item let-item>
 
               <!-- Se for componente customizado -->
-              @if (item.share) {
-              <app-share-device [device]="device" />
-              } @else if (item.historico) {
-              <app-historico-rotinas />
+              @if (item.share) { 
+              } @else if (item.historico) { 
               }
               <!-- Se for um item de ação padrão do menu -->
               @else {
